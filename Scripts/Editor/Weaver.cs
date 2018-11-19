@@ -109,7 +109,7 @@
         {
             executablePath = FindAbsoluteAssetPath("Fody.StandAlone");
             configurationPath = FindAbsoluteAssetPath("FodyWeavers");
-            weaversAssemblyPath = FindAbsoluteAssetPath("*.Fody");
+            weaversAssemblyPath = Path.GetDirectoryName(FindAbsoluteAssetPath("*.Fody"));
         }
 
         private static string FindAbsoluteAssetPath(string filter)
