@@ -1,4 +1,4 @@
-![image](https://user-images.githubusercontent.com/1029673/48704660-16fa1780-ebef-11e8-9301-dd97ba4b19d7.png)
+![image](https://user-images.githubusercontent.com/1029673/48707109-4d876080-ebf6-11e8-9476-4f084246771d.png)
 
 > ### Malimbe
 > Unity editor tool to simplify handling changes to components at runtime
