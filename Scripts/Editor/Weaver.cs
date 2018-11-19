@@ -1,4 +1,4 @@
-﻿namespace VRTK.Weaver
+﻿namespace Malimbe
 {
     using System.Diagnostics;
     using System.IO;
