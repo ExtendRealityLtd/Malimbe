@@ -22,13 +22,24 @@ Inspired by [Fody's naming] the name "Malimbe" comes from the [small birds] that
 ## Tools and Products Used
 
  * [Fody]
+ * [Fody.StandAlone]
+ * [Fielder]
+ * [PropertyChanged]
 
 ## License
 
 Code released under the [MIT License].
 
+Any third party licenses can be viewed in [THIRD_PARTY_NOTICES.md].
+
 [Fody's naming]: https://github.com/Fody/Fody#naming
 [small birds]: https://en.wikipedia.org/wiki/Malimbus
 [Ploceidae]: https://en.wikipedia.org/wiki/Ploceidae
+
 [Fody]: https://github.com/Fody/Fody
+[Fody.StandAlone]: https://github.com/AAATrafic/Fody.StandAlone
+[Fielder]: https://github.com/Fody/Fielder
+[PropertyChanged]: https://github.com/Fody/PropertyChanged
+
 [MIT License]: LICENSE.md
+[THIRD_PARTY_NOTICES.md]: THIRD_PARTY_NOTICES.md
