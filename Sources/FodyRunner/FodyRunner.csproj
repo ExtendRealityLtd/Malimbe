@@ -1,0 +1,33 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Malimbe.FodyRunner</AssemblyName>
+    <RootNamespace>Malimbe.FodyRunner</RootNamespace>
+    <DisableFody>true</DisableFody>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Fody" Version="3.3.2">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="FodyCommon">
+      <HintPath>$(FodyAssemblyDirectory)\FodyCommon.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="FodyIsolated">
+      <HintPath>$(FodyAssemblyDirectory)\FodyIsolated.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+    <Reference Include="Mono.Cecil">
+      <HintPath>$(FodyAssemblyDirectory)\Mono.Cecil.dll</HintPath>
+      <Private>true</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>
