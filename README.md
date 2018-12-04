@@ -9,6 +9,10 @@
 
 Malimbe is a collection of tools to simplify writing public API components in Unity.
 
+By taking the assemblies that are created by build tools and changing the assembly itself, repetetive boilerplate can be reduced, new functionality can be introduced and logic written as part of the source code can be altered. This process is called Intermediate Language (IL) weaving and Malimbe uses [Fody] to do it.
+
+Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and additionally offers running them inside Unity by integrating with Unity's compilation and build pipeline. Multiple weavers come with Malimbe to help with boilerplate one has to write when creating Unity components that are intended for public consumption. This includes a form of "serialized properties", getting rid of duplicated documentation through XML documentation and the `[Tooltip]` attribute as well as weavers that help with ensuring the API is able to be called from `UnityEvent`s.
+
 ## Getting Started
 
 * Download or clone this repository.
