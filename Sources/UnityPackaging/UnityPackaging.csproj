@@ -1,0 +1,55 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net47</TargetFrameworks>
+    <AssemblyName>Malimbe.UnityPackaging</AssemblyName>
+    <RootNamespace>Malimbe.UnityPackaging</RootNamespace>
+    <LangVersion>latest</LangVersion>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ClearPropertyMethod.Fody\ClearPropertyMethod.Fody.csproj" />
+    <ProjectReference Include="..\FieldToProperty.Fody\FieldToProperty.Fody.csproj" />
+    <ProjectReference Include="..\FieldToProperty\FieldToProperty.csproj" />
+    <ProjectReference Include="..\FodyRunner.UnityIntegration\FodyRunner.UnityIntegration.csproj" />
+    <ProjectReference Include="..\ValidatePropertiesMethod.Fody\ValidatePropertiesMethod.Fody.csproj" />
+    <ProjectReference Include="..\XmlDocumentationToFieldTooltip.Fody\XmlDocumentationToFieldTooltip.Fody.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="THIRD_PARTY_NOTICES.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
+  <!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-401497095 -->
+  <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="'$(Configuration)' == 'Debug' and $(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
+    <ItemGroup>
+      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).pdb')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).pdb')" />
+      <ReferenceCopyLocalPaths Include="@(ReferenceCopyLocalPaths->'%(RootDir)%(Directory)%(Filename).xml')" Condition="'%(ReferenceCopyLocalPaths.NuGetPackageId)' != '' and Exists('%(RootDir)%(Directory)%(Filename).xml')" />
+    </ItemGroup>
+  </Target>
+
+  <Target Name="DeleteUnusedAssemblyFiles" AfterTargets="PostBuildEvent">
+    <ItemGroup>
+      <FilesToDelete Include="$(TargetDir)$(TargetName)*" />
+      <FilesToDelete Include="$(TargetDir)*.pdb" Condition="'$(Configuration)' == 'Release'" />
+      <FilesToDelete Include="$(TargetDir)*.xml" Condition="'$(Configuration)' == 'Release'" />
+    </ItemGroup>
+
+    <Delete Files="@(FilesToDelete)" />
+  </Target>
+
+  <Target Name="MoveAssembliesIntoEditorFolder" AfterTargets="DeleteUnusedAssemblyFiles">
+    <ItemGroup>
+      <EditorFiles Include="$(TargetDir)*" Exclude="$(TargetDir)*.FieldToProperty.dll;$(TargetDir)*.FieldToProperty.pdb;$(TargetDir)*.md" />
+    </ItemGroup>
+
+    <Move SourceFiles="@(EditorFiles)" DestinationFolder="$(TargetDir)Editor" />
+  </Target>
+
+  <Target Name="DeleteEditorFolder" AfterTargets="Clean">
+    <RemoveDir Directories="$(TargetDir)Editor" />
+  </Target>
+
+</Project>

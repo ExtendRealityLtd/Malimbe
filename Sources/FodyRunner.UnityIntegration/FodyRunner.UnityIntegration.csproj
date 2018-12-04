@@ -1,0 +1,26 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
+    <LangVersion>latest</LangVersion>
+    <AssemblyName>Malimbe.FodyRunner.UnityIntegration</AssemblyName>
+    <RootNamespace>Malimbe.FodyRunner.UnityIntegration</RootNamespace>
+    <UnityEditorAssembliesPath Condition="'$(UnityEditorAssembliesPath)' == ''">C:\Program Files\Unity\Hub\Editor\2018.1.9f2\Editor\Data\Managed\</UnityEditorAssembliesPath>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\FodyRunner\FodyRunner.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="UnityEditor">
+      <HintPath>$(UnityEditorAssembliesPath)UnityEditor.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="UnityEngine">
+      <HintPath>$(UnityEditorAssembliesPath)UnityEngine.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+  </ItemGroup>
+
+</Project>

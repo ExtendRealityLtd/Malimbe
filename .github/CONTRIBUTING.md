@@ -32,8 +32,6 @@ follow so that we can have a chance of keeping on top things.
    * Name your branch with the type of issue you are fixing;
    `feat`, `chore`, `docs`.
    * Please avoid working directly on your master branch.
-  * Make sure you set the `Asset Serialization` mode in
-  `Unity->Edit->Project Settings->Editor` to `Force Text`.
   * Make commits of logical units.
   * Make sure your commit messages are in the proper format.
 
@@ -70,10 +68,6 @@ and use American spellings to denote classes, methods, fields, etc.
   public Color fontColor;
   ```
 
-The only deviation from the MSDN conventions are fields should start
-with lowercase -> `public Type myField` as this is inline with Unity's
-naming convention.
-
 Class methods and parameters should always denote their accessibility
 level using the `public` `protected` `private` keywords. Methods should
 also always be defined as virtual in concrete classes to allow
@@ -89,7 +83,7 @@ overriding.
   protected virtual void MyMethod()
   ```
 
-All core classes should be within the relevant `VRTK` namespace. Any
+All core classes should be within the relevant namespace. Any
 required `using` lines should be within the namespace block.
 
   > **Incorrect:**
@@ -176,11 +170,10 @@ inherited class to override and extend the methods.
 When defining arrays, it is appropriate to instantiate the array with
 the `System.Array.Empty<T>()` notation instead of doing `new Array[0]`.
 
-All events should be UnityEvents and not C# delegates as this will
-automatically provide inspector helpers for hooking up listeners. Any
-custom UnityEvent should be defined as a nested class and the final
-parameter should always be an `object` type so the sender of the event
-can be passed in the payload.
+In Unity scripts all events should be UnityEvents and not C#
+delegates as this will automatically provide inspector helpers for
+hooking up listeners. Any custom UnityEvent should be defined as a
+nested class.
 
 When the actual UnityEvent is defined in code it should also be
 instantiated so it is not null at runtime.
