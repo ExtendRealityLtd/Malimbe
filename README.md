@@ -1,9 +1,10 @@
-[![image](https://user-images.githubusercontent.com/1029673/48707109-4d876080-ebf6-11e8-9476-4f084246771d.png)](README.md)
+[![Malimbe logo][Malimbe-Image]](#)
 
 > ### Malimbe
 > A collection of tools to simplify writing public API components in Unity.
 
-[![Waffle](https://img.shields.io/badge/project-backlog-78bdf2.svg)][Waffle]
+[![License][License-Badge]][License]
+[![Waffle][Waffle-Badge]][Waffle]
 
 ## Introduction
 
@@ -13,17 +14,26 @@ By taking the assemblies that are created by build tools and changing the assemb
 
 Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and additionally offers running them inside Unity by integrating with Unity's compilation and build pipeline. Multiple weavers come with Malimbe to help with boilerplate one has to write when creating Unity components that are intended for public consumption. This includes a form of "serialized properties", getting rid of duplicated documentation through XML documentation and the `[Tooltip]` attribute as well as weavers that help with ensuring the API is able to be called from `UnityEvent`s.
 
+## Releases
+
+| Branch | Version                                           | Explanation                        |
+|--------|---------------------------------------------------|------------------------------------|
+| latest | [![Release][Version-Release] ][Releases]          | Stable, production-ready           |
+| next   | [![(Pre-)Release][Version-Prerelease] ][Releases] | Experimental, not production-ready |
+
+Releases follow the [Semantic Versioning (SemVer) system][SemVer].
+
 ## Getting Started
 
-* Download or clone this repository.
-* Build the solution in Visual Studio or via MSBuild (in `Release` configuration).
-* The `UnityPackaging` project's output folder contains all the files necessary in a Unity project. Copy the output into your project's `Assets` folder.
-* Anywhere in your Unity project [add a `FodyWeavers.xml` file][FodyWeavers].
-* Configure the various weavers Malimbe offers, e.g.:
-  ```xml
-  <?xml version="1.0" encoding="utf-8"?>
+1. Download a release from the [Releases] page.
+1. In your Unity (`>= 2018.1`) project's root folder, go to the `Packages` folder. Put the downloaded archive into this folder.
+1. Open the `manifest.json` file in the `Packages` folder and add the line `"Malimbe": "file:Malimbe"` to the `dependencies` object. (Make sure the previous line ends with a `,` to ensure the file remains valid JSON.)
+1. Anywhere in your Unity project [add a `FodyWeavers.xml` file][FodyWeavers].
+1. Configure the various weavers Malimbe offers, e.g.:
+    ```xml
+    <?xml version="1.0" encoding="utf-8"?>
 
-  <Weavers>
+    <Weavers>
       <Malimbe.FodyRunner>
         <LogLevel>Error</LogLevel>
       </Malimbe.FodyRunner>
@@ -37,9 +47,9 @@ Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and 
       <Malimbe.XmlDocumentationToFieldTooltip>
         <NamespaceFilter>^VRTK</NamespaceFilter>
       </Malimbe.XmlDocumentationToFieldTooltip>
-  </Weavers>
-  ```
-  As with any Fody weaver configuration the order of weavers is important in case a weaver should be applying to the previous weaver's changes.
+    </Weavers>
+    ```
+    As with any Fody weaver configuration the order of weavers is important in case a weaver should be applying to the previous weaver's changes.
 
 ## What's in the Box
 
@@ -104,7 +114,17 @@ Inspired by [Fody's naming] the name "Malimbe" comes from the [small birds][Mali
 
 Code released under the [MIT License][License].
 
+[Malimbe-Image]: https://user-images.githubusercontent.com/1029673/48707109-4d876080-ebf6-11e8-9476-4f084246771d.png
+[License-Badge]: https://img.shields.io/github/license/ExtendRealityLtd/Malimbe.svg
+[Waffle-Badge]: https://badge.waffle.io/ExtendRealityLtd/Malimbe.svg?columns=Bug%20Backlog,Feature%20Backlog,In%20Progress,In%20Review
+[Version-Release]: https://img.shields.io/github/release/ExtendRealityLtd/Malimbe.svg
+[Version-Prerelease]: https://img.shields.io/github/release-pre/ExtendRealityLtd/Malimbe.svg?label=pre-release&colorB=orange
+
 [Waffle]: https://waffle.io/ExtendRealityLtd/Malimbe
+[Releases]: /releases
+[CD]: https://dev.azure.com/ExtendReality/VRTK/_build/latest?definitionId=2
+[SemVer]: https://semver.org/
+[SemVer-Build]: https://semver.org/#spec-item-10
 [FodyWeavers]: https://github.com/Fody/Fody#add-fodyweaversxml
 [Regex]: https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions
 

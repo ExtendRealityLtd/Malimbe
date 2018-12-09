@@ -5,6 +5,7 @@
     <AssemblyName>Malimbe.UnityPackaging</AssemblyName>
     <RootNamespace>Malimbe.UnityPackaging</RootNamespace>
     <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -16,12 +17,6 @@
     <ProjectReference Include="..\XmlDocumentationToFieldTooltip.Fody\XmlDocumentationToFieldTooltip.Fody.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <None Update="THIRD_PARTY_NOTICES.md">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </None>
-  </ItemGroup>
-
   <!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-401497095 -->
   <Target Name="_ResolveCopyLocalNuGetPackagePdbsAndXml" Condition="'$(Configuration)' == 'Debug' and $(CopyLocalLockFileAssemblies) == true" AfterTargets="ResolveReferences">
     <ItemGroup>
@@ -30,7 +25,11 @@
     </ItemGroup>
   </Target>
 
-  <Target Name="DeleteUnusedAssemblyFiles" AfterTargets="PostBuildEvent">
+  <Target Name="CleanPackage" AfterTargets="PreBuildEvent">
+    <RemoveDir Directories="$(TargetDir)" />
+  </Target>
+
+  <Target Name="DeleteUnusedFiles" AfterTargets="PostBuildEvent">
     <ItemGroup>
       <FilesToDelete Include="$(TargetDir)$(TargetName)*" />
       <FilesToDelete Include="$(TargetDir)*.pdb" Condition="'$(Configuration)' == 'Release'" />
@@ -40,16 +39,26 @@
     <Delete Files="@(FilesToDelete)" />
   </Target>
 
-  <Target Name="MoveAssembliesIntoEditorFolder" AfterTargets="DeleteUnusedAssemblyFiles">
+  <Target Name="CreateUnityPackage" AfterTargets="DeleteUnusedFiles">
     <ItemGroup>
-      <EditorFiles Include="$(TargetDir)*" Exclude="$(TargetDir)*.FieldToProperty.dll;$(TargetDir)*.FieldToProperty.pdb;$(TargetDir)*.md" />
+      <RuntimeFiles Include="$(TargetDir)*.FieldToProperty.dll;$(TargetDir)*.FieldToProperty.pdb" />
     </ItemGroup>
+    <Move SourceFiles="@(RuntimeFiles)" DestinationFolder="$(TargetDir)Runtime" />
 
+    <ItemGroup>
+      <EditorFiles Include="$(TargetDir)*" />
+    </ItemGroup>
     <Move SourceFiles="@(EditorFiles)" DestinationFolder="$(TargetDir)Editor" />
-  </Target>
 
-  <Target Name="DeleteEditorFolder" AfterTargets="Clean">
-    <RemoveDir Directories="$(TargetDir)Editor" />
+    <ItemGroup>
+      <PackageFiles Include="$(ProjectDir)Package\**" />
+    </ItemGroup>
+    <Copy SourceFiles="@(PackageFiles)" DestinationFiles="@(PackageFiles->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" />
+
+    <ItemGroup>
+      <MarkdownFiles Include="$(SolutionDir)..\*.md" />
+    </ItemGroup>
+    <Copy SourceFiles="@(MarkdownFiles)" DestinationFolder="$(TargetDir)" />
   </Target>
 
 </Project>

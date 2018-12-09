@@ -1,0 +1,91 @@
+{
+    "name": "malimbe",
+    "displayName": "Malimbe",
+    "description": "A collection of tools to simplify writing public API components in Unity.",
+    "version": "0.0.0-development",
+    "unity": "2018.1",
+    "keywords": [
+        "editor",
+        "tool",
+        "weave",
+        "il"
+    ],
+    "category": "Editor Tool",
+
+    "homepage": "https://github.com/ExtendRealityLtd/Malimbe/",
+    "bugs": {
+        "url": "https://github.com/ExtendRealityLtd/Malimbe/issues"
+    },
+    "repository": "github:ExtendRealityLtd/Malimbe",
+    "license": "MIT",
+    "author": {
+        "name": "Extend Reality Ltd",
+        "email": "hello@extendreality.io",
+        "url": "https://github.com/ExtendRealityLtd"
+    },
+    "devDependencies": {
+        "semantic-release": "^16.0.0-beta.8",
+        "@semantic-release/commit-analyzer": "^7.0.0-beta.1",
+        "@semantic-release/release-notes-generator": "^7.1.4",
+        "@semantic-release/changelog": "^3.0.1",
+        "@semantic-release/exec": "^3.4.0-beta.1",
+        "@semantic-release/git": "^7.1.0-beta.1",
+        "@semantic-release/npm": "^5.2.0-beta.3",
+        "@semantic-release/github": "^5.3.0-beta.3"
+    },
+    "private": true,
+    "files": [
+        "*.md",
+        "Editor",
+        "Runtime"
+    ],
+    "scripts": {
+        "postversion": "PowerShell; Copy-Item -Path CHANGELOG.md -Destination ../../../ -Force; Copy-Item -Path package.json -Destination ../../Package/package.json -Force; Exit"
+    },
+    "release": {
+        "branches": [
+            "+([1-9])?(.{+([1-9]),x}).x",
+            "latest",
+            "master",
+            "next",
+            "next-major",
+            {"name": "prerelease", "prerelease": "prerelease"},
+            {"name": "beta", "prerelease": "beta"},
+            {"name": "alpha", "prerelease": "alpha"}
+        ],
+        "plugins": [
+            ["@semantic-release/commit-analyzer", {
+                "parserOpts": {
+                    "revertPattern": "/^(?:Revert|revert:)\\s\"?([\\s\\S]+?)\"?\\s*This reverts commit (\\w*)\\./"
+                },
+                "releaseRules": "./release-rules.js"
+            }],
+            ["@semantic-release/release-notes-generator", {
+                "parserOpts": {
+                    "revertPattern": "/^(?:Revert|revert:)\\s\"?([\\s\\S]+?)\"?\\s*This reverts commit (\\w*)\\./"
+                }
+            }],
+            ["@semantic-release/changelog", {
+                "changelogFile": "./CHANGELOG.md"
+            }],
+            ["@semantic-release/npm", {
+                "tarballDir": "./npm"
+            }],
+            ["@semantic-release/git", {
+                "message": "chore(release): set version to ${nextRelease.version}\n\n${nextRelease.notes}",
+                "assets": [
+                    "../../../CHANGELOG.md",
+                    "../../Package/package.json"
+                ]
+            }],
+            ["@semantic-release/github", {
+                "assets": [
+                    {"path": "./npm", "label": "Unity Package"}
+                ]
+            }],
+            ["@semantic-release/exec", {
+                "successCmd": "PowerShell; Write-Host '##vso[Release.UpdateReleaseName]${nextRelease.version}'; Exit"
+            }]
+        ]
+    }
+}
