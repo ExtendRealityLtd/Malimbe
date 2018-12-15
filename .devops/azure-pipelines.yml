@@ -1,0 +1,84 @@
+trigger:
+  batch: true
+
+pool:
+  vmImage: 'vs2017-win2016'
+
+variables:
+  - group: Build
+  - group: Bot as git and GitHub user
+  - name: solution
+    value: '**/*.sln'
+  - name: feedId
+    value: '6d99db17-610d-48e5-aec8-9772c69dc2c2'
+  - name: npmPackageDirectory
+    value: '$(System.DefaultWorkingDirectory)\Sources\UnityPackaging\bin\Release'
+
+steps:
+- powershell: |
+    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
+    Install-Module UnitySetup -Scope CurrentUser -Force
+  displayName: 'Install Unity Setup Powershell Module'
+  failOnStderr: true
+
+- powershell: |
+    $installedInstance = Get-UnitySetupInstance | Select-UnitySetupInstance -Latest
+
+    If ("$(Unity.Version)" -eq "")
+    {
+        If (!$installedInstance)
+        {
+            Write-Error "No Unity version specified and no Unity installation found."
+            Exit 1
+        }
+
+        $path = $installedInstance.Path
+    }
+    ElseIf ($installedInstance.Version.ToString() -ne "$(Unity.Version)")
+    {
+        Write-Host "Installing Unity version '$(Unity.Version)'."
+        Install-UnitySetupInstance -Installers (Find-UnitySetupInstaller -Version "$(Unity.Version)" -Components "Windows")
+        $path = (Get-UnitySetupInstance | Select-UnitySetupInstance -Version "$(Unity.Version)").Path
+    }
+
+    Write-Host "##vso[task.setvariable variable=Unity.Path]$path"
+    Write-Host "Using Unity at path '$path'."
+  displayName: 'Install/find Unity'
+  failOnStderr: true
+
+- task: NuGetToolInstaller@0
+  displayName: 'Use NuGet 4.x'
+  inputs:
+    versionSpec: '>=4.x'
+
+- task: NuGetCommand@2
+  displayName: 'NuGet restore'
+  inputs:
+    restoreSolution: '$(solution)'
+    vstsFeed: '$(feedId)'
+
+- task: VSBuild@1
+  displayName: 'Build solution'
+  inputs:
+    solution: '$(solution)'
+    platform: '$(MSBuild.Platform)'
+    configuration: '$(MSBuild.Configuration)'
+    maximumCpuCount: true
+    msbuildArchitecture: x64
+    msbuildArgs: '/p:UnityEditorAssembliesPath="$(Unity.Path)Editor\Data\Managed\\"'
+
+- task: Npm@1
+  displayName: 'Install npm package dev dependencies'
+  inputs:
+    command: custom
+    workingDir: '$(npmPackageDirectory)'
+    verbose: false
+    customCommand: 'install --only=dev'
+    customRegistry: useFeed
+    customFeed: '$(feedId)'
+
+- powershell: npx semantic-release
+  displayName: 'Run semantic-release'
+  workingDirectory: '$(npmPackageDirectory)'
+  env:
+    GITHUB_TOKEN: $(GITHUB_TOKEN)
