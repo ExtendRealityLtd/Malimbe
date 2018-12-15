@@ -2,7 +2,7 @@
     "name": "malimbe",
     "displayName": "Malimbe",
     "description": "A collection of tools to simplify writing public API components in Unity.",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "unity": "2018.1",
     "keywords": [
         "editor",
