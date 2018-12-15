@@ -2,7 +2,7 @@
     "name": "malimbe",
     "displayName": "Malimbe",
     "description": "A collection of tools to simplify writing public API components in Unity.",
-    "version": "0.0.0-development",
+    "version": "1.0.0",
     "unity": "2018.1",
     "keywords": [
         "editor",
@@ -11,7 +11,6 @@
         "il"
     ],
     "category": "Editor Tool",
-
     "homepage": "https://github.com/ExtendRealityLtd/Malimbe/",
     "bugs": {
         "url": "https://github.com/ExtendRealityLtd/Malimbe/issues"
@@ -48,40 +47,70 @@
             "master",
             "next",
             "next-major",
-            {"name": "prerelease", "prerelease": "prerelease"},
-            {"name": "beta", "prerelease": "beta"},
-            {"name": "alpha", "prerelease": "alpha"}
+            {
+                "name": "prerelease",
+                "prerelease": "prerelease"
+            },
+            {
+                "name": "beta",
+                "prerelease": "beta"
+            },
+            {
+                "name": "alpha",
+                "prerelease": "alpha"
+            }
         ],
         "plugins": [
-            ["@semantic-release/commit-analyzer", {
-                "parserOpts": {
-                    "revertPattern": "/^(?:Revert|revert:)\\s\"?([\\s\\S]+?)\"?\\s*This reverts commit (\\w*)\\./"
-                },
-                "releaseRules": "./release-rules.js"
-            }],
-            ["@semantic-release/release-notes-generator", {
-                "parserOpts": {
-                    "revertPattern": "/^(?:Revert|revert:)\\s\"?([\\s\\S]+?)\"?\\s*This reverts commit (\\w*)\\./"
+            [
+                "@semantic-release/commit-analyzer",
+                {
+                    "parserOpts": {
+                        "revertPattern": "/^(?:Revert|revert:)\\s\"?([\\s\\S]+?)\"?\\s*This reverts commit (\\w*)\\./"
+                    },
+                    "releaseRules": "./release-rules.js"
                 }
-            }],
-            ["@semantic-release/changelog", {
-                "changelogFile": "./CHANGELOG.md"
-            }],
-            ["@semantic-release/npm", {
-                "tarballDir": "./npm"
-            }],
-            ["@semantic-release/git", {
-                "message": "chore(release): set version to ${nextRelease.version}\n\n${nextRelease.notes}",
-                "assets": [
-                    "../../../CHANGELOG.md",
-                    "../../Package/package.json"
-                ]
-            }],
-            ["@semantic-release/github", {
-                "assets": [
-                    {"path": "./npm", "label": "Unity Package"}
-                ]
-            }]
+            ],
+            [
+                "@semantic-release/release-notes-generator",
+                {
+                    "parserOpts": {
+                        "revertPattern": "/^(?:Revert|revert:)\\s\"?([\\s\\S]+?)\"?\\s*This reverts commit (\\w*)\\./"
+                    }
+                }
+            ],
+            [
+                "@semantic-release/changelog",
+                {
+                    "changelogFile": "./CHANGELOG.md"
+                }
+            ],
+            [
+                "@semantic-release/npm",
+                {
+                    "tarballDir": "./npm"
+                }
+            ],
+            [
+                "@semantic-release/git",
+                {
+                    "message": "chore(release): set version to ${nextRelease.version}\n\n${nextRelease.notes}",
+                    "assets": [
+                        "../../../CHANGELOG.md",
+                        "../../Package/package.json"
+                    ]
+                }
+            ],
+            [
+                "@semantic-release/github",
+                {
+                    "assets": [
+                        {
+                            "path": "./npm",
+                            "label": "Unity Package"
+                        }
+                    ]
+                }
+            ]
         ]
     }
 }
