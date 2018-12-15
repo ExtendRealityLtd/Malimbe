@@ -27,7 +27,6 @@
         "@semantic-release/commit-analyzer": "^7.0.0-beta.1",
         "@semantic-release/release-notes-generator": "^7.1.4",
         "@semantic-release/changelog": "^3.0.1",
-        "@semantic-release/exec": "^3.4.0-beta.1",
         "@semantic-release/git": "^7.1.0-beta.1",
         "@semantic-release/npm": "^5.2.0-beta.3",
         "@semantic-release/github": "^5.3.0-beta.3"
@@ -110,12 +109,6 @@
                             "label": "Unity Package"
                         }
                     ]
-                }
-            ],
-            [
-                "@semantic-release/exec",
-                {
-                    "successCmd": "PowerShell; Write-Host '##vso[Release.UpdateReleaseName]${nextRelease.version}'; Exit"
                 }
             ]
         ]
