@@ -3,11 +3,10 @@ pool:
 
 variables:
   - group: Build
+  - group: Publish
   - group: Bot as git and GitHub user
   - name: solution
     value: '**/*.sln'
-  - name: feedId
-    value: '6d99db17-610d-48e5-aec8-9772c69dc2c2'
   - name: npmPackageDirectory
     value: '$(System.DefaultWorkingDirectory)\Sources\UnityPackaging\bin\Release'
 
@@ -52,7 +51,7 @@ steps:
   displayName: 'NuGet restore'
   inputs:
     restoreSolution: '$(solution)'
-    vstsFeed: '$(feedId)'
+    vstsFeed: '$(Azure.FeedId)'
 
 - task: VSBuild@1
   displayName: 'Build solution'
@@ -73,7 +72,7 @@ steps:
     verbose: false
     customCommand: 'install --only=dev'
     customRegistry: useFeed
-    customFeed: '$(feedId)'
+    customFeed: '$(Azure.FeedId)'
 
 - powershell: npx semantic-release
   displayName: 'Run semantic-release'
