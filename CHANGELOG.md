@@ -1,5 +1,13 @@
 # Changelog
 
+## [1.0.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.1...v1.0.2) (2018-12-15)
+
+
+### Bug Fixes
+
+* **Changelog:** changelog file location ([ef1bcee](https://github.com/ExtendRealityLtd/Malimbe/commit/ef1bcee))
+* **License:** move third party notices into project root ([2094c45](https://github.com/ExtendRealityLtd/Malimbe/commit/2094c45))
+
 ## [1.0.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.0...v1.0.1) (2018-12-15)
 
 
