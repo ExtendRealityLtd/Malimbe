@@ -66,6 +66,7 @@ steps:
 
 - task: Npm@1
   displayName: 'Install npm package dev dependencies'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   inputs:
     command: custom
     workingDir: '$(npmPackageDirectory)'
@@ -76,6 +77,7 @@ steps:
 
 - powershell: npx semantic-release
   displayName: 'Run semantic-release'
+  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
   workingDirectory: '$(npmPackageDirectory)'
   env:
     GITHUB_TOKEN: $(GITHUB_TOKEN)
