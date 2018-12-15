@@ -1,22 +1,38 @@
 ﻿namespace Malimbe.FodyRunner.UnityIntegration
 {
+    using System.Collections.Generic;
     using System.IO;
+    using System.Linq;
+    using System.Threading;
     using UnityEditor;
+    using UnityEditor.PackageManager;
+    using UnityEditor.PackageManager.Requests;
     using UnityEngine;
 
     [InitializeOnLoad]
     internal static class WeaverPathsHelper
     {
-        public static readonly string[] SearchPaths;
+        public static readonly List<string> SearchPaths;
         private static readonly string _projectPath;
 
         static WeaverPathsHelper()
         {
             _projectPath = Directory.GetParent(Application.dataPath).FullName;
-            SearchPaths = new[]
+
+            ListRequest listRequest = Client.List(true);
+            while (listRequest.Status == StatusCode.InProgress)
             {
-                _projectPath
-            };
+                Thread.Sleep(100);
+            }
+
+            SearchPaths = listRequest.Result.Select(info => info.resolvedPath)
+                .ToList()
+                .Concat(
+                    new[]
+                    {
+                        _projectPath
+                    })
+                .ToList();
         }
 
         public static string AddProjectPathRootIfNeeded(string path) =>
