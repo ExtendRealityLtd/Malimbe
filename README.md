@@ -25,10 +25,11 @@ Releases follow the [Semantic Versioning (SemVer) system][SemVer].
 
 ## Getting Started
 
-1. Download a release from the [Releases] page.
-1. In your Unity (`>= 2018.1`) project's root folder, go to the `Packages` folder. Put the downloaded archive into this folder.
-1. Open the `manifest.json` file in the `Packages` folder and add the line `"Malimbe": "file:Malimbe"` to the `dependencies` object. (Make sure the previous line ends with a `,` to ensure the file remains valid JSON.)
-1. Anywhere in your Unity project [add a `FodyWeavers.xml` file][FodyWeavers].
+Please follow these steps to install the package using a local location until Unity's Package Manager (UPM) allows third parties to publish packages to the UPM feed:
+
+1. Download a release from the [Releases] page and extract it into your folder you use to keep your packages. It is recommended to make that folder part of your project and therefore [version controlled][VCS].
+1. Open your Unity (`>= 2018.3`) project and follow [Unity's instructions][UPM-Instructions] on how to add the package to your project using UPM.
+1. Anywhere in your Unity project add a [`FodyWeavers.xml` file][FodyWeavers].
 1. Configure the various weavers Malimbe offers, e.g.:
     ```xml
     <?xml version="1.0" encoding="utf-8"?>
@@ -50,6 +51,8 @@ Releases follow the [Semantic Versioning (SemVer) system][SemVer].
     </Weavers>
     ```
     As with any Fody weaver configuration the order of weavers is important in case a weaver should be applying to the previous weaver's changes.
+
+Additional weavers are supported. To allow Malimbe's Unity integration to find the weavers' assemblies they have to be included anywhere in the Unity project or in one of the UPM packages the project uses.
 
 ## What's in the Box
 
@@ -124,6 +127,8 @@ Code released under the [MIT License][License].
 [Releases]: /releases
 [CD]: https://dev.azure.com/ExtendReality/VRTK/_build/latest?definitionId=2
 [SemVer]: https://semver.org/
+[VCS]: https://en.wikipedia.org/wiki/Version_control
+[UPM-Instructions]: https://docs.unity3d.com/Packages/com.unity.package-manager-ui@2.1/manual/index.html#extpkg
 [SemVer-Build]: https://semver.org/#spec-item-10
 [FodyWeavers]: https://github.com/Fody/Fody#add-fodyweaversxml
 [Regex]: https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions
