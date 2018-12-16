@@ -115,7 +115,9 @@ Inspired by [Fody's naming] the name "Malimbe" comes from the [small birds][Mali
 
 ## License
 
-Code released under the [MIT License][License].
+Malimbe is released under the [MIT License][License].
+
+Third-party notices can be found in [THIRD_PARTY_NOTICES.md][ThirdPartyNotices]
 
 [Malimbe-Image]: https://user-images.githubusercontent.com/1029673/48707109-4d876080-ebf6-11e8-9476-4f084246771d.png
 [License-Badge]: https://img.shields.io/github/license/ExtendRealityLtd/Malimbe.svg
@@ -141,3 +143,4 @@ Code released under the [MIT License][License].
 [Support]: /.github/SUPPORT.md
 [Contributing]: /.github/CONTRIBUTING.md
 [License]: LICENSE.md
+[ThirdPartyNotices]: THIRD_PARTY_NOTICES.md
