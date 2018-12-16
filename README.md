@@ -124,7 +124,7 @@ Code released under the [MIT License][License].
 [Version-Prerelease]: https://img.shields.io/github/release-pre/ExtendRealityLtd/Malimbe.svg?label=pre-release&colorB=orange
 
 [Waffle]: https://waffle.io/ExtendRealityLtd/Malimbe
-[Releases]: /releases
+[Releases]: ../../releases
 [CD]: https://dev.azure.com/ExtendReality/VRTK/_build/latest?definitionId=2
 [SemVer]: https://semver.org/
 [VCS]: https://en.wikipedia.org/wiki/Version_control
