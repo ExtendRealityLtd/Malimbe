@@ -1,82 +1,15 @@
-pool:
-  vmImage: 'vs2017-win2016'
+resources:
+  repositories:
+    - repository: templates
+      type: github
+      name: ExtendRealityLtd/DevOps
+      ref: refs/tags/v2.0.1
+      endpoint: ExtendRealityLtd
 
 variables:
   - group: Build
   - group: Publish
   - group: Bot as git and GitHub user
-  - name: solution
-    value: '**/*.sln'
-  - name: npmPackageDirectory
-    value: '$(System.DefaultWorkingDirectory)\Sources\UnityPackaging\bin\Release'
 
-steps:
-- powershell: |
-    Set-PSRepository -Name PSGallery -InstallationPolicy Trusted
-    Install-Module UnitySetup -Scope CurrentUser -Force
-  displayName: 'Install Unity Setup Powershell Module'
-  failOnStderr: true
-
-- powershell: |
-    $installedInstance = Get-UnitySetupInstance | Select-UnitySetupInstance -Latest
-
-    If ("$(Unity.Version)" -eq "")
-    {
-        If (!$installedInstance)
-        {
-            Write-Error "No Unity version specified and no Unity installation found."
-            Exit 1
-        }
-
-        $path = $installedInstance.Path
-    }
-    ElseIf ($installedInstance.Version.ToString() -ne "$(Unity.Version)")
-    {
-        Write-Host "Installing Unity version '$(Unity.Version)'."
-        Install-UnitySetupInstance -Installers (Find-UnitySetupInstaller -Version "$(Unity.Version)" -Components "Windows")
-        $path = (Get-UnitySetupInstance | Select-UnitySetupInstance -Version "$(Unity.Version)").Path
-    }
-
-    Write-Host "##vso[task.setvariable variable=Unity.Path]$path"
-    Write-Host "Using Unity at path '$path'."
-  displayName: 'Install/find Unity'
-  failOnStderr: true
-
-- task: NuGetToolInstaller@0
-  displayName: 'Use NuGet 4.x'
-  inputs:
-    versionSpec: '>=4.x'
-
-- task: NuGetCommand@2
-  displayName: 'NuGet restore'
-  inputs:
-    restoreSolution: '$(solution)'
-    vstsFeed: '$(Azure.FeedId)'
-
-- task: VSBuild@1
-  displayName: 'Build solution'
-  inputs:
-    solution: '$(solution)'
-    platform: '$(MSBuild.Platform)'
-    configuration: '$(MSBuild.Configuration)'
-    maximumCpuCount: true
-    msbuildArchitecture: x64
-    msbuildArgs: '/p:UnityEditorAssembliesPath="$(Unity.Path)Editor\Data\Managed\\"'
-
-- task: Npm@1
-  displayName: 'Install npm package dev dependencies'
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-  inputs:
-    command: custom
-    workingDir: '$(npmPackageDirectory)'
-    verbose: false
-    customCommand: 'install --only=dev'
-    customRegistry: useFeed
-    customFeed: '$(Azure.FeedId)'
-
-- powershell: npx semantic-release
-  displayName: 'Run semantic-release'
-  condition: and(succeeded(), ne(variables['Build.Reason'], 'PullRequest'))
-  workingDirectory: '$(npmPackageDirectory)'
-  env:
-    GITHUB_TOKEN: $(GITHUB_TOKEN)
+jobs:
+- template: templates/jobs/ci+cd.yml@templates

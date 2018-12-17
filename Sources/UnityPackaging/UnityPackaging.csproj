@@ -54,11 +54,6 @@
       <PackageFiles Include="$(ProjectDir)Package\**" />
     </ItemGroup>
     <Copy SourceFiles="@(PackageFiles)" DestinationFiles="@(PackageFiles->'$(TargetDir)%(RecursiveDir)%(Filename)%(Extension)')" />
-
-    <ItemGroup>
-      <MarkdownFiles Include="$(SolutionDir)..\*.md" />
-    </ItemGroup>
-    <Copy SourceFiles="@(MarkdownFiles)" DestinationFolder="$(TargetDir)" />
   </Target>
 
 </Project>
