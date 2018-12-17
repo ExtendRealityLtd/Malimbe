@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.5](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.4...v1.0.5) (2018-12-17)
+
+
+### Bug Fixes
+
+* **packaging:** remove unused directory hint ([4f5a912](https://github.com/ExtendRealityLtd/Malimbe/commit/4f5a912))
+
 ## [1.0.4](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.3...v1.0.4) (2018-12-17)
 
 
