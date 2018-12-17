@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.4](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.3...v1.0.4) (2018-12-17)
+
+
+### Bug Fixes
+
+* **packaging:** include sources without nesting the folders ([c2de9d8](https://github.com/ExtendRealityLtd/Malimbe/commit/c2de9d8))
+
 ## [1.0.3](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.2...v1.0.3) (2018-12-17)
 
 
