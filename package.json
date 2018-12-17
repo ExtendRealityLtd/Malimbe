@@ -24,6 +24,14 @@
     },
     "files": [
         "*.md",
-        "Sources/UnityPackaging/bin/Release"
-    ]
+        "Editor",
+        "Runtime"
+    ],
+    "scripts": {
+        "prepack": "cp -rf Sources/UnityPackaging/bin/Release/* .",
+        "postpack": "rm -rf Editor Runtime"
+    },
+    "directories": {
+        "lib": "Sources/UnityPackaging/bin/Release"
+    }
 }
