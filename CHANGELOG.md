@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.6](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.5...v1.0.6) (2018-12-23)
+
+
+### Bug Fixes
+
+* **UnityIntegration:** Unity .meta files for releases ([aa3b48a](https://github.com/ExtendRealityLtd/Malimbe/commit/aa3b48a))
+
 ## [1.0.5](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.4...v1.0.5) (2018-12-17)
 
 
