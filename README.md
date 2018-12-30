@@ -86,7 +86,7 @@ Malimbe is a _collection_ of tools. Each project represents a solution to a spec
       </Malimbe.ValidatePropertiesMethod>
     ```
   * In case the method already exists the additional instructions will be weaved into the _end_ of the method. The method name lookup is case insensitive.
-  * If necessary the method and will be adjusted to override a base type's method of the same name, Accessibility levels are also adjusted as needed.
+  * If necessary the method and the base type's method will be adjusted to override the method of the same name. Accessibility levels are also adjusted as needed.
 * `XmlDocumentationToFieldTooltip.Fody`: A generic weaver (though made for Unity). Looks up the XML `<summary>` documentation for any field that is public or uses `[SerializeField]` and ensures `[Tooltip]` is used on that field with that summary.
   * The weaver only runs on types that match a namespace. Specify the namespaces to act on via (multiple) XML _elements_ called `NamespaceFilter`. The elements' values are used as ([.NET Standard's][Regex]) regular expressions.
   * Instead of `TooltipAttribute` the attribute can be customized with the XML _attribute_ `FullAttributeName`, e.g.:
@@ -95,7 +95,7 @@ Malimbe is a _collection_ of tools. Each project represents a solution to a spec
         <NamespaceFilter>^VRTK</NamespaceFilter>
       </Malimbe.XmlDocumentationToFieldTooltip>
     ```
-    The attribute needs to have a constructor takes a `string` parameter and nothing else. Note that the attribute name has to be the full type name, i.e. prefixed by the namespace.
+    The attribute needs to have a constructor that takes a `string` parameter and nothing else. Note that the attribute name has to be the full type name, i.e. prefixed by the namespace.
   * In case the attribute already exists on the field it will be replaced.
 * `UnityPackaging`: Outputs a ready-to-use folder with the appropriate hierarchy to copy into a Unity project's Asset folder. The output includes both the Unity integration libraries as well as all weavers listed above.
 
