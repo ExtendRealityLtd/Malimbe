@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.1.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.6...v1.1.0) (2019-01-05)
+
+
+### Features
+
+* **release:** zip for GitHub release ([bc75269](https://github.com/ExtendRealityLtd/Malimbe/commit/bc75269))
+
 ## [1.0.6](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.0.5...v1.0.6) (2018-12-23)
 
 
