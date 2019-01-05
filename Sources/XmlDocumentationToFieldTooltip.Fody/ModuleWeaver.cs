@@ -41,7 +41,7 @@
                     continue;
                 }
 
-                Dictionary<string, string> summariesByIdentifierName = ParseSourceFileXmlDocumentation(typeDefinition);
+                IReadOnlyDictionary<string, string> summariesByIdentifierName = ParseSourceFileXmlDocumentation(typeDefinition);
                 if (summariesByIdentifierName.Count == 0)
                 {
                     continue;
@@ -100,7 +100,7 @@
                     || definition.CustomAttributes.Any(
                         attribute => attribute.AttributeType.FullName == "UnityEngine.SerializeField"));
 
-        private Dictionary<string, string> ParseSourceFileXmlDocumentation(TypeDefinition typeDefinition)
+        private IReadOnlyDictionary<string, string> ParseSourceFileXmlDocumentation(TypeDefinition typeDefinition)
         {
             SequencePoint sequencePoint = typeDefinition.Methods.Select(definition => definition.DebugInformation)
                 .SelectMany(information => information.SequencePoints)
