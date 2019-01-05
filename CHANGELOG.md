@@ -1,5 +1,17 @@
 # Changelog
 
+# [1.2.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.1.1...v1.2.0) (2019-01-05)
+
+
+### Bug Fixes
+
+* **UnityIntegration:** Unity doesn't pick up changes ([3205065](https://github.com/ExtendRealityLtd/Malimbe/commit/3205065))
+
+
+### Features
+
+* **Runner:** return whether the assembly was processed ([7222b22](https://github.com/ExtendRealityLtd/Malimbe/commit/7222b22))
+
 ## [1.1.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.1.0...v1.1.1) (2019-01-05)
 
 
