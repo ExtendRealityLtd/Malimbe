@@ -133,7 +133,7 @@
 
                 string body = match.Groups["summary"].Value.Trim(' ', '/', '\r', '\n');
                 string summary = _xmlTagBodyCleanUpRegex.Replace(body, "${reference}");
-                summariesByIdentifierName.Add(identifierName, summary);
+                summariesByIdentifierName[identifierName] = summary;
             }
 
             return summariesByIdentifierName;
