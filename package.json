@@ -29,7 +29,6 @@
         "Runtime"
     ],
     "scripts": {
-        "prepack": "cp -rf Sources/UnityPackaging/bin/Release/* .",
-        "postpack": "rm -rf Editor Runtime"
+        "prepack": "cp -rf Sources/UnityPackaging/bin/Release/* ."
     }
 }
