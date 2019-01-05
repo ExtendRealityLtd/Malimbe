@@ -22,7 +22,7 @@
         public Runner(ILogger logger) =>
             _logForwarder = new LogForwarder(logger);
 
-        public Task RunAsync(
+        public Task<bool> RunAsync(
             IEnumerable<string> configurationSearchPaths,
             string assemblyFilePath,
             IEnumerable<string> references,
@@ -52,7 +52,7 @@
                     {
                         _logForwarder.LogInfo(
                             $"Not processing assembly '{assemblyFilePath}' because it has already been processed.");
-                        return;
+                        return false;
                     }
 
                     try
@@ -63,6 +63,8 @@
                     {
                         innerWeaver.Dispose();
                     }
+
+                    return true;
                 },
                 cancellationToken);
 
