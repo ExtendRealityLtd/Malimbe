@@ -1,5 +1,12 @@
 # Changelog
 
+# [1.3.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.2.0...v1.3.0) (2019-01-05)
+
+
+### Features
+
+* **UnityIntegration:** rename assembly definition files ([3b24740](https://github.com/ExtendRealityLtd/Malimbe/commit/3b24740))
+
 # [1.2.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.1.1...v1.2.0) (2019-01-05)
 
 
