@@ -3,7 +3,6 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Threading;
     using UnityEditor;
     using UnityEditor.Build;
     using UnityEditor.Build.Reporting;
@@ -64,8 +63,7 @@
                                 }),
                             scriptingDefineSymbols,
                             WeaverPathsHelper.SearchPaths,
-                            isDebugBuild,
-                            CancellationToken.None)
+                            isDebugBuild)
                         .GetAwaiter()
                         .GetResult();
                 }
