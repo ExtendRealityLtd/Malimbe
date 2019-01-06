@@ -33,6 +33,13 @@
             Task.Run(
                 () =>
                 {
+                    if (IsAssemblyProcessed(assemblyFilePath))
+                    {
+                        _logForwarder.LogInfo(
+                            $"Not processing assembly '{assemblyFilePath}' because it has already been processed.");
+                        return false;
+                    }
+
                     IEnumerable<string> configurationFilePaths = configurationSearchPaths.SelectMany(
                         path => Directory.GetFiles(path, "FodyWeavers.xml", SearchOption.AllDirectories));
                     List<WeaverEntry> weaverEntries = CreateWeaverEntries(configurationFilePaths, weaverSearchPaths);
@@ -47,13 +54,6 @@
                         DebugSymbols = isDebugBuild ? DebugSymbolsType.External : DebugSymbolsType.None
                     };
                     cancellationToken.Register(() => innerWeaver.Cancel());
-
-                    if (IsAssemblyProcessed(assemblyFilePath))
-                    {
-                        _logForwarder.LogInfo(
-                            $"Not processing assembly '{assemblyFilePath}' because it has already been processed.");
-                        return false;
-                    }
 
                     try
                     {
