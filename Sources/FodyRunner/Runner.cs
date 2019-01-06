@@ -53,7 +53,9 @@
                         Weavers = weaverEntries,
                         DebugSymbols = isDebugBuild ? DebugSymbolsType.External : DebugSymbolsType.None
                     };
-                    cancellationToken.Register(() => innerWeaver.Cancel());
+                    CancellationTokenRegistration cancellationTokenRegistration =
+                        // ReSharper disable once AccessToDisposedClosure
+                        cancellationToken.Register(() => innerWeaver.Cancel());
 
                     try
                     {
@@ -61,6 +63,7 @@
                     }
                     finally
                     {
+                        cancellationTokenRegistration.Dispose();
                         innerWeaver.Dispose();
                     }
 
