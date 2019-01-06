@@ -26,7 +26,6 @@
             }
 
             SearchPaths = listRequest.Result.Select(info => info.resolvedPath)
-                .ToList()
                 .Concat(
                     new[]
                     {
