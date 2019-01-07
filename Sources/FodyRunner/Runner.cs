@@ -33,6 +33,13 @@
             Task.Run(
                 () =>
                 {
+                    if (!File.Exists(assemblyFilePath))
+                    {
+                        _logForwarder.LogInfo(
+                            $"Not processing assembly '{assemblyFilePath}' because the file doesn't exist.");
+                        return false;
+                    }
+
                     if (IsAssemblyProcessed(assemblyFilePath))
                     {
                         _logForwarder.LogInfo(
