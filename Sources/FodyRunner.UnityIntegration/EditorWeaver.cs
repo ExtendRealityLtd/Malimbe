@@ -12,30 +12,46 @@
         private static readonly Runner _runner = new Runner(new Logger());
 
         [InitializeOnLoadMethod]
-        private static void OnEditorInitialization() =>
-            CompilationPipeline.assemblyCompilationFinished += (path, messages) => WeaveAssembly(path);
-
-        private static void WeaveAssembly(string assemblyFilePath)
+        private static void OnEditorInitialization()
         {
-            Assembly foundAssembly = CompilationPipeline.GetAssemblies(AssembliesType.Player)
-                .Concat(CompilationPipeline.GetAssemblies(AssembliesType.Editor))
-                .FirstOrDefault(
-                    assembly => string.Equals(assembly.outputPath, assemblyFilePath, StringComparison.Ordinal));
-            if (foundAssembly == null)
-            {
-                return;
-            }
+            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
+            WeaveAllAssemblies();
+        }
 
+        private static void WeaveAllAssemblies()
+        {
+            foreach (Assembly assembly in GetAllAssemblies())
+            {
+                WeaveAssembly(assembly);
+            }
+        }
+
+        private static void OnCompilationFinished(string path, CompilerMessage[] messages)
+        {
+            Assembly foundAssembly = GetAllAssemblies()
+                .FirstOrDefault(assembly => string.Equals(assembly.outputPath, path, StringComparison.Ordinal));
+            if (foundAssembly != null)
+            {
+                WeaveAssembly(foundAssembly);
+            }
+        }
+
+        private static IEnumerable<Assembly> GetAllAssemblies() =>
+            CompilationPipeline.GetAssemblies(AssembliesType.Player)
+                .Concat(CompilationPipeline.GetAssemblies(AssembliesType.Editor));
+
+        private static void WeaveAssembly(Assembly assembly)
+        {
             try
             {
-                string assemblyPath = WeaverPathsHelper.AddProjectPathRootIfNeeded(foundAssembly.outputPath);
+                string assemblyPath = WeaverPathsHelper.AddProjectPathRootIfNeeded(assembly.outputPath);
                 IEnumerable<string> references =
-                    foundAssembly.allReferences.Select(WeaverPathsHelper.AddProjectPathRootIfNeeded);
+                    assembly.allReferences.Select(WeaverPathsHelper.AddProjectPathRootIfNeeded);
                 _runner.RunAsync(
                         WeaverPathsHelper.SearchPaths,
                         assemblyPath,
                         references,
-                        foundAssembly.defines.ToList(),
+                        assembly.defines.ToList(),
                         WeaverPathsHelper.SearchPaths,
                         true)
                     .GetAwaiter()
