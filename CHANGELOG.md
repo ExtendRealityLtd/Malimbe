@@ -1,5 +1,34 @@
 # Changelog
 
+# [2.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.3.1...v2.0.0) (2019-01-07)
+
+
+### Bug Fixes
+
+* **Runner:** don't leak for already processed assemblies ([159e88a](https://github.com/ExtendRealityLtd/Malimbe/commit/159e88a))
+* **Runner:** gracefully fail for unfound assemblies ([f0b60f9](https://github.com/ExtendRealityLtd/Malimbe/commit/f0b60f9))
+* **Runner:** prevent access to disposed closure ([8ead72b](https://github.com/ExtendRealityLtd/Malimbe/commit/8ead72b))
+* **SerializedProperty:** help serializing properties, not fields ([40b6511](https://github.com/ExtendRealityLtd/Malimbe/commit/40b6511))
+* **UnityIntegration:** only weave each assembly once ([cbfd2e8](https://github.com/ExtendRealityLtd/Malimbe/commit/cbfd2e8))
+* **UnityIntegration:** unnecessary creation of an intermediate list ([6d65c74](https://github.com/ExtendRealityLtd/Malimbe/commit/6d65c74))
+* **UnityIntegration:** weave all assemblies on load ([d23bacb](https://github.com/ExtendRealityLtd/Malimbe/commit/d23bacb))
+
+
+### Features
+
+* **UnityIntegration:** allow weaving all assemblies manually ([b87448b](https://github.com/ExtendRealityLtd/Malimbe/commit/b87448b))
+* **UnityIntegration:** show progress when weaving all assemblies ([2f1bb4c](https://github.com/ExtendRealityLtd/Malimbe/commit/2f1bb4c))
+
+
+### BREAKING CHANGES
+
+* **SerializedProperty:** Fields can no longer be "changed" into properties.
+Instead of using a field and annotating it with
+`FieldToPropertyAttribute` use a property and annotate it with
+`SerializedPropertyAttribute`. Auto-implemented properties as well
+as regular ones are supported and the only requirement is to have a
+getter and setter (of any accessibility level).
+
 ## [1.3.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.3.0...v1.3.1) (2019-01-06)
 
 
