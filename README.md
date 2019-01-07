@@ -70,7 +70,8 @@ Malimbe is a _collection_ of tools. Each project represents a solution to a spec
 
     Separate multiple levels by using multiple XML elements or separate inside an XML element by using any form of whitespace including newlines or commas.
 * `FodyRunner.UnityIntegration`: Weaves assemblies in the Unity Editor after Unity compiled them as well as builds. The weaving is done by utilizing `FodyRunner`.
-  * The library just needs to be part of a Unity project (configured to only run in the Editor) to be used. It hooks into the various callbacks Unity offers.
+  * There is no need to manually run the weaving process. The library just needs to be part of a Unity project (configured to only run in the Editor) to be used. It hooks into the various callbacks Unity offers and automatically weaves any assembly on startup as well as when they change.
+  * Once the library is loaded in the Editor a menu item `Tools/Malimbe/Weave All Assemblies` allows to manually trigger the weaving process for all assemblies in the current project. This is useful when a `FodyWeavers.xml` file was changed.
 * `FieldToProperty.Fody`: A Unity-specific weaver. Creates a property for all fields annotated with `[BacksProperty]`. If a `T SetFieldName(T, T)` method exists it will be called in the property's setter. Adds `[SerializeField]` to the field if not yet specified.
   * Annotate a field with `[BacksProperty]` to use this.
   * Optionally write `T SetFieldName(T, T)` methods that act as a setter replacement on the same type that declares the field (of type `T`). The accessibility level of the method doesn't matter and the name lookup is case insensitive.

@@ -18,6 +18,13 @@
             WeaveAllAssemblies();
         }
 
+        [MenuItem("Tools/" + nameof(Malimbe) + "/Weave All Assemblies")]
+        private static void ManuallyWeaveAllAssemblies()
+        {
+            WeaveAllAssemblies();
+            Debug.Log("Weaving finished.");
+        }
+
         private static void WeaveAllAssemblies()
         {
             foreach (Assembly assembly in GetAllAssemblies())
