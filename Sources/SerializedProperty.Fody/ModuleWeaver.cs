@@ -155,8 +155,8 @@
                 LogInfo($"Changed the name of the field '{previousFieldName}' to '{backingFieldDefinition.Name}'.");
             }
 
-            bool hidesFieldInInspector = (bool)attribute.ConstructorArguments.Single().Value;
-            if (!hidesFieldInInspector)
+            bool isFieldVisibleInInspector = (bool)attribute.ConstructorArguments.Single().Value;
+            if (isFieldVisibleInInspector)
             {
                 return;
             }

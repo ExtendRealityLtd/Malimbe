@@ -5,9 +5,9 @@
     [AttributeUsage(AttributeTargets.Property)]
     public sealed class SerializedPropertyAttribute : Attribute
     {
-        public readonly bool HidesFieldInInspector;
+        public readonly bool IsFieldVisibleInInspector;
 
-        public SerializedPropertyAttribute(bool hideFieldInInspector = false) =>
-            HidesFieldInInspector = hideFieldInInspector;
+        public SerializedPropertyAttribute(bool isFieldVisibleInInspector = true) =>
+            IsFieldVisibleInInspector = isFieldVisibleInInspector;
     }
 }
