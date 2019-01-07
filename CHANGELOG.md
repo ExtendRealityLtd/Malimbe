@@ -1,5 +1,22 @@
 # Changelog
 
+# [3.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v2.0.0...v3.0.0) (2019-01-07)
+
+
+### Code Refactoring
+
+* **SerializedProperty:** invert the hidden-in-inspector setting ([2d04301](https://github.com/ExtendRealityLtd/Malimbe/commit/2d04301))
+
+
+### BREAKING CHANGES
+
+* **SerializedProperty:** The argument passed in the `SerializedProperty`
+attribute constructor to hide the field in the inspector is now
+negated. Uses need to be updated to pass the negation of what they
+previously passed. The default value of the parameter has been
+updated which means the default constructor call doesn't need to be
+changed to upgrade to this change.
+
 # [2.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v1.3.1...v2.0.0) (2019-01-07)
 
 
