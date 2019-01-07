@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
-    <AssemblyName>Malimbe.FieldToProperty</AssemblyName>
-    <RootNamespace>Malimbe.FieldToProperty</RootNamespace>
+    <AssemblyName>Malimbe.SerializedProperty</AssemblyName>
+    <RootNamespace>Malimbe.SerializedProperty</RootNamespace>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 

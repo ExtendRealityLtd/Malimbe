@@ -10,8 +10,8 @@
 
   <ItemGroup>
     <ProjectReference Include="..\ClearPropertyMethod.Fody\ClearPropertyMethod.Fody.csproj" />
-    <ProjectReference Include="..\FieldToProperty.Fody\FieldToProperty.Fody.csproj" />
-    <ProjectReference Include="..\FieldToProperty\FieldToProperty.csproj" />
+    <ProjectReference Include="..\SerializedProperty.Fody\SerializedProperty.Fody.csproj" />
+    <ProjectReference Include="..\SerializedProperty\SerializedProperty.csproj" />
     <ProjectReference Include="..\FodyRunner.UnityIntegration\FodyRunner.UnityIntegration.csproj" />
     <ProjectReference Include="..\ValidatePropertiesMethod.Fody\ValidatePropertiesMethod.Fody.csproj" />
     <ProjectReference Include="..\XmlDocumentationToFieldTooltip.Fody\XmlDocumentationToFieldTooltip.Fody.csproj" />
@@ -41,7 +41,7 @@
 
   <Target Name="CreateUnityPackage" AfterTargets="DeleteUnusedFiles">
     <ItemGroup>
-      <RuntimeFiles Include="$(TargetDir)*.FieldToProperty.dll;$(TargetDir)*.FieldToProperty.pdb" />
+      <RuntimeFiles Include="$(TargetDir)*.SerializedProperty.dll;$(TargetDir)*.SerializedProperty.pdb" />
     </ItemGroup>
     <Move SourceFiles="@(RuntimeFiles)" DestinationFolder="$(TargetDir)Runtime" />
 

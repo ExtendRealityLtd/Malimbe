@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FodyRunner", "FodyRunner\Fo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FodyRunner.UnityIntegration", "FodyRunner.UnityIntegration\FodyRunner.UnityIntegration.csproj", "{59E7DAA9-CA08-414F-8EE9-3853CDF443DD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FieldToProperty", "FieldToProperty\FieldToProperty.csproj", "{8F539C6B-1E4D-46F4-91F1-2CA57D473F91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializedProperty", "SerializedProperty\SerializedProperty.csproj", "{8F539C6B-1E4D-46F4-91F1-2CA57D473F91}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FieldToProperty.Fody", "FieldToProperty.Fody\FieldToProperty.Fody.csproj", "{4E1A2421-F3C9-4C64-8A4F-EDAA12153689}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializedProperty.Fody", "SerializedProperty.Fody\SerializedProperty.Fody.csproj", "{4E1A2421-F3C9-4C64-8A4F-EDAA12153689}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidatePropertiesMethod.Fody", "ValidatePropertiesMethod.Fody\ValidatePropertiesMethod.Fody.csproj", "{DE9DAF35-DDB6-4D1A-AC64-6DCC15DE5C34}"
 EndProject

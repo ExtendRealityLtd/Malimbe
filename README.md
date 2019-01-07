@@ -38,7 +38,7 @@ Please follow these steps to install the package using a local location until Un
       <Malimbe.FodyRunner>
         <LogLevel>Error</LogLevel>
       </Malimbe.FodyRunner>
-      <Malimbe.FieldToProperty/>
+      <Malimbe.SerializedProperty/>
       <Malimbe.ClearPropertyMethod>
         <NamespaceFilter>^VRTK</NamespaceFilter>
       </Malimbe.ClearPropertyMethod>
@@ -72,9 +72,13 @@ Malimbe is a _collection_ of tools. Each project represents a solution to a spec
 * `FodyRunner.UnityIntegration`: Weaves assemblies in the Unity Editor after Unity compiled them as well as builds. The weaving is done by utilizing `FodyRunner`.
   * There is no need to manually run the weaving process. The library just needs to be part of a Unity project (configured to only run in the Editor) to be used. It hooks into the various callbacks Unity offers and automatically weaves any assembly on startup as well as when they change.
   * Once the library is loaded in the Editor a menu item `Tools/Malimbe/Weave All Assemblies` allows to manually trigger the weaving process for all assemblies in the current project. This is useful when a `FodyWeavers.xml` file was changed.
-* `FieldToProperty.Fody`: A Unity-specific weaver. Creates a property for all fields annotated with `[BacksProperty]`. If a `T SetFieldName(T, T)` method exists it will be called in the property's setter. Adds `[SerializeField]` to the field if not yet specified.
-  * Annotate a field with `[BacksProperty]` to use this.
-  * Optionally write `T SetFieldName(T, T)` methods that act as a setter replacement on the same type that declares the field (of type `T`). The accessibility level of the method doesn't matter and the name lookup is case insensitive.
+* `SerializedProperty.Fody`: A Unity-specific weaver. Ensures the backing field for a property annotated with `[SerializedProperty]` is serialized. If a `T SetPropertyName(T, T)` method exists it will be used in the property's setter before existing instructions.
+  * Annotate a property with `[SerializedProperty]` to use this. Note that the attribute's constructor allows specifying whether the backing field should be hidden in the Unity inspector (false by default). Hiding the _property_ from the inspector (e.g. in the UnityEvent listener picker) is not supported by Unity.
+  * Optionally write `T SetPropertyName(T, T)` methods that act as a setter replacement on the same type that declares the property (of type `T`). The accessibility level of the method doesn't matter and the name lookup is case insensitive.
+  * If the property's backing field doesn't use `[SerializeField]` it will be added.
+  * If the property is an [auto-implemented property][Auto-Implemented Property] the backing field will be renamed to match the property's name for viewing in the Unity inspector. Since C# doesn't allow multiple members of a type to share a name the backing field's name will differ in the first character's case. E.g.:
+    * `int Counter { get; set; }` will use a backing field called `counter`.
+    * `bool isValid { get; private set; }` will use a backing field called `IsValid`.
 * `ClearPropertyMethod.Fody`: A generic weaver. Creates `ClearProperty()` methods for any property that is of reference type and has a setter. Sets the property via its setter to `null` in this new method.
   * The weaver only runs on types that match a namespace. Specify the namespaces to act on via (multiple) XML _elements_ called `NamespaceFilter`. The elements' values are used as ([.NET Standard's][Regex]) regular expressions.
   * In case the method already exists the additional instructions will be weaved into the _end_ of the method. The method name lookup is case insensitive.
@@ -135,6 +139,7 @@ Third-party notices can be found in [THIRD_PARTY_NOTICES.md][ThirdPartyNotices]
 [SemVer-Build]: https://semver.org/#spec-item-10
 [FodyWeavers]: https://github.com/Fody/Fody#add-fodyweaversxml
 [Regex]: https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions
+[Auto-Implemented Property]: https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/auto-implemented-properties
 
 [Fody's naming]: https://github.com/Fody/Fody#naming
 [Malimbus]: https://en.wikipedia.org/wiki/Malimbus
