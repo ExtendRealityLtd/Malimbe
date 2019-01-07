@@ -132,11 +132,9 @@ Third-party notices can be found in [THIRD_PARTY_NOTICES.md][ThirdPartyNotices]
 
 [Waffle]: https://waffle.io/ExtendRealityLtd/Malimbe
 [Releases]: ../../releases
-[CD]: https://dev.azure.com/ExtendReality/VRTK/_build/latest?definitionId=2
 [SemVer]: https://semver.org/
 [VCS]: https://en.wikipedia.org/wiki/Version_control
 [UPM-Instructions]: https://docs.unity3d.com/Packages/com.unity.package-manager-ui@2.1/manual/index.html#extpkg
-[SemVer-Build]: https://semver.org/#spec-item-10
 [FodyWeavers]: https://github.com/Fody/Fody#add-fodyweaversxml
 [Regex]: https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions
 [Auto-Implemented Property]: https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/auto-implemented-properties
