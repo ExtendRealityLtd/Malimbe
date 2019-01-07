@@ -27,10 +27,18 @@
 
         private static void WeaveAllAssemblies()
         {
-            foreach (Assembly assembly in GetAllAssemblies())
+            List<Assembly> assemblies = GetAllAssemblies().ToList();
+            for (int index = 0; index < assemblies.Count; index++)
             {
+                Assembly assembly = assemblies[index];
+                EditorUtility.DisplayProgressBar(
+                    nameof(Malimbe),
+                    $"Weaving '{assembly.name}'.",
+                    (float)index / assemblies.Count);
                 WeaveAssembly(assembly);
             }
+
+            EditorUtility.ClearProgressBar();
         }
 
         private static void OnCompilationFinished(string path, CompilerMessage[] messages)
