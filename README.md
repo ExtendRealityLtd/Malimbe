@@ -40,13 +40,13 @@ Please follow these steps to install the package using a local location until Un
       </Malimbe.FodyRunner>
       <Malimbe.SerializedProperty/>
       <Malimbe.ClearPropertyMethod>
-        <NamespaceFilter>^VRTK</NamespaceFilter>
+        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
       </Malimbe.ClearPropertyMethod>
       <Malimbe.ValidatePropertiesMethod>
-        <NamespaceFilter>^VRTK</NamespaceFilter>
+        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
       </Malimbe.ValidatePropertiesMethod>
       <Malimbe.XmlDocumentationToFieldTooltip>
-        <NamespaceFilter>^VRTK</NamespaceFilter>
+        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
       </Malimbe.XmlDocumentationToFieldTooltip>
     </Weavers>
     ```
@@ -87,7 +87,7 @@ Malimbe is a _collection_ of tools. Each project represents a solution to a spec
   * Instead of `OnValidate` the method name can be customized with the XML _attribute_ `MethodName`, e.g.:
     ```xml
       <Malimbe.ValidatePropertiesMethod MethodName="Validate">
-        <NamespaceFilter>^VRTK</NamespaceFilter>
+        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
       </Malimbe.ValidatePropertiesMethod>
     ```
   * In case the method already exists the additional instructions will be weaved into the _end_ of the method. The method name lookup is case insensitive.
@@ -96,8 +96,8 @@ Malimbe is a _collection_ of tools. Each project represents a solution to a spec
   * The weaver only runs on types that match a namespace. Specify the namespaces to act on via (multiple) XML _elements_ called `NamespaceFilter`. The elements' values are used as ([.NET Standard's][Regex]) regular expressions.
   * Instead of `TooltipAttribute` the attribute can be customized with the XML _attribute_ `FullAttributeName`, e.g.:
     ```xml
-      <Malimbe.XmlDocumentationToFieldTooltip FullAttributeName="Some.Namespace.DocumentationAttribute">
-        <NamespaceFilter>^VRTK</NamespaceFilter>
+      <Malimbe.XmlDocumentationToFieldTooltip FullAttributeName="Some.Other.Namespace.DocumentationAttribute">
+        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
       </Malimbe.XmlDocumentationToFieldTooltip>
     ```
     The attribute needs to have a constructor that takes a `string` parameter and nothing else. Note that the attribute name has to be the full type name, i.e. prefixed by the namespace.
