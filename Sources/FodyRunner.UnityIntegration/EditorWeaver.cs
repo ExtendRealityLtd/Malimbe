@@ -38,7 +38,9 @@
 
         private static IEnumerable<Assembly> GetAllAssemblies() =>
             CompilationPipeline.GetAssemblies(AssembliesType.Player)
-                .Concat(CompilationPipeline.GetAssemblies(AssembliesType.Editor));
+                .Concat(CompilationPipeline.GetAssemblies(AssembliesType.Editor))
+                .GroupBy(assembly => assembly.outputPath)
+                .Select(grouping => grouping.First());
 
         private static void WeaveAssembly(Assembly assembly)
         {
