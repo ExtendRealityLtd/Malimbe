@@ -116,7 +116,7 @@
         private void SetPropertyInMethod(PropertyDefinition propertyDefinition, MethodDefinition methodDefinition)
         {
             Collection<Instruction> instructions = methodDefinition.Body.Instructions;
-            int index = instructions.Count - 2;
+            int index = instructions.IndexOf(instructions.First(instruction => instruction.OpCode == OpCodes.Ret)) - 1;
 
             // Property = Property;
 
