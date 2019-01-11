@@ -1,5 +1,26 @@
 # Changelog
 
+# [4.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v3.0.0...v4.0.0) (2019-01-11)
+
+
+### Bug Fixes
+
+* only cache types of needed assemblies ([693b0a0](https://github.com/ExtendRealityLtd/Malimbe/commit/693b0a0))
+* **ClearProperty:** add support for generics in declaring type ([203df85](https://github.com/ExtendRealityLtd/Malimbe/commit/203df85))
+* **ClearProperty:** don't inject into existing method ([b52819d](https://github.com/ExtendRealityLtd/Malimbe/commit/b52819d))
+* **UnityIntegration:** compile all assemblies against netstandard2.0 ([20dcc67](https://github.com/ExtendRealityLtd/Malimbe/commit/20dcc67))
+* **UnityIntegration:** reference runtime assembly in the editor one ([f801e5c](https://github.com/ExtendRealityLtd/Malimbe/commit/f801e5c))
+* **ValidateProperties:** add support for generics in declaring type ([9137635](https://github.com/ExtendRealityLtd/Malimbe/commit/9137635))
+* **ValidateProperties:** ensure to inject at end of existing method ([79f9f7c](https://github.com/ExtendRealityLtd/Malimbe/commit/79f9f7c))
+
+
+### BREAKING CHANGES
+
+* **ClearProperty:** The ClearPropertyMethod weaver no longer injects
+anything into the Clear method in case it already exists. An info
+logging statement has been added that can help to find the Clear
+method implementations and ensure it clears the property manually.
+
 # [3.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v2.0.0...v3.0.0) (2019-01-07)
 
 
