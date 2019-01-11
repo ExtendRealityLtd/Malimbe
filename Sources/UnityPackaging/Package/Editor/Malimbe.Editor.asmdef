@@ -7,8 +7,10 @@
     ],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
-    "overrideReferences": false,
-    "precompiledReferences": [],
+    "overrideReferences": true,
+    "precompiledReferences": [
+        "Malimbe.FodyRunner.UnityIntegration.dll"
+    ],
     "autoReferenced": true,
     "defineConstraints": []
 }
