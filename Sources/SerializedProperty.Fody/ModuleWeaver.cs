@@ -80,10 +80,6 @@
         public override IEnumerable<string> GetAssembliesForScanning()
         {
             yield return "UnityEngine";
-
-            yield return "System.Runtime";
-            yield return "netstandard.dll";
-            yield return "mscorlib.dll";
         }
 
         private void FindReferences()

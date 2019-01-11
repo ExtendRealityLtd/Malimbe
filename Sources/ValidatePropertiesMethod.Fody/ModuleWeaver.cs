@@ -55,8 +55,8 @@
         public override IEnumerable<string> GetAssembliesForScanning()
         {
             yield return "System.Runtime";
-            yield return "netstandard.dll";
-            yield return "mscorlib.dll";
+            yield return "netstandard";
+            yield return "mscorlib";
         }
 
         private void FindReferences() =>
