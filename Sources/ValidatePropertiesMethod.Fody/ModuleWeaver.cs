@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using global::Fody;
+    using Malimbe.CecilExtensions;
     using Mono.Cecil;
     using Mono.Cecil.Cil;
     using Mono.Collections.Generic;
@@ -125,9 +126,13 @@
             // Load this (for getter call)
             instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
             // Call getter
-            instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, propertyDefinition.GetMethod));
+            instructions.Insert(
+                ++index,
+                Instruction.Create(OpCodes.Callvirt, propertyDefinition.GetMethod.GetGeneric()));
             // Call setter
-            instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod));
+            instructions.Insert(
+                ++index,
+                Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod.GetGeneric()));
 
             LogInfo(
                 $"Inserted a property setter call of '{propertyDefinition.FullName}'"
