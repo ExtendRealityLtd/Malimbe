@@ -184,13 +184,14 @@
                 return baseMethodDefinition;
             }
 
+            index = -1;
             // base.MethodName();
 
             // Load this (for base method call)
-            instructions.Insert(0, Instruction.Create(OpCodes.Ldarg_0));
+            instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
             // Call base method
             instructions.Insert(
-                1,
+                ++index,
                 Instruction.Create(
                     OpCodes.Call,
                     methodDefinition.DeclaringType.Module.ImportReference(baseMethodDefinition)));

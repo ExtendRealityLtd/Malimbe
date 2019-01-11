@@ -41,7 +41,8 @@
                     continue;
                 }
 
-                IReadOnlyDictionary<string, string> summariesByIdentifierName = ParseSourceFileXmlDocumentation(typeDefinition);
+                IReadOnlyDictionary<string, string> summariesByIdentifierName =
+                    ParseSourceFileXmlDocumentation(typeDefinition);
                 if (summariesByIdentifierName.Count == 0)
                 {
                     continue;
