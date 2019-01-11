@@ -1,6 +1,8 @@
 {
     "name": "Malimbe.Editor",
-    "references": [],
+    "references": [
+        "Malimbe.Runtime"
+    ],
     "optionalUnityReferences": [],
     "includePlatforms": [
         "Editor"
