@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using global::Fody;
+    using Malimbe.CecilExtensions;
     using Mono.Cecil;
     using Mono.Cecil.Cil;
     using Mono.Collections.Generic;
@@ -107,7 +108,9 @@
             // Load null (for setter call)
             instructions.Insert(++index, Instruction.Create(OpCodes.Ldnull));
             // Call setter
-            instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod));
+            instructions.Insert(
+                ++index,
+                Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod.GetGeneric()));
 
             LogInfo(
                 $"Inserted a setter call to clear the property '{propertyDefinition.FullName}'"

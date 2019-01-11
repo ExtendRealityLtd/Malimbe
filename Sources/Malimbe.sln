@@ -17,7 +17,12 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClearPropertyMethod.Fody", 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnityPackaging", "UnityPackaging\UnityPackaging.csproj", "{22831846-2141-4820-9BD9-9A55AF614B6E}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "XmlDocumentationToFieldTooltip.Fody", "XmlDocumentationToFieldTooltip.Fody\XmlDocumentationToFieldTooltip.Fody.csproj", "{966A4C11-FE59-4EB3-868A-DBDA0874C9E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocumentationToFieldTooltip.Fody", "XmlDocumentationToFieldTooltip.Fody\XmlDocumentationToFieldTooltip.Fody.csproj", "{966A4C11-FE59-4EB3-868A-DBDA0874C9E5}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{540021DB-153E-4EF4-84F7-E63C3A9E2043}"
+	ProjectSection(SolutionItems) = preProject
+		Shared\CecilExtensions.cs = Shared\CecilExtensions.cs
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
