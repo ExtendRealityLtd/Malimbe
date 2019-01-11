@@ -10,17 +10,6 @@
 
     public sealed class ModuleWeaver : BaseModuleWeaver
     {
-        private sealed class FieldDefinitionComparer : IEqualityComparer<FieldDefinition>
-        {
-            public static readonly FieldDefinitionComparer Instance = new FieldDefinitionComparer();
-
-            public bool Equals(FieldDefinition x, FieldDefinition y) =>
-                string.Equals(x?.FullName, y?.FullName, StringComparison.Ordinal);
-
-            public int GetHashCode(FieldDefinition obj) =>
-                obj.FullName.GetHashCode();
-        }
-
         private static readonly string _fullAttributeName = typeof(SerializedPropertyAttribute).FullName;
 
         private MethodReference _serializeFieldAttributeConstructorReference;
