@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="FodyHelpers" Version="3.3.2" />
+    <PackageReference Include="FodyHelpers" Version="3.3.5" />
   </ItemGroup>
 
   <ItemGroup>
