@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net47</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>Malimbe.UnityPackaging</AssemblyName>
     <RootNamespace>Malimbe.UnityPackaging</RootNamespace>
     <LangVersion>latest</LangVersion>
@@ -47,8 +47,15 @@
 
     <ItemGroup>
       <EditorFiles Include="$(TargetDir)*" />
+      <MissingAssemblies Include="..\FodyRunner.UnityIntegration\bin\$(Configuration)\$(TargetFramework)\*.dll" />
     </ItemGroup>
     <Move SourceFiles="@(EditorFiles)" DestinationFolder="$(TargetDir)Editor" />
+    <!--
+      Copy the files MSBuild doesn't copy. These are output/dependency files from dependency projects that are
+      compiled against a different TargetFramework compared to the one this project builds. The UnityIntegration
+      project has them all so only those are copied.
+    -->
+    <Copy SourceFiles="@(MissingAssemblies)" DestinationFolder="$(TargetDir)Editor" />
 
     <ItemGroup>
       <PackageFiles Include="$(ProjectDir)Package\**" />
