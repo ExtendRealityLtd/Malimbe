@@ -34,10 +34,19 @@
 
             foreach (PropertyDefinition propertyDefinition in propertyDefinitions)
             {
-                MethodDefinition clearMethodDefinition =
-                    FindOrCreateClearMethod(propertyDefinition, clearMethodNamePrefix);
-                clearMethodDefinition.IsPublic = true;
+                string methodName = clearMethodNamePrefix
+                    + char.ToUpperInvariant(propertyDefinition.Name[0])
+                    + propertyDefinition.Name.Substring(1);
+                MethodDefinition existingMethodDefinition = FindClearMethod(propertyDefinition, methodName);
+                if (existingMethodDefinition != null)
+                {
+                    LogInfo(
+                        $"The clear method '{existingMethodDefinition.FullName}' already exists."
+                        + $" A setter call to clear the property '{propertyDefinition.FullName}' will not be inserted.");
+                    continue;
+                }
 
+                MethodDefinition clearMethodDefinition = CreateClearMethod(propertyDefinition, methodName);
                 ClearPropertyInMethod(propertyDefinition, clearMethodDefinition);
             }
         }
@@ -61,28 +70,21 @@
                 .ToList()
             ?? Enumerable.Empty<Regex>();
 
-        private MethodDefinition FindOrCreateClearMethod(
-            IMemberDefinition propertyDefinition,
-            string clearMethodNamePrefix)
-        {
-            string methodName = clearMethodNamePrefix
-                + char.ToUpperInvariant(propertyDefinition.Name[0])
-                + propertyDefinition.Name.Substring(1);
-            TypeReference returnTypeReference = TypeSystem.VoidReference;
-
-            MethodDefinition existingMethodDefinition = propertyDefinition.DeclaringType.Methods.FirstOrDefault(
+        private MethodDefinition FindClearMethod(IMemberDefinition propertyDefinition, string methodName) =>
+            propertyDefinition.DeclaringType.Methods.FirstOrDefault(
                 definition => string.Equals(definition.Name, methodName, StringComparison.OrdinalIgnoreCase)
-                    && definition.ReturnType.FullName == returnTypeReference.FullName
+                    && definition.ReturnType.FullName == TypeSystem.VoidReference.FullName
                     && !definition.HasParameters);
-            if (existingMethodDefinition != null)
-            {
-                return existingMethodDefinition;
-            }
 
+        private MethodDefinition CreateClearMethod(IMemberDefinition propertyDefinition, string methodName)
+        {
             MethodDefinition newMethodDefinition = new MethodDefinition(
                 methodName,
                 MethodAttributes.Public | MethodAttributes.HideBySig,
-                returnTypeReference);
+                TypeSystem.VoidReference)
+            {
+                IsPublic = true
+            };
             newMethodDefinition.CustomAttributes.Add(
                 new CustomAttribute(_compilerGeneratedAttributeConstructorReference));
             propertyDefinition.DeclaringType.Methods.Add(newMethodDefinition);
