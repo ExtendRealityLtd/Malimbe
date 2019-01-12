@@ -47,8 +47,8 @@
                     continue;
                 }
 
-                FieldDefinition backingFieldDefinition = GetBackingField(propertyDefinition);
-                if (backingFieldDefinition == null)
+                FieldReference backingFieldReference = GetBackingField(propertyDefinition);
+                if (backingFieldReference == null)
                 {
                     LogError(
                         $"No backing field for the property '{propertyDefinition.FullName}' was found."
@@ -58,11 +58,11 @@
                 }
 
                 LogInfo(
-                    $"Assuming the field '{backingFieldDefinition.FullName}' is the backing field for"
+                    $"Assuming the field '{backingFieldReference.FullName}' is the backing field for"
                     + $" the property '{propertyDefinition.FullName}'.");
 
-                ConfigureBackingField(backingFieldDefinition, propertyDefinition, attribute);
-                InsertSetMethodCallIntoPropertySetter(propertyDefinition, backingFieldDefinition);
+                ConfigureBackingField(backingFieldReference, propertyDefinition, attribute);
+                InsertSetMethodCallIntoPropertySetter(propertyDefinition, backingFieldReference);
             }
         }
 
@@ -98,46 +98,64 @@
             return true;
         }
 
-        private static FieldDefinition GetBackingField(PropertyDefinition propertyDefinition)
+        private static FieldReference GetBackingField(PropertyDefinition propertyDefinition)
         {
-            IEnumerable<FieldDefinition> getFieldDefinitions = propertyDefinition.GetMethod.Body?.Instructions
+            IEnumerable<FieldReference> getFieldReferences = propertyDefinition.GetMethod.Body?.Instructions
                 ?.Where(instruction => instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld)
-                .Select(instruction => (FieldDefinition)instruction.Operand);
-            IEnumerable<FieldDefinition> setFieldDefinitions = propertyDefinition.SetMethod.Body?.Instructions
+                .Select(instruction => (FieldReference)instruction.Operand);
+            IEnumerable<FieldReference> setFieldReferences = propertyDefinition.SetMethod.Body?.Instructions
                 ?.Where(instruction => instruction.OpCode == OpCodes.Stsfld || instruction.OpCode == OpCodes.Stfld)
-                .Select(instruction => (FieldDefinition)instruction.Operand);
+                .Select(instruction => (FieldReference)instruction.Operand);
 
-            return getFieldDefinitions?.Intersect(
-                    setFieldDefinitions ?? Enumerable.Empty<FieldDefinition>(),
-                    FieldDefinitionComparer.Instance)
+            return getFieldReferences?.Intersect(
+                    setFieldReferences ?? Enumerable.Empty<FieldReference>(),
+                    FieldReferenceComparer.Instance)
                 .FirstOrDefault();
         }
 
         private void ConfigureBackingField(
-            FieldDefinition backingFieldDefinition,
-            MemberReference propertyReference,
+            FieldReference backingFieldReference,
+            PropertyDefinition propertyDefinition,
             ICustomAttribute attribute)
         {
-            if (backingFieldDefinition.CustomAttributes.All(
+            FieldDefinition backingFieldDefinition =
+                backingFieldReference as FieldDefinition ?? backingFieldReference.Resolve();
+            Collection<CustomAttribute> customAttributes = backingFieldDefinition.CustomAttributes;
+
+            if (customAttributes.All(
                 customAttribute => customAttribute.Constructor != _serializeFieldAttributeConstructorReference))
             {
-                backingFieldDefinition.CustomAttributes.Add(
-                    new CustomAttribute(_serializeFieldAttributeConstructorReference));
+                customAttributes.Add(new CustomAttribute(_serializeFieldAttributeConstructorReference));
                 LogInfo(
                     $"Added the attribute '{_serializeFieldAttributeConstructorReference.DeclaringType.FullName}'"
-                    + $" to the field '{backingFieldDefinition.FullName}'.");
+                    + $" to the field '{backingFieldReference.FullName}'.");
             }
 
+            string propertyName = propertyDefinition.Name;
             if (backingFieldDefinition.Name.IndexOf("BackingField", StringComparison.OrdinalIgnoreCase) != -1)
             {
-                string previousFieldName = backingFieldDefinition.FullName;
-                string propertyName = propertyReference.Name;
+                string previousFieldName = backingFieldReference.FullName;
                 char firstNameCharacter = char.IsUpper(propertyName, 0)
                     ? char.ToLowerInvariant(propertyName[0])
                     : char.ToUpperInvariant(propertyName[0]);
+                string newFieldName = $"{firstNameCharacter}{propertyName.Substring(1)}";
 
-                backingFieldDefinition.Name = $"{firstNameCharacter}{propertyName.Substring(1)}";
-                LogInfo($"Changed the name of the field '{previousFieldName}' to '{backingFieldDefinition.Name}'.");
+                if (backingFieldDefinition != backingFieldReference)
+                {
+                    IEnumerable<FieldReference> otherFieldReferences = new[]
+                        {
+                            propertyDefinition.GetMethod, propertyDefinition.SetMethod
+                        }.SelectMany(definition => definition.Body?.Instructions)
+                        .Select(instruction => instruction.Operand as FieldReference)
+                        .Where(reference => reference?.FullName == previousFieldName);
+                    foreach (FieldReference otherFieldReference in otherFieldReferences)
+                    {
+                        otherFieldReference.Name = newFieldName;
+                    }
+                }
+
+                backingFieldDefinition.Name = newFieldName;
+                LogInfo($"Changed the name of the field '{previousFieldName}' to '{newFieldName}'.");
             }
 
             bool isFieldVisibleInInspector = (bool)attribute.ConstructorArguments.Single().Value;
@@ -146,11 +164,10 @@
                 return;
             }
 
-            backingFieldDefinition.CustomAttributes.Add(
-                new CustomAttribute(_hideInInspectorAttributeConstructorReference));
+            customAttributes.Add(new CustomAttribute(_hideInInspectorAttributeConstructorReference));
             LogInfo(
                 $"Added the attribute '{_hideInInspectorAttributeConstructorReference.DeclaringType.FullName}'"
-                + $" to the field '{backingFieldDefinition.FullName}'.");
+                + $" to the field '{backingFieldReference.FullName}'.");
         }
 
         private void InsertSetMethodCallIntoPropertySetter(
