@@ -4,6 +4,7 @@
     using System.Collections.Generic;
     using System.Linq;
     using global::Fody;
+    using Malimbe.Shared;
     using Mono.Cecil;
     using Mono.Cecil.Cil;
     using Mono.Collections.Generic;
@@ -47,7 +48,7 @@
                     continue;
                 }
 
-                FieldReference backingFieldReference = GetBackingField(propertyDefinition);
+                FieldReference backingFieldReference = propertyDefinition.GetBackingField();
                 if (backingFieldReference == null)
                 {
                     LogError(
@@ -96,21 +97,6 @@
                 $"Removed the attribute '{_fullAttributeName}' from"
                 + $" the property '{propertyDefinition.FullName}'.");
             return true;
-        }
-
-        private static FieldReference GetBackingField(PropertyDefinition propertyDefinition)
-        {
-            IEnumerable<FieldReference> getFieldReferences = propertyDefinition.GetMethod.Body?.Instructions
-                ?.Where(instruction => instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld)
-                .Select(instruction => (FieldReference)instruction.Operand);
-            IEnumerable<FieldReference> setFieldReferences = propertyDefinition.SetMethod.Body?.Instructions
-                ?.Where(instruction => instruction.OpCode == OpCodes.Stsfld || instruction.OpCode == OpCodes.Stfld)
-                .Select(instruction => (FieldReference)instruction.Operand);
-
-            return getFieldReferences?.Intersect(
-                    setFieldReferences ?? Enumerable.Empty<FieldReference>(),
-                    FieldReferenceComparer.Instance)
-                .FirstOrDefault();
         }
 
         private void ConfigureBackingField(

@@ -19,10 +19,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnityPackaging", "UnityPack
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocumentationToFieldTooltip.Fody", "XmlDocumentationToFieldTooltip.Fody\XmlDocumentationToFieldTooltip.Fody.csproj", "{966A4C11-FE59-4EB3-868A-DBDA0874C9E5}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Shared", "Shared", "{540021DB-153E-4EF4-84F7-E63C3A9E2043}"
-	ProjectSection(SolutionItems) = preProject
-		Shared\CecilExtensions.cs = Shared\CecilExtensions.cs
-	EndProjectSection
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{EE1351B4-E8CF-40C6-A52D-B613558C3743}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -62,6 +59,10 @@ Global
 		{966A4C11-FE59-4EB3-868A-DBDA0874C9E5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{966A4C11-FE59-4EB3-868A-DBDA0874C9E5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{966A4C11-FE59-4EB3-868A-DBDA0874C9E5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{EE1351B4-E8CF-40C6-A52D-B613558C3743}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{EE1351B4-E8CF-40C6-A52D-B613558C3743}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{EE1351B4-E8CF-40C6-A52D-B613558C3743}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{EE1351B4-E8CF-40C6-A52D-B613558C3743}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

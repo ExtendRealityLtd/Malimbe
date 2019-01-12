@@ -8,11 +8,11 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Include="..\Shared\CecilExtensions.cs" Link="CecilExtensions.cs" />
+    <PackageReference Include="FodyHelpers" Version="3.3.5" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="FodyHelpers" Version="3.3.5" />
+    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -1,10 +1,10 @@
-﻿namespace Malimbe.SerializedProperty.Fody
+﻿namespace Malimbe.Shared
 {
     using System;
     using System.Collections.Generic;
     using Mono.Cecil;
 
-    internal sealed class FieldReferenceComparer : IEqualityComparer<FieldReference>
+    public sealed class FieldReferenceComparer : IEqualityComparer<FieldReference>
     {
         public static readonly FieldReferenceComparer Instance = new FieldReferenceComparer();
 

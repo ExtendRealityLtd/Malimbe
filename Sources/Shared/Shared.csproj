@@ -2,17 +2,13 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
-    <AssemblyName>Malimbe.ClearPropertyMethod.Fody</AssemblyName>
-    <RootNamespace>Malimbe.ClearPropertyMethod.Fody</RootNamespace>
+    <AssemblyName>Malimbe.Shared</AssemblyName>
+    <RootNamespace>Malimbe.Shared</RootNamespace>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="FodyHelpers" Version="3.3.5" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.csproj" />
   </ItemGroup>
 
 </Project>

@@ -5,7 +5,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using global::Fody;
-    using Malimbe.CecilExtensions;
+    using Malimbe.Shared;
     using Mono.Cecil;
     using Mono.Cecil.Cil;
     using Mono.Collections.Generic;

@@ -1,6 +1,9 @@
-﻿namespace Malimbe.CecilExtensions
+﻿namespace Malimbe.Shared
 {
+    using System.Collections.Generic;
+    using System.Linq;
     using Mono.Cecil;
+    using Mono.Cecil.Cil;
 
     public static class CecilExtensions
     {
@@ -28,6 +31,21 @@
 
             methodReference.HasThis = reference.HasThis;
             return methodReference;
+        }
+
+        public static FieldReference GetBackingField(this PropertyDefinition propertyDefinition)
+        {
+            IEnumerable<FieldReference> getFieldReferences = propertyDefinition.GetMethod?.Body?.Instructions
+                ?.Where(instruction => instruction.OpCode == OpCodes.Ldsfld || instruction.OpCode == OpCodes.Ldfld)
+                .Select(instruction => (FieldReference)instruction.Operand);
+            IEnumerable<FieldReference> setFieldReferences = propertyDefinition.SetMethod?.Body?.Instructions
+                ?.Where(instruction => instruction.OpCode == OpCodes.Stsfld || instruction.OpCode == OpCodes.Stfld)
+                .Select(instruction => (FieldReference)instruction.Operand);
+
+            return getFieldReferences?.Intersect(
+                    setFieldReferences ?? Enumerable.Empty<FieldReference>(),
+                    FieldReferenceComparer.Instance)
+                .FirstOrDefault();
         }
     }
 }
