@@ -50,11 +50,12 @@
             try
             {
                 Runner runner = new Runner(new Logger());
+                List<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
 
                 foreach (string managedLibraryFilePath in managedLibraryFilePaths)
                 {
                     runner.RunAsync(
-                            WeaverPathsHelper.SearchPaths,
+                            searchPaths,
                             managedLibraryFilePath,
                             potentialReferences.Except(
                                 new[]
@@ -62,7 +63,7 @@
                                     managedLibraryFilePath
                                 }),
                             scriptingDefineSymbols,
-                            WeaverPathsHelper.SearchPaths,
+                            searchPaths,
                             isDebugBuild)
                         .GetAwaiter()
                         .GetResult();

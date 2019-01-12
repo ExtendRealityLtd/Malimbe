@@ -12,26 +12,25 @@
     [InitializeOnLoad]
     internal static class WeaverPathsHelper
     {
-        public static readonly List<string> SearchPaths;
         private static readonly string _projectPath;
 
-        static WeaverPathsHelper()
-        {
+        static WeaverPathsHelper() =>
             _projectPath = Directory.GetParent(Application.dataPath).FullName;
 
+        public static IEnumerable<string> GetSearchPaths()
+        {
             ListRequest listRequest = Client.List(true);
             while (listRequest.Status == StatusCode.InProgress)
             {
-                Thread.Sleep(100);
+                Thread.Sleep(10);
             }
 
-            SearchPaths = listRequest.Result.Select(info => info.resolvedPath)
+            return listRequest.Result.Select(info => info.resolvedPath)
                 .Concat(
                     new[]
                     {
                         _projectPath
-                    })
-                .ToList();
+                    });
         }
 
         public static string AddProjectPathRootIfNeeded(string path) =>

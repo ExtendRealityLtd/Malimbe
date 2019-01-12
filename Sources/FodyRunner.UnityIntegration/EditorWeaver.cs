@@ -28,6 +28,8 @@
         private static void WeaveAllAssemblies()
         {
             List<Assembly> assemblies = GetAllAssemblies().ToList();
+            List<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
+
             for (int index = 0; index < assemblies.Count; index++)
             {
                 Assembly assembly = assemblies[index];
@@ -35,7 +37,7 @@
                     nameof(Malimbe),
                     $"Weaving '{assembly.name}'.",
                     (float)index / assemblies.Count);
-                WeaveAssembly(assembly);
+                WeaveAssembly(assembly, searchPaths);
             }
 
             EditorUtility.ClearProgressBar();
@@ -45,10 +47,13 @@
         {
             Assembly foundAssembly = GetAllAssemblies()
                 .FirstOrDefault(assembly => string.Equals(assembly.outputPath, path, StringComparison.Ordinal));
-            if (foundAssembly != null)
+            if (foundAssembly == null)
             {
-                WeaveAssembly(foundAssembly);
+                return;
             }
+
+            List<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
+            WeaveAssembly(foundAssembly, searchPaths);
         }
 
         private static IEnumerable<Assembly> GetAllAssemblies() =>
@@ -57,20 +62,14 @@
                 .GroupBy(assembly => assembly.outputPath)
                 .Select(grouping => grouping.First());
 
-        private static void WeaveAssembly(Assembly assembly)
+        private static void WeaveAssembly(Assembly assembly, ICollection<string> searchPaths)
         {
             try
             {
                 string assemblyPath = WeaverPathsHelper.AddProjectPathRootIfNeeded(assembly.outputPath);
                 IEnumerable<string> references =
                     assembly.allReferences.Select(WeaverPathsHelper.AddProjectPathRootIfNeeded);
-                _runner.RunAsync(
-                        WeaverPathsHelper.SearchPaths,
-                        assemblyPath,
-                        references,
-                        assembly.defines.ToList(),
-                        WeaverPathsHelper.SearchPaths,
-                        true)
+                _runner.RunAsync(searchPaths, assemblyPath, references, assembly.defines.ToList(), searchPaths, true)
                     .GetAwaiter()
                     .GetResult();
             }
