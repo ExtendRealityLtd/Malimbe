@@ -132,7 +132,7 @@
             }
 
             string propertyName = propertyDefinition.Name;
-            if (backingFieldDefinition.Name.IndexOf("BackingField", StringComparison.OrdinalIgnoreCase) != -1)
+            if (backingFieldReference.Name == $"<{propertyDefinition.Name}>k__BackingField")
             {
                 string previousFieldName = backingFieldReference.FullName;
                 char firstNameCharacter = char.IsUpper(propertyName, 0)
