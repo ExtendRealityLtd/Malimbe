@@ -1,5 +1,19 @@
 # Changelog
 
+# [5.1.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v5.0.0...v5.1.0) (2019-01-12)
+
+
+### Bug Fixes
+
+* **Runner:** don't cache the found configurations and weavers ([19c3533](https://github.com/ExtendRealityLtd/Malimbe/commit/19c3533))
+* **SerializedProperty:** change field name in abstract classes ([a623ec2](https://github.com/ExtendRealityLtd/Malimbe/commit/a623ec2))
+* **SerializedProperty:** match auto-property backing field exactly ([2f25dd4](https://github.com/ExtendRealityLtd/Malimbe/commit/2f25dd4))
+
+
+### Features
+
+* **XmlToTooltip:** annotate backing fields of properties ([0fcd7e9](https://github.com/ExtendRealityLtd/Malimbe/commit/0fcd7e9))
+
 # [5.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v4.0.0...v5.0.0) (2019-01-12)
 
 
