@@ -5,6 +5,7 @@
     using System.Linq;
     using System.Text.RegularExpressions;
     using global::Fody;
+    using Malimbe.Shared;
     using Mono.Cecil;
     using Mono.Cecil.Cil;
 
@@ -53,6 +54,17 @@
                     if (summariesByIdentifierName.TryGetValue(fieldDefinition.Name, out string summary))
                     {
                         AnnotateField(fieldDefinition, summary);
+                    }
+                    else
+                    {
+                        PropertyDefinition propertyDefinition =
+                            fieldDefinition.DeclaringType.Properties?.FirstOrDefault(
+                                definition => definition.GetBackingField()?.Name == fieldDefinition.Name);
+                        if (propertyDefinition != null
+                            && summariesByIdentifierName.TryGetValue(propertyDefinition.Name, out summary))
+                        {
+                            AnnotateField(fieldDefinition, summary);
+                        }
                     }
                 }
             }
