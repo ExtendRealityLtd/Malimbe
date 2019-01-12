@@ -1,5 +1,19 @@
 # Changelog
 
+# [5.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v4.0.0...v5.0.0) (2019-01-12)
+
+
+### Features
+
+* **UnityIntegration:** don't implicitly reference any plugin .dll ([1e75894](https://github.com/ExtendRealityLtd/Malimbe/commit/1e75894))
+
+
+### BREAKING CHANGES
+
+* **UnityIntegration:** Referencing a Malimbe Editor assembly has to be
+done explicitly from now on. Use Assembly Definition Files and their
+inspector to reference the needed assemblies manually.
+
 # [4.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v3.0.0...v4.0.0) (2019-01-11)
 
 
