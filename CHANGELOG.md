@@ -1,5 +1,12 @@
 # Changelog
 
+# [5.2.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v5.1.0...v5.2.0) (2019-01-13)
+
+
+### Features
+
+* **XmlToTooltip:** allow customizing the XML tag replacement ([3da2ae3](https://github.com/ExtendRealityLtd/Malimbe/commit/3da2ae3))
+
 # [5.1.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v5.0.0...v5.1.0) (2019-01-12)
 
 
