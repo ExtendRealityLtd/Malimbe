@@ -11,11 +11,14 @@
 
     public sealed class ModuleWeaver : BaseModuleWeaver
     {
+        private const string IdentifierReplacementFormatElementName = "IdentifierReplacementFormat";
+        private const string DefaultIdentifierReplacementFormat = "{0}";
+
         private static readonly Regex _documentedIdentifierRegex = new Regex(
             @"<\s*summary\s*>(?'summary'(?:\s*\/{3}.*)*)<\s*\/\s*summary\s*>(?:\s*\/{3}.*|\s|\[[\p{L}\p{M}\p{N}\p{P}\p{S}\p{Z}\p{C}]*?\])*[\s\w<>.\[\]?]*\s(?'identifier'\w+)(?:\((?'methodParameters'.*)\))?",
             RegexOptions.Compiled);
         private static readonly Regex _xmlTagBodyCleanUpRegex = new Regex(
-            @"<\s*\w*\b.*?""(?'reference'.*)""\s*\/\s*>",
+            @"<\s*\w*\b.*?""(?'identifier'.*)""\s*\/\s*>",
             RegexOptions.Compiled);
 
         private TypeDefinition _attributeDefinition;
@@ -27,6 +30,22 @@
         public override void Execute()
         {
             FindReferences();
+
+            string identifierReplacementFormat = Config.Attribute(IdentifierReplacementFormatElementName)?.Value;
+            if (string.IsNullOrWhiteSpace(identifierReplacementFormat))
+            {
+                LogInfo(
+                    $"No '{IdentifierReplacementFormatElementName}' element is specified in the configuration."
+                    + $" Falling back to use '{DefaultIdentifierReplacementFormat}'.");
+                identifierReplacementFormat = DefaultIdentifierReplacementFormat;
+            }
+            else if (!identifierReplacementFormat.Contains("{0}"))
+            {
+                LogError(
+                    $"The '{IdentifierReplacementFormatElementName}' configuration element doesn't specify a format"
+                    + $" placeholder '{{0}}'. Falling back to use '{DefaultIdentifierReplacementFormat}'.");
+                identifierReplacementFormat = DefaultIdentifierReplacementFormat;
+            }
 
             List<Regex> namespaceFilters = FindNamespaceFilters().ToList();
             IEnumerable<TypeDefinition> typeDefinitions = ModuleDefinition.Types.Where(
@@ -43,7 +62,7 @@
                 }
 
                 IReadOnlyDictionary<string, string> summariesByIdentifierName =
-                    ParseSourceFileXmlDocumentation(typeDefinition);
+                    ParseSourceFileXmlDocumentation(typeDefinition, identifierReplacementFormat);
                 if (summariesByIdentifierName.Count == 0)
                 {
                     continue;
@@ -115,7 +134,9 @@
                     || definition.CustomAttributes.Any(
                         attribute => attribute.AttributeType.FullName == "UnityEngine.SerializeField"));
 
-        private IReadOnlyDictionary<string, string> ParseSourceFileXmlDocumentation(TypeDefinition typeDefinition)
+        private IReadOnlyDictionary<string, string> ParseSourceFileXmlDocumentation(
+            TypeDefinition typeDefinition,
+            string identifierReplacementFormat)
         {
             SequencePoint sequencePoint = typeDefinition.Methods.Select(definition => definition.DebugInformation)
                 .SelectMany(information => information.SequencePoints)
@@ -147,7 +168,9 @@
                 }
 
                 string body = match.Groups["summary"].Value.Trim(' ', '/', '\r', '\n');
-                string summary = _xmlTagBodyCleanUpRegex.Replace(body, "${reference}");
+                string summary = _xmlTagBodyCleanUpRegex.Replace(
+                    body,
+                    string.Format(identifierReplacementFormat, "${identifier}"));
                 summariesByIdentifierName[identifierName] = summary;
             }
 

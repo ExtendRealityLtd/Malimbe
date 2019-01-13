@@ -45,7 +45,7 @@ Please follow these steps to install the package using a local location until Un
       <Malimbe.ValidatePropertiesMethod>
         <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
       </Malimbe.ValidatePropertiesMethod>
-      <Malimbe.XmlDocumentationToFieldTooltip>
+      <Malimbe.XmlDocumentationToFieldTooltip IdentifierReplacementFormat="`{0}`">
         <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
       </Malimbe.XmlDocumentationToFieldTooltip>
     </Weavers>
@@ -102,6 +102,13 @@ Malimbe is a _collection_ of tools. Each project represents a solution to a spec
     ```
     The attribute needs to have a constructor that takes a `string` parameter and nothing else. Note that the attribute name has to be the full type name, i.e. prefixed by the namespace.
   * In case the attribute already exists on the field it will be replaced.
+  * Tags in the XML documentation comment like `<see cref="Something"/>` will be replaced by just the "identifier" `Something` by default. To customize this behavior the XML _attribute_ `IdentifierReplacementFormat` can be used, e.g.:
+    ```xml
+      <Malimbe.XmlDocumentationToFieldTooltip IdentifierReplacementFormat="`{0}`">
+        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
+      </Malimbe.XmlDocumentationToFieldTooltip>
+    ```
+    The format needs to specify a placeholder `{0}`, otherwise an error will be logged and the default replacement format will be used instead.
 * `UnityPackaging`: Outputs a ready-to-use folder with the appropriate hierarchy to copy into a Unity project's Asset folder. The output includes both the Unity integration libraries as well as all weavers listed above.
 
 ## Contributing
