@@ -1,5 +1,19 @@
 # Changelog
 
+# [6.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v5.2.0...v6.0.0) (2019-01-20)
+
+
+### Code Refactoring
+
+* only run when attribute is used ([3cfdc4b](https://github.com/ExtendRealityLtd/Malimbe/commit/3cfdc4b))
+
+
+### BREAKING CHANGES
+
+* Any weaver usage now is driven by explicitly
+annotating each member that Malimbe's weavers should act on. For
+more information read the latest Readme.
+
 # [5.2.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v5.1.0...v5.2.0) (2019-01-13)
 
 
