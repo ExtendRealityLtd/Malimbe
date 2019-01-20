@@ -1,17 +1,18 @@
-﻿namespace Malimbe.ValidatePropertiesMethod.Fody
+﻿namespace Malimbe.PropertyValidationMethod.Fody
 {
     using System;
     using System.Collections.Generic;
     using System.Linq;
-    using System.Text.RegularExpressions;
     using global::Fody;
     using Malimbe.Shared;
     using Mono.Cecil;
     using Mono.Cecil.Cil;
     using Mono.Collections.Generic;
 
+    // ReSharper disable once UnusedMember.Global
     public sealed class ModuleWeaver : BaseModuleWeaver
     {
+        private static readonly string _fullAttributeName = typeof(ValidatedAttribute).FullName;
         private MethodReference _compilerGeneratedAttributeConstructorReference;
 
         public override bool ShouldCleanReference =>
@@ -22,18 +23,18 @@
             FindReferences();
 
             string validationMethodName = Config?.Attribute("MethodName")?.Value ?? "OnValidate";
-            List<Regex> namespaceFilters = FindNamespaceFilters().ToList();
 
-            IEnumerable<PropertyDefinition> propertyDefinitions = ModuleDefinition.Types
-                .Where(
-                    definition => namespaceFilters.Count == 0
-                        || namespaceFilters.Any(regex => regex.IsMatch(definition.Namespace)))
-                .SelectMany(definition => definition.Properties)
-                .Where(definition => definition.SetMethod != null);
+            IEnumerable<PropertyDefinition> propertyDefinitions =
+                ModuleDefinition.Types.SelectMany(definition => definition.Properties);
             List<MethodDefinition> existingMethodDefinitions = FindValidationMethods(validationMethodName).ToList();
 
             foreach (PropertyDefinition propertyDefinition in propertyDefinitions)
             {
+                if (!FindAndRemoveAttribute(propertyDefinition))
+                {
+                    continue;
+                }
+
                 MethodDefinition methodDefinition =
                     FindOrCreateValidationMethod(propertyDefinition, validationMethodName);
                 SetPropertyInMethod(propertyDefinition, methodDefinition);
@@ -65,12 +66,35 @@
                 FindType("System.Runtime.CompilerServices.CompilerGeneratedAttribute")
                     .Methods.First(definition => definition.IsConstructor));
 
-        private IEnumerable<Regex> FindNamespaceFilters() =>
-            Config?.Elements("NamespaceFilter")
-                .Select(xElement => xElement.Value)
-                .Select(filter => new Regex(filter, RegexOptions.Compiled))
-                .ToList()
-            ?? Enumerable.Empty<Regex>();
+        private bool FindAndRemoveAttribute(PropertyDefinition propertyDefinition)
+        {
+            CustomAttribute foundAttribute = propertyDefinition.CustomAttributes.SingleOrDefault(
+                attribute => attribute.AttributeType.FullName == _fullAttributeName);
+            if (foundAttribute == null)
+            {
+                return false;
+            }
+
+            propertyDefinition.CustomAttributes.Remove(foundAttribute);
+            LogInfo(
+                $"Removed the attribute '{_fullAttributeName}' from"
+                + $" the property '{propertyDefinition.FullName}'.");
+
+            if (propertyDefinition.GetMethod == null)
+            {
+                LogError($"The property '{propertyDefinition.FullName}' is marked to be validated but has no getter.");
+                return false;
+            }
+
+            // ReSharper disable once InvertIf
+            if (propertyDefinition.SetMethod == null)
+            {
+                LogError($"The property '{propertyDefinition.FullName}' is marked to be validated but has no setter.");
+                return false;
+            }
+
+            return true;
+        }
 
         private IEnumerable<MethodDefinition> FindValidationMethods(string validationMethodName) =>
             ModuleDefinition.Types
@@ -141,7 +165,7 @@
 
         private MethodDefinition OverrideBaseMethodIfNeeded(MethodDefinition methodDefinition)
         {
-            MethodDefinition baseMethodDefinition = FindBaseMethod(methodDefinition);
+            MethodDefinition baseMethodDefinition = methodDefinition.GetBaseMethod();
             if (baseMethodDefinition == methodDefinition)
             {
                 return null;
@@ -190,6 +214,7 @@
             }
 
             index = -1;
+
             // base.MethodName();
 
             // Load this (for base method call)
@@ -203,24 +228,6 @@
 
             LogInfo($"Inserted a base call into the method '{methodDefinition.FullName}'.");
             return baseMethodDefinition;
-        }
-
-        private static MethodDefinition FindBaseMethod(MethodDefinition methodDefinition)
-        {
-            TypeDefinition baseTypeDefinition = methodDefinition.DeclaringType.BaseType?.Resolve();
-            while (baseTypeDefinition != null)
-            {
-                MethodDefinition matchingMethodDefinition =
-                    MetadataResolver.GetMethod(baseTypeDefinition.Methods, methodDefinition);
-                if (matchingMethodDefinition != null)
-                {
-                    return matchingMethodDefinition;
-                }
-
-                baseTypeDefinition = baseTypeDefinition.BaseType?.Resolve();
-            }
-
-            return methodDefinition;
         }
     }
 }

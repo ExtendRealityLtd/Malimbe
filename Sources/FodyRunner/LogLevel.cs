@@ -10,6 +10,7 @@
         Info = 1 << 1,
         Warning = 1 << 2,
         Error = 1 << 3,
+        // ReSharper disable once UnusedMember.Global
         All = Debug | Info | Warning | Error
     }
 }

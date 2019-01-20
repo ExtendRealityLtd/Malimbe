@@ -1,7 +1,7 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>Malimbe.Shared</AssemblyName>
     <RootNamespace>Malimbe.Shared</RootNamespace>
     <LangVersion>latest</LangVersion>

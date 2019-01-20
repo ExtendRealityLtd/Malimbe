@@ -12,14 +12,14 @@ Malimbe is a collection of tools to simplify writing public API components in Un
 
 By taking the assemblies that are created by build tools and changing the assembly itself, repetetive boilerplate can be reduced, new functionality can be introduced and logic written as part of the source code can be altered. This process is called Intermediate Language (IL) weaving and Malimbe uses [Fody] to do it.
 
-Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and additionally offers running them inside Unity by integrating with Unity's compilation and build pipeline. Multiple weavers come with Malimbe to help with boilerplate one has to write when creating Unity components that are intended for public consumption. This includes a form of "serialized properties", getting rid of duplicated documentation through XML documentation and the `[Tooltip]` attribute as well as weavers that help with ensuring the API is able to be called from `UnityEvent`s.
+Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and additionally offers running them inside Unity by integrating with Unity's compilation and build pipeline. Multiple weavers come with Malimbe to help with boilerplate one has to write when creating Unity components that are intended for public consumption. This includes a form of "serialized properties", getting rid of duplicated documentation through XML documentation and the `[Tooltip]` attribute as well as weavers that help with ensuring the API is able to be called from `UnityEvent`s and more.
 
 ## Releases
 
-| Branch | Version                                           | Explanation                        |
-|--------|---------------------------------------------------|------------------------------------|
-| latest | [![Release][Version-Release] ][Releases]          | Stable, production-ready           |
-| next   | [![(Pre-)Release][Version-Prerelease] ][Releases] | Experimental, not production-ready |
+| Branch | Version                                          | Explanation                        |
+|--------|--------------------------------------------------|------------------------------------|
+| latest | [![Release][Version-Release]][Releases]          | Stable, production-ready           |
+| next   | [![(Pre-)Release][Version-Prerelease]][Releases] | Experimental, not production-ready |
 
 Releases follow the [Semantic Versioning (SemVer) system][SemVer].
 
@@ -36,80 +36,105 @@ Please follow these steps to install the package using a local location until Un
 
     <Weavers>
       <Malimbe.FodyRunner>
-        <LogLevel>Error</LogLevel>
+        <LogLevel>Error, Warning</LogLevel>
       </Malimbe.FodyRunner>
-      <Malimbe.SerializedProperty/>
-      <Malimbe.ClearPropertyMethod>
-        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
-      </Malimbe.ClearPropertyMethod>
-      <Malimbe.ValidatePropertiesMethod>
-        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
-      </Malimbe.ValidatePropertiesMethod>
-      <Malimbe.XmlDocumentationToFieldTooltip IdentifierReplacementFormat="`{0}`">
-        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
-      </Malimbe.XmlDocumentationToFieldTooltip>
+      <Malimbe.MemberClearanceMethod/>
+      <Malimbe.PropertySerializationAttribute/>
+      <Malimbe.PropertySetterMethod/>
+      <Malimbe.PropertyValidationMethod/>
+      <Malimbe.XmlDocumentationAttribute IdentifierReplacementFormat="`{0}`"/>
     </Weavers>
     ```
     As with any Fody weaver configuration the order of weavers is important in case a weaver should be applying to the previous weaver's changes.
 
+    In case there are multiple configuration files all of them will be used. In that scenario, if multiple configuration files specify settings for the same weaver, a weaver will be configured using the values in the _last_ configuration file found. A warning is logged to notify of this behavior and to allow fixing potential issues that may arise by ensuring only a single configuration exists for any used weaver.
+
 Additional weavers are supported. To allow Malimbe's Unity integration to find the weavers' assemblies they have to be included anywhere in the Unity project or in one of the UPM packages the project uses.
 
-## What's in the Box
+## What's In The Box
 
-Malimbe is a _collection_ of tools. Each project represents a solution to a specific issue:
+Malimbe is a _collection_ of tools. Each project represents a solution to a specific issue.
 
-* `FodyRunner`: A standalone library that allows running Fody without MSBuild or Visual Studio.
-  * Use the XML element `LogLevel` to specify which log messages should be sent to the logger instance. Valid values are
+### `FodyRunner`
 
-    * `None` (or don't specify `LogLevel`)
-    * `Debug`
-    * `Info`
-    * `Warning`
-    * `Error`
-    * `All`
+A standalone library that allows running Fody without MSBuild or Visual Studio.
 
-    Separate multiple levels by using multiple XML elements or separate inside an XML element by using any form of whitespace including newlines or commas.
-* `FodyRunner.UnityIntegration`: Weaves assemblies in the Unity Editor after Unity compiled them as well as builds. The weaving is done by utilizing `FodyRunner`.
-  * There is no need to manually run the weaving process. The library just needs to be part of a Unity project (configured to only run in the Editor) to be used. It hooks into the various callbacks Unity offers and automatically weaves any assembly on startup as well as when they change.
-  * Once the library is loaded in the Editor a menu item `Tools/Malimbe/Weave All Assemblies` allows to manually trigger the weaving process for all assemblies in the current project. This is useful when a `FodyWeavers.xml` file was changed.
-* `SerializedProperty.Fody`: A Unity-specific weaver. Ensures the backing field for a property annotated with `[SerializedProperty]` is serialized. If a `T SetPropertyName(T, T)` method exists it will be used in the property's setter before existing instructions.
-  * Annotate a property with `[SerializedProperty]` to use this. Note that the attribute's constructor allows specifying whether the backing field should be hidden in the Unity inspector (false by default). Hiding the _property_ from the inspector (e.g. in the UnityEvent listener picker) is not supported by Unity.
-  * Optionally write `T SetPropertyName(T, T)` methods that act as a setter addition on the same type that declares the property (of type `T`). A call to this method will be added to the _start_ of the existing setter. The accessibility level of the method doesn't matter and the name lookup is case insensitive.
-  * If the property's backing field doesn't use `[SerializeField]` it will be added.
-  * If the property is an [auto-implemented property][Auto-Implemented Property] the backing field will be renamed to match the property's name for viewing in the Unity inspector. Since C# doesn't allow multiple members of a type to share a name the backing field's name will differ in the first character's case. E.g.:
-    * `int Counter { get; set; }` will use a backing field called `counter`.
-    * `bool isValid { get; private set; }` will use a backing field called `IsValid`.
-* `ClearPropertyMethod.Fody`: A generic weaver. Creates `ClearProperty()` methods for any property that is of reference type and has a setter. Sets the property via its setter to `null` in this new method.
-  * The weaver only runs on types that match a namespace. Specify the namespaces to act on via (multiple) XML _elements_ called `NamespaceFilter`. The elements' values are used as ([.NET Standard's][Regex]) regular expressions.
-  * In case the method already exists the additional instructions will be weaved into the _end_ of the method. The method name lookup is case insensitive.
-* `ValidatePropertiesMethod.Fody`: A generic weaver (though made for Unity). Ensures there's an `public OnValidate()` method for any type that has properties with setters. For each property it does `Property = Property;` in this new method.
-  * The weaver only runs on types that match a namespace. Specify the namespaces to act on via (multiple) XML _elements_ called `NamespaceFilter`. The elements' values are used as ([.NET Standard's][Regex]) regular expressions.
-  * Instead of `OnValidate` the method name can be customized with the XML _attribute_ `MethodName`, e.g.:
-    ```xml
-      <Malimbe.ValidatePropertiesMethod MethodName="Validate">
-        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
-      </Malimbe.ValidatePropertiesMethod>
-    ```
-  * In case the method already exists the additional instructions will be weaved into the _end_ of the method. The method name lookup is case insensitive.
-  * If necessary the method and the base type's method will be adjusted to override the method of the same name. Accessibility levels are also adjusted as needed.
-* `XmlDocumentationToFieldTooltip.Fody`: A generic weaver (though made for Unity). Looks up the XML `<summary>` documentation for any field that is public or uses `[SerializeField]` and ensures `[Tooltip]` is used on that field with that summary.
-  * The weaver only runs on types that match a namespace. Specify the namespaces to act on via (multiple) XML _elements_ called `NamespaceFilter`. The elements' values are used as ([.NET Standard's][Regex]) regular expressions.
-  * Instead of `TooltipAttribute` the attribute can be customized with the XML _attribute_ `FullAttributeName`, e.g.:
-    ```xml
-      <Malimbe.XmlDocumentationToFieldTooltip FullAttributeName="Some.Other.Namespace.DocumentationAttribute">
-        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
-      </Malimbe.XmlDocumentationToFieldTooltip>
-    ```
-    The attribute needs to have a constructor that takes a `string` parameter and nothing else. Note that the attribute name has to be the full type name, i.e. prefixed by the namespace.
-  * In case the attribute already exists on the field it will be replaced.
-  * Tags in the XML documentation comment like `<see cref="Something"/>` will be replaced by just the "identifier" `Something` by default. To customize this behavior the XML _attribute_ `IdentifierReplacementFormat` can be used, e.g.:
-    ```xml
-      <Malimbe.XmlDocumentationToFieldTooltip IdentifierReplacementFormat="`{0}`">
-        <NamespaceFilter>^My.Namespace.Example</NamespaceFilter>
-      </Malimbe.XmlDocumentationToFieldTooltip>
-    ```
-    The format needs to specify a placeholder `{0}`, otherwise an error will be logged and the default replacement format will be used instead.
-* `UnityPackaging`: Outputs a ready-to-use folder with the appropriate hierarchy to copy into a Unity project's Asset folder. The output includes both the Unity integration libraries as well as all weavers listed above.
+* Use the XML element `LogLevel` to specify which log messages should be sent to the logger instance. Separate multiple levels by using multiple XML elements or separate inside an XML element by using any form of whitespace including newlines or commas. Valid values are
+  * `None` (or don't specify `LogLevel`)
+  * `Debug`
+  * `Info`
+  * `Warning`
+  * `Error`
+  * `All`
+
+### `FodyRunner.UnityIntegration`
+
+Weaves assemblies using `FodyRunner` in the Unity Editor after Unity compiled them.
+
+* There is no need to manually run the weaving process. The library just needs to be part of a Unity project (it's configured to only run in the Editor) to be used. It hooks into the various callbacks Unity offers and automatically weaves any assembly on startup as well as when they change.
+* Once the library is loaded in the Editor a menu item `Tools/Malimbe/Weave All Assemblies` allows to manually trigger the weaving process for all assemblies in the current project. This is useful when a `FodyWeavers.xml` file was changed.
+
+### `MemberClearanceMethod.Fody`
+
+A generic weaver. Creates `ClearMemberName()` methods for any member `MemberName` that is of reference type. Sets the member to `null` in this method.
+
+* Annotate a member with `[Cleared]` to use this. Both properties and fields are supported. Properties need a setter.
+* Instead of `ClearMemberName` the method name's _prefix_ can be customized with the XML _attribute_ `MethodNamePrefix`, e.g.:
+  ```xml
+    <Malimbe.MemberClearanceMethod MethodNamePrefix="Nullify" />
+  ```
+  This will create methods named `NullifyMemberName`.
+* In case the method already exists the instructions will be weaved into the _end_ of the method. The method name lookup is case insensitive.
+
+### `PropertySerializationAttribute.Fody`
+
+A Unity-specific weaver. Ensures the backing field for a property is serialized.
+
+* Annotate a property with `[Serialized]` to use this. The property needs both a getter and setter.
+* If the property's backing field doesn't use `[SerializeField]` it will be added.
+* If the property is an [auto-implemented property][Auto-Implemented Property] the backing field will be renamed to match the property's name for viewing in the Unity inspector. All backing field usages inside methods of the declaring type will be updated to use this new name. Since C# doesn't allow multiple members of a type to share a name, the backing field's name will differ in the first character's case. E.g.:
+  * `public int Counter { get; set; }` will use a backing field called `counter`.
+  * `protected bool isValid { get; private set; }` will use a backing field called `IsValid`.
+
+### `PropertySetterMethod.Fody`
+
+A generic weaver. Calls a validation method at the start of a property's setter.
+
+* Annotate a method with `[SetsProperty(nameof(SomeProperty))]` to use this. The method needs to follow the signature pattern `T MethodName(T, T)` where `T` is the property's type. The accessibility level of the method doesn't matter and the name lookup is case insensitive. A call to this method will be added to the _start_ of the property's setter.
+* The property needs to be declared in the same type the method is declared in. Both a getter and setter are required for the property.
+
+### `PropertyValidationMethod.Fody`
+
+A generic weaver (though made for Unity). Creates a `OnValidate()` method that validates a property.
+
+* Annotate a property with `[Validated]` to use this. The property needs both a getter and setter.
+* Instead of `OnValidate` the method name can be customized with the XML _attribute_ `MethodName`, e.g.:
+  ```xml
+    <Malimbe.PropertyValidationMethod MethodName="Validate" />
+  ```
+* In case the method already exists the additional instructions will be weaved into the _end_ of the method. The method name lookup is case insensitive.
+* If necessary the method and the base type's method will be adjusted to override the method of the same name. Accessibility levels are also adjusted as needed.
+
+### `XmlDocumentationAttribute.Fody`
+
+A generic weaver (though made for Unity). Looks up the XML `<summary>` documentation for a field and adds `[Tooltip]` to that field with that summary.
+
+* Annotate a field with `[DocumentedByXml]` to use this.
+* Instead of `TooltipAttribute` the added attribute can be customized with the XML _attribute_ `FullAttributeName`, e.g.:
+  ```xml
+    <Malimbe.XmlDocumentationAttribute FullAttributeName="Some.Other.Namespace.DocumentationAttribute" />
+  ```
+  The attribute needs to have a constructor that takes a `string` parameter and nothing else. Note that the attribute name has to be the full type name, i.e. prefixed by the namespace.
+* In case the attribute already exists on the field it will be replaced.
+* Tags in the XML documentation comment like `<see cref="Something"/>` will be replaced by just the "identifier" `Something` by default. To customize this behavior the XML _attribute_ `IdentifierReplacementFormat` can be used, e.g.:
+  ```xml
+    <Malimbe.XmlDocumentationAttribute IdentifierReplacementFormat="`{0}`" />
+  ```
+  The format needs to specify a placeholder `{0}`, otherwise an error will be logged and the default replacement format will be used instead.
+
+### `UnityPackaging`
+
+Outputs a ready-to-use folder with the appropriate hierarchy to copy into a Unity project's Assets folder. The output includes both the Unity integration libraries as well as all weavers and their attributes listed above.
 
 ## Contributing
 
@@ -121,9 +146,9 @@ While we intend to add more features to Malimbe when we identify a need or use c
 
 Inspired by [Fody's naming] the name "Malimbe" comes from the [small birds][Malimbus] that belong to the weaver family [Ploceidae].
 
-## Tools and Products Used
+## Tools And Products Used
 
- * [Fody]
+* [Fody]
 
 ## License
 

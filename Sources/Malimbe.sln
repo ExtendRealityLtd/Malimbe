@@ -7,19 +7,31 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FodyRunner", "FodyRunner\Fo
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FodyRunner.UnityIntegration", "FodyRunner.UnityIntegration\FodyRunner.UnityIntegration.csproj", "{59E7DAA9-CA08-414F-8EE9-3853CDF443DD}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializedProperty", "SerializedProperty\SerializedProperty.csproj", "{8F539C6B-1E4D-46F4-91F1-2CA57D473F91}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertySerializationAttribute", "PropertySerializationAttribute\PropertySerializationAttribute.csproj", "{8F539C6B-1E4D-46F4-91F1-2CA57D473F91}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SerializedProperty.Fody", "SerializedProperty.Fody\SerializedProperty.Fody.csproj", "{4E1A2421-F3C9-4C64-8A4F-EDAA12153689}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertySerializationAttribute.Fody", "PropertySerializationAttribute.Fody\PropertySerializationAttribute.Fody.csproj", "{4E1A2421-F3C9-4C64-8A4F-EDAA12153689}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ValidatePropertiesMethod.Fody", "ValidatePropertiesMethod.Fody\ValidatePropertiesMethod.Fody.csproj", "{DE9DAF35-DDB6-4D1A-AC64-6DCC15DE5C34}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertyValidationMethod.Fody", "PropertyValidationMethod.Fody\PropertyValidationMethod.Fody.csproj", "{DE9DAF35-DDB6-4D1A-AC64-6DCC15DE5C34}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "ClearPropertyMethod.Fody", "ClearPropertyMethod.Fody\ClearPropertyMethod.Fody.csproj", "{296E38B8-4812-44DC-8257-8473D2BA8A09}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberClearanceMethod.Fody", "MemberClearanceMethod.Fody\MemberClearanceMethod.Fody.csproj", "{296E38B8-4812-44DC-8257-8473D2BA8A09}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "UnityPackaging", "UnityPackaging\UnityPackaging.csproj", "{22831846-2141-4820-9BD9-9A55AF614B6E}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocumentationToFieldTooltip.Fody", "XmlDocumentationToFieldTooltip.Fody\XmlDocumentationToFieldTooltip.Fody.csproj", "{966A4C11-FE59-4EB3-868A-DBDA0874C9E5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocumentationAttribute.Fody", "XmlDocumentationAttribute.Fody\XmlDocumentationAttribute.Fody.csproj", "{966A4C11-FE59-4EB3-868A-DBDA0874C9E5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{EE1351B4-E8CF-40C6-A52D-B613558C3743}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{EE1351B4-E8CF-40C6-A52D-B613558C3743}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertySetterMethod", "PropertySetterMethod\PropertySetterMethod.csproj", "{FCDA1E4B-C42C-4F71-9B1E-F260AF3ABEFA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertySetterMethod.Fody", "PropertySetterMethod.Fody\PropertySetterMethod.Fody.csproj", "{BADB02F5-23AF-401D-A919-9771C3885644}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberClearanceMethod", "MemberClearanceMethod\MemberClearanceMethod.csproj", "{9C55B0CE-82D8-49BA-9DE5-805DFC2527C4}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertyValidationMethod", "PropertyValidationMethod\PropertyValidationMethod.csproj", "{D5280C62-A165-421A-AEA9-DCBEE7AE8C52}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocumentationAttribute", "XmlDocumentationAttribute\XmlDocumentationAttribute.csproj", "{BB10FF4A-EA8A-42F2-A750-4D3234EFD581}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Weavers", "Weavers", "{335FA460-758B-4432-80DC-4A953749E164}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -63,9 +75,41 @@ Global
 		{EE1351B4-E8CF-40C6-A52D-B613558C3743}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{EE1351B4-E8CF-40C6-A52D-B613558C3743}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{EE1351B4-E8CF-40C6-A52D-B613558C3743}.Release|Any CPU.Build.0 = Release|Any CPU
+		{FCDA1E4B-C42C-4F71-9B1E-F260AF3ABEFA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{FCDA1E4B-C42C-4F71-9B1E-F260AF3ABEFA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{FCDA1E4B-C42C-4F71-9B1E-F260AF3ABEFA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{FCDA1E4B-C42C-4F71-9B1E-F260AF3ABEFA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BADB02F5-23AF-401D-A919-9771C3885644}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BADB02F5-23AF-401D-A919-9771C3885644}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BADB02F5-23AF-401D-A919-9771C3885644}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BADB02F5-23AF-401D-A919-9771C3885644}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9C55B0CE-82D8-49BA-9DE5-805DFC2527C4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9C55B0CE-82D8-49BA-9DE5-805DFC2527C4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9C55B0CE-82D8-49BA-9DE5-805DFC2527C4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9C55B0CE-82D8-49BA-9DE5-805DFC2527C4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D5280C62-A165-421A-AEA9-DCBEE7AE8C52}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D5280C62-A165-421A-AEA9-DCBEE7AE8C52}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D5280C62-A165-421A-AEA9-DCBEE7AE8C52}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D5280C62-A165-421A-AEA9-DCBEE7AE8C52}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{8F539C6B-1E4D-46F4-91F1-2CA57D473F91} = {335FA460-758B-4432-80DC-4A953749E164}
+		{4E1A2421-F3C9-4C64-8A4F-EDAA12153689} = {335FA460-758B-4432-80DC-4A953749E164}
+		{DE9DAF35-DDB6-4D1A-AC64-6DCC15DE5C34} = {335FA460-758B-4432-80DC-4A953749E164}
+		{296E38B8-4812-44DC-8257-8473D2BA8A09} = {335FA460-758B-4432-80DC-4A953749E164}
+		{966A4C11-FE59-4EB3-868A-DBDA0874C9E5} = {335FA460-758B-4432-80DC-4A953749E164}
+		{FCDA1E4B-C42C-4F71-9B1E-F260AF3ABEFA} = {335FA460-758B-4432-80DC-4A953749E164}
+		{BADB02F5-23AF-401D-A919-9771C3885644} = {335FA460-758B-4432-80DC-4A953749E164}
+		{9C55B0CE-82D8-49BA-9DE5-805DFC2527C4} = {335FA460-758B-4432-80DC-4A953749E164}
+		{D5280C62-A165-421A-AEA9-DCBEE7AE8C52} = {335FA460-758B-4432-80DC-4A953749E164}
+		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581} = {335FA460-758B-4432-80DC-4A953749E164}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BF0472E-2BB1-4136-A25A-A8B63E1935C2}

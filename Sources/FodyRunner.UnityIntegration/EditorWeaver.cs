@@ -3,6 +3,7 @@
     using System;
     using System.Collections.Generic;
     using System.Linq;
+    using JetBrains.Annotations;
     using UnityEditor;
     using UnityEditor.Compilation;
     using UnityEngine;
@@ -33,14 +34,29 @@
             for (int index = 0; index < assemblies.Count; index++)
             {
                 Assembly assembly = assemblies[index];
-                EditorUtility.DisplayProgressBar(
-                    nameof(Malimbe),
-                    $"Weaving '{assembly.name}'.",
-                    (float)index / assemblies.Count);
+                try
+                {
+                    EditorUtility.DisplayProgressBar(
+                        nameof(Malimbe),
+                        $"Weaving '{assembly.name}'.",
+                        (float)index / assemblies.Count);
+                }
+                catch
+                {
+                    // ignored
+                }
+
                 WeaveAssembly(assembly, searchPaths);
             }
 
-            EditorUtility.ClearProgressBar();
+            try
+            {
+                EditorUtility.ClearProgressBar();
+            }
+            catch
+            {
+                // ignored
+            }
         }
 
         private static void OnCompilationFinished(string path, CompilerMessage[] messages)
@@ -56,6 +72,7 @@
             WeaveAssembly(foundAssembly, searchPaths);
         }
 
+        [NotNull]
         private static IEnumerable<Assembly> GetAllAssemblies() =>
             CompilationPipeline.GetAssemblies(AssembliesType.Player)
                 .Concat(CompilationPipeline.GetAssemblies(AssembliesType.Editor))

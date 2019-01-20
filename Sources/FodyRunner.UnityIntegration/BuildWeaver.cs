@@ -8,11 +8,13 @@
     using UnityEditor.Build.Reporting;
     using UnityEngine;
 
+    // ReSharper disable once UnusedMember.Global
     internal sealed class BuildWeaver : IPostprocessBuildWithReport
     {
         public int callbackOrder =>
             0;
 
+        // ReSharper disable once AnnotateNotNullParameter
         public void OnPostprocessBuild(BuildReport buildReport)
         {
             const string managedLibraryRoleName = "ManagedLibrary";

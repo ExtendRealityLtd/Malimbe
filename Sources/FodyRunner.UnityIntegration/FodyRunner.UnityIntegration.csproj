@@ -1,10 +1,10 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>netstandard2.0;net47</TargetFrameworks>
-    <LangVersion>latest</LangVersion>
+    <TargetFrameworks>netstandard2.0</TargetFrameworks>
     <AssemblyName>Malimbe.FodyRunner.UnityIntegration</AssemblyName>
     <RootNamespace>Malimbe.FodyRunner.UnityIntegration</RootNamespace>
+    <LangVersion>latest</LangVersion>
     <UnityEditorAssembliesPath Condition="'$(UnityEditorAssembliesPath)' == ''">C:\Program Files\Unity\Hub\Editor\2018.1.9f2\Editor\Data\Managed\</UnityEditorAssembliesPath>
   </PropertyGroup>
 

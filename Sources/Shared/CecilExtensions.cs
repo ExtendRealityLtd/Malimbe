@@ -7,30 +7,48 @@
 
     public static class CecilExtensions
     {
-        public static MethodReference GetGeneric(this MethodReference reference)
+        public static MethodReference GetGeneric(this MethodReference methodReference)
         {
-            if (!reference.DeclaringType.HasGenericParameters)
+            if (!methodReference.DeclaringType.HasGenericParameters)
             {
-                return reference;
+                return methodReference;
             }
 
-            GenericInstanceType declaringType = new GenericInstanceType(reference.DeclaringType);
-            foreach (GenericParameter parameter in reference.DeclaringType.GenericParameters)
+            GenericInstanceType declaringType = new GenericInstanceType(methodReference.DeclaringType);
+            foreach (GenericParameter parameter in methodReference.DeclaringType.GenericParameters)
             {
                 declaringType.GenericArguments.Add(parameter);
             }
 
-            MethodReference methodReference = new MethodReference(
-                reference.Name,
-                reference.MethodReturnType.ReturnType,
+            MethodReference genericMethodReference = new MethodReference(
+                methodReference.Name,
+                methodReference.MethodReturnType.ReturnType,
                 declaringType);
-            foreach (ParameterDefinition parameterDefinition in reference.Parameters)
+            foreach (ParameterDefinition parameterDefinition in methodReference.Parameters)
             {
-                methodReference.Parameters.Add(parameterDefinition);
+                genericMethodReference.Parameters.Add(parameterDefinition);
             }
 
-            methodReference.HasThis = reference.HasThis;
-            return methodReference;
+            genericMethodReference.HasThis = methodReference.HasThis;
+            return genericMethodReference;
+        }
+
+        public static MethodDefinition GetBaseMethod(this MethodDefinition methodDefinition)
+        {
+            TypeDefinition baseTypeDefinition = methodDefinition.DeclaringType.BaseType?.Resolve();
+            while (baseTypeDefinition != null)
+            {
+                MethodDefinition matchingMethodDefinition =
+                    MetadataResolver.GetMethod(baseTypeDefinition.Methods, methodDefinition);
+                if (matchingMethodDefinition != null)
+                {
+                    return matchingMethodDefinition;
+                }
+
+                baseTypeDefinition = baseTypeDefinition.BaseType?.Resolve();
+            }
+
+            return methodDefinition;
         }
 
         public static FieldReference GetBackingField(this PropertyDefinition propertyDefinition)

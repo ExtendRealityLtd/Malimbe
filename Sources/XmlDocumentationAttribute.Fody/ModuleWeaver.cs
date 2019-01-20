@@ -1,4 +1,4 @@
-﻿namespace Malimbe.XmlDocumentationToFieldTooltip.Fody
+﻿namespace Malimbe.XmlDocumentationAttribute.Fody
 {
     using System.Collections.Generic;
     using System.IO;
@@ -9,11 +9,13 @@
     using Mono.Cecil;
     using Mono.Cecil.Cil;
 
+    // ReSharper disable once UnusedMember.Global
     public sealed class ModuleWeaver : BaseModuleWeaver
     {
         private const string IdentifierReplacementFormatElementName = "IdentifierReplacementFormat";
         private const string DefaultIdentifierReplacementFormat = "{0}";
 
+        private static readonly string _fullAttributeName = typeof(DocumentedByXmlAttribute).FullName;
         private static readonly Regex _documentedIdentifierRegex = new Regex(
             @"<\s*summary\s*>(?'summary'(?:\s*\/{3}.*)*)<\s*\/\s*summary\s*>(?:\s*\/{3}.*|\s|\[[\p{L}\p{M}\p{N}\p{P}\p{S}\p{Z}\p{C}]*?\])*[\s\w<>.\[\]?]*\s(?'identifier'\w+)(?:\((?'methodParameters'.*)\))?",
             RegexOptions.Compiled);
@@ -30,38 +32,19 @@
         public override void Execute()
         {
             FindReferences();
+            string identifierReplacementFormat = GetIdentifierReplacementFormat();
 
-            string identifierReplacementFormat = Config.Attribute(IdentifierReplacementFormatElementName)?.Value;
-            if (string.IsNullOrWhiteSpace(identifierReplacementFormat))
-            {
-                LogInfo(
-                    $"No '{IdentifierReplacementFormatElementName}' element is specified in the configuration."
-                    + $" Falling back to use '{DefaultIdentifierReplacementFormat}'.");
-                identifierReplacementFormat = DefaultIdentifierReplacementFormat;
-            }
-            else if (!identifierReplacementFormat.Contains("{0}"))
-            {
-                LogError(
-                    $"The '{IdentifierReplacementFormatElementName}' configuration element doesn't specify a format"
-                    + $" placeholder '{{0}}'. Falling back to use '{DefaultIdentifierReplacementFormat}'.");
-                identifierReplacementFormat = DefaultIdentifierReplacementFormat;
-            }
-
-            List<Regex> namespaceFilters = FindNamespaceFilters().ToList();
             IEnumerable<TypeDefinition> typeDefinitions = ModuleDefinition.Types.Where(
-                definition =>
-                    definition.HasFields
-                    && (namespaceFilters.Count == 0
-                        || namespaceFilters.Any(regex => regex.IsMatch(definition.Namespace))));
+                definition => definition.HasFields);
             foreach (TypeDefinition typeDefinition in typeDefinitions)
             {
-                List<FieldDefinition> fieldDefinitions = FindFieldsToAnnotate(typeDefinition).ToList();
+                List<FieldDefinition> fieldDefinitions = typeDefinition.Fields.Where(FindAndRemoveAttribute).ToList();
                 if (fieldDefinitions.Count == 0)
                 {
                     continue;
                 }
 
-                IReadOnlyDictionary<string, string> summariesByIdentifierName =
+                IReadOnlyDictionary<string, List<string>> summariesByIdentifierName =
                     ParseSourceFileXmlDocumentation(typeDefinition, identifierReplacementFormat);
                 if (summariesByIdentifierName.Count == 0)
                 {
@@ -70,21 +53,31 @@
 
                 foreach (FieldDefinition fieldDefinition in fieldDefinitions)
                 {
-                    if (summariesByIdentifierName.TryGetValue(fieldDefinition.Name, out string summary))
-                    {
-                        AnnotateField(fieldDefinition, summary);
-                    }
-                    else
+                    if (!summariesByIdentifierName.TryGetValue(fieldDefinition.Name, out List<string> summaries))
                     {
                         PropertyDefinition propertyDefinition =
                             fieldDefinition.DeclaringType.Properties?.FirstOrDefault(
                                 definition => definition.GetBackingField()?.Name == fieldDefinition.Name);
-                        if (propertyDefinition != null
-                            && summariesByIdentifierName.TryGetValue(propertyDefinition.Name, out summary))
+                        if (propertyDefinition != null)
                         {
-                            AnnotateField(fieldDefinition, summary);
+                            summariesByIdentifierName.TryGetValue(propertyDefinition.Name, out summaries);
                         }
                     }
+
+                    if (summaries == null)
+                    {
+                        continue;
+                    }
+
+                    if (summaries.Count > 1)
+                    {
+                        LogError(
+                            $"There are at least two identifiers called '{fieldDefinition.Name}' in '{typeDefinition.FullName}'."
+                            + " Only a single identifier name per source code file is currently supported. The first occurrence of"
+                            + $" the identifier name will be annotated using the attribute '{_attributeDefinition.FullName}'.");
+                    }
+
+                    AnnotateField(fieldDefinition, summaries.First());
                 }
             }
         }
@@ -120,21 +113,42 @@
             _attributeConstructorReference = ModuleDefinition.ImportReference(constructorMethodInfo);
         }
 
-        private IEnumerable<Regex> FindNamespaceFilters() =>
-            Config?.Elements("NamespaceFilter")
-                .Select(xElement => xElement.Value)
-                .Select(filter => new Regex(filter, RegexOptions.Compiled))
-                .ToList()
-            ?? Enumerable.Empty<Regex>();
+        private string GetIdentifierReplacementFormat()
+        {
+            string identifierReplacementFormat = Config.Attribute(IdentifierReplacementFormatElementName)?.Value;
+            if (string.IsNullOrWhiteSpace(identifierReplacementFormat))
+            {
+                LogInfo(
+                    $"No '{IdentifierReplacementFormatElementName}' element is specified in the configuration."
+                    + $" Falling back to use '{DefaultIdentifierReplacementFormat}'.");
+                identifierReplacementFormat = DefaultIdentifierReplacementFormat;
+            }
+            else if (!identifierReplacementFormat.Contains("{0}"))
+            {
+                LogError(
+                    $"The '{IdentifierReplacementFormatElementName}' configuration element doesn't specify a format"
+                    + $" placeholder '{{0}}'. Falling back to use '{DefaultIdentifierReplacementFormat}'.");
+                identifierReplacementFormat = DefaultIdentifierReplacementFormat;
+            }
 
-        private static IEnumerable<FieldDefinition> FindFieldsToAnnotate(TypeDefinition typeDefinition) =>
-            typeDefinition.Fields.Where(
-                definition =>
-                    definition.IsPublic
-                    || definition.CustomAttributes.Any(
-                        attribute => attribute.AttributeType.FullName == "UnityEngine.SerializeField"));
+            return identifierReplacementFormat;
+        }
 
-        private IReadOnlyDictionary<string, string> ParseSourceFileXmlDocumentation(
+        private bool FindAndRemoveAttribute(IMemberDefinition fieldDefinition)
+        {
+            CustomAttribute foundAttribute = fieldDefinition.CustomAttributes.SingleOrDefault(
+                attribute => attribute.AttributeType.FullName == _fullAttributeName);
+            if (foundAttribute == null)
+            {
+                return false;
+            }
+
+            fieldDefinition.CustomAttributes.Remove(foundAttribute);
+            LogInfo($"Removed the attribute '{_fullAttributeName}' from the field '{fieldDefinition.FullName}'.");
+            return true;
+        }
+
+        private static IReadOnlyDictionary<string, List<string>> ParseSourceFileXmlDocumentation(
             TypeDefinition typeDefinition,
             string identifierReplacementFormat)
         {
@@ -143,12 +157,12 @@
                 .FirstOrDefault();
             if (sequencePoint == null)
             {
-                return new Dictionary<string, string>();
+                return new Dictionary<string, List<string>>();
             }
 
             string documentUrl = sequencePoint.Document.Url;
             string sourceCode = File.ReadAllText(documentUrl);
-            Dictionary<string, string> summariesByIdentifierName = new Dictionary<string, string>();
+            Dictionary<string, List<string>> summariesByIdentifierName = new Dictionary<string, List<string>>();
 
             foreach (Match match in _documentedIdentifierRegex.Matches(sourceCode))
             {
@@ -158,20 +172,17 @@
                 }
 
                 string identifierName = match.Groups["identifier"].Value;
-                if (summariesByIdentifierName.ContainsKey(identifierName))
+                if (!summariesByIdentifierName.TryGetValue(identifierName, out List<string> summaries))
                 {
-                    LogError(
-                        $"There are at least two identifiers called '{identifierName}' in '{typeDefinition.FullName}'."
-                        + " Only a single identifier name per source code file is currently supported. The first occurrence of"
-                        + $" the identifier name will be annotated using the attribute '{_attributeDefinition.FullName}'.");
-                    continue;
+                    summaries = new List<string>();
+                    summariesByIdentifierName[identifierName] = summaries;
                 }
 
                 string body = match.Groups["summary"].Value.Trim(' ', '/', '\r', '\n');
                 string summary = _xmlTagBodyCleanUpRegex.Replace(
                     body,
                     string.Format(identifierReplacementFormat, "${identifier}"));
-                summariesByIdentifierName[identifierName] = summary;
+                summaries.Add(summary);
             }
 
             return summariesByIdentifierName;

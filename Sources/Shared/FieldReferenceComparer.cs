@@ -4,7 +4,7 @@
     using System.Collections.Generic;
     using Mono.Cecil;
 
-    public sealed class FieldReferenceComparer : IEqualityComparer<FieldReference>
+    internal sealed class FieldReferenceComparer : IEqualityComparer<FieldReference>
     {
         public static readonly FieldReferenceComparer Instance = new FieldReferenceComparer();
 

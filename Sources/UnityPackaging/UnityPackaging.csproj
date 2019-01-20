@@ -9,12 +9,20 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\ClearPropertyMethod.Fody\ClearPropertyMethod.Fody.csproj" />
-    <ProjectReference Include="..\SerializedProperty.Fody\SerializedProperty.Fody.csproj" />
-    <ProjectReference Include="..\SerializedProperty\SerializedProperty.csproj" />
+    <ProjectReference Include="..\MemberClearanceMethod.Fody\MemberClearanceMethod.Fody.csproj" />
+    <ProjectReference Include="..\MemberClearanceMethod\MemberClearanceMethod.csproj" />
     <ProjectReference Include="..\FodyRunner.UnityIntegration\FodyRunner.UnityIntegration.csproj" />
-    <ProjectReference Include="..\ValidatePropertiesMethod.Fody\ValidatePropertiesMethod.Fody.csproj" />
-    <ProjectReference Include="..\XmlDocumentationToFieldTooltip.Fody\XmlDocumentationToFieldTooltip.Fody.csproj" />
+    <ProjectReference Include="..\PropertySerializationAttribute.Fody\PropertySerializationAttribute.Fody.csproj" />
+    <ProjectReference Include="..\PropertySerializationAttribute\PropertySerializationAttribute.csproj" />
+    <ProjectReference Include="..\PropertySetterMethod.Fody\PropertySetterMethod.Fody.csproj" />
+    <ProjectReference Include="..\PropertySetterMethod\PropertySetterMethod.csproj" />
+    <ProjectReference Include="..\PropertyValidationMethod.Fody\PropertyValidationMethod.Fody.csproj" />
+    <ProjectReference Include="..\PropertyValidationMethod\PropertyValidationMethod.csproj" />
+    <ProjectReference Include="..\XmlDocumentationAttribute.Fody\XmlDocumentationAttribute.Fody.csproj" />
+    <ProjectReference Include="..\XmlDocumentationAttribute\XmlDocumentationAttribute.csproj" />
+    <ProjectReference Remove="..\**\FodyRunner.csproj" />
+    <ProjectReference Remove="..\**\Shared.csproj" />
+    <ProjectReference Remove="..\**\UnityPackaging.csproj" />
   </ItemGroup>
 
   <!-- https://github.com/dotnet/sdk/issues/1458#issuecomment-401497095 -->
@@ -41,20 +49,23 @@
 
   <Target Name="CreateUnityPackage" AfterTargets="DeleteUnusedFiles">
     <ItemGroup>
-      <RuntimeFiles Include="$(TargetDir)*.SerializedProperty.dll;$(TargetDir)*.SerializedProperty.pdb" />
+      <RuntimeFiles Include="$(TargetDir)*.dll;$(TargetDir)*.pdb;$(TargetDir)*.xml" />
     </ItemGroup>
-    <Move SourceFiles="@(RuntimeFiles)" DestinationFolder="$(TargetDir)Runtime" />
+    <Move SourceFiles="@(RuntimeFiles)" DestinationFolder="$(TargetDir)Runtime" Condition="!$([System.Text.RegularExpressions.Regex]::IsMatch('%(FullPath)', '.*\.Fody\..*')) and Exists($([System.Text.RegularExpressions.Regex]::Replace('%(FullPath)', '[^.]+$', 'Fody.$0')))" />
 
     <ItemGroup>
       <EditorFiles Include="$(TargetDir)*" />
-      <MissingAssemblies Include="..\FodyRunner.UnityIntegration\bin\$(Configuration)\$(TargetFramework)\*.dll" />
     </ItemGroup>
     <Move SourceFiles="@(EditorFiles)" DestinationFolder="$(TargetDir)Editor" />
+
     <!--
       Copy the files MSBuild doesn't copy. These are output/dependency files from dependency projects that are
       compiled against a different TargetFramework compared to the one this project builds. The UnityIntegration
       project has them all so only those are copied.
     -->
+    <ItemGroup>
+      <MissingAssemblies Include="..\FodyRunner.UnityIntegration\bin\$(Configuration)\$(TargetFramework)\*.dll" />
+    </ItemGroup>
     <Copy SourceFiles="@(MissingAssemblies)" DestinationFolder="$(TargetDir)Editor" />
 
     <ItemGroup>
