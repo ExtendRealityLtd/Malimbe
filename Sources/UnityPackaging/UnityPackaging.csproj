@@ -9,17 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\MemberClearanceMethod.Fody\MemberClearanceMethod.Fody.csproj" />
-    <ProjectReference Include="..\MemberClearanceMethod\MemberClearanceMethod.csproj" />
-    <ProjectReference Include="..\FodyRunner.UnityIntegration\FodyRunner.UnityIntegration.csproj" />
-    <ProjectReference Include="..\PropertySerializationAttribute.Fody\PropertySerializationAttribute.Fody.csproj" />
-    <ProjectReference Include="..\PropertySerializationAttribute\PropertySerializationAttribute.csproj" />
-    <ProjectReference Include="..\PropertySetterMethod.Fody\PropertySetterMethod.Fody.csproj" />
-    <ProjectReference Include="..\PropertySetterMethod\PropertySetterMethod.csproj" />
-    <ProjectReference Include="..\PropertyValidationMethod.Fody\PropertyValidationMethod.Fody.csproj" />
-    <ProjectReference Include="..\PropertyValidationMethod\PropertyValidationMethod.csproj" />
-    <ProjectReference Include="..\XmlDocumentationAttribute.Fody\XmlDocumentationAttribute.Fody.csproj" />
-    <ProjectReference Include="..\XmlDocumentationAttribute\XmlDocumentationAttribute.csproj" />
+    <ProjectReference Include="..\**\*.csproj" />
     <ProjectReference Remove="..\**\FodyRunner.csproj" />
     <ProjectReference Remove="..\**\Shared.csproj" />
     <ProjectReference Remove="..\**\UnityPackaging.csproj" />
