@@ -65,5 +65,16 @@
                     FieldReferenceComparer.Instance)
                 .FirstOrDefault();
         }
+
+        public static bool IsSubclassOf(this TypeDefinition typeDefinition, TypeReference superTypeReference)
+        {
+            TypeDefinition baseTypeDefinition = typeDefinition.BaseType?.Resolve();
+            while (baseTypeDefinition != null && baseTypeDefinition.FullName != superTypeReference.FullName)
+            {
+                baseTypeDefinition = baseTypeDefinition.BaseType?.Resolve();
+            }
+
+            return baseTypeDefinition?.FullName == superTypeReference.FullName;
+        }
     }
 }

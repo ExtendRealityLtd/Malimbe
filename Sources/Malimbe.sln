@@ -33,6 +33,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocumentationAttribute",
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Weavers", "Weavers", "{335FA460-758B-4432-80DC-4A953749E164}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BehaviourStateRequirementMethod", "BehaviourStateRequirementMethod\BehaviourStateRequirementMethod.csproj", "{C5BB6975-64A3-4182-BA20-EAC052EBE6EB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BehaviourStateRequirementMethod.Fody", "BehaviourStateRequirementMethod.Fody\BehaviourStateRequirementMethod.Fody.csproj", "{4F7AC6C0-619C-4EB7-AD4D-CDEEFA3FFB60}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +99,14 @@ Global
 		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C5BB6975-64A3-4182-BA20-EAC052EBE6EB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C5BB6975-64A3-4182-BA20-EAC052EBE6EB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C5BB6975-64A3-4182-BA20-EAC052EBE6EB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C5BB6975-64A3-4182-BA20-EAC052EBE6EB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4F7AC6C0-619C-4EB7-AD4D-CDEEFA3FFB60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4F7AC6C0-619C-4EB7-AD4D-CDEEFA3FFB60}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4F7AC6C0-619C-4EB7-AD4D-CDEEFA3FFB60}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4F7AC6C0-619C-4EB7-AD4D-CDEEFA3FFB60}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -110,6 +122,8 @@ Global
 		{9C55B0CE-82D8-49BA-9DE5-805DFC2527C4} = {335FA460-758B-4432-80DC-4A953749E164}
 		{D5280C62-A165-421A-AEA9-DCBEE7AE8C52} = {335FA460-758B-4432-80DC-4A953749E164}
 		{BB10FF4A-EA8A-42F2-A750-4D3234EFD581} = {335FA460-758B-4432-80DC-4A953749E164}
+		{C5BB6975-64A3-4182-BA20-EAC052EBE6EB} = {335FA460-758B-4432-80DC-4A953749E164}
+		{4F7AC6C0-619C-4EB7-AD4D-CDEEFA3FFB60} = {335FA460-758B-4432-80DC-4A953749E164}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {3BF0472E-2BB1-4136-A25A-A8B63E1935C2}

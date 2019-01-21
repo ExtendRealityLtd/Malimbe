@@ -38,6 +38,7 @@ Please follow these steps to install the package using a local location until Un
       <Malimbe.FodyRunner>
         <LogLevel>Error, Warning</LogLevel>
       </Malimbe.FodyRunner>
+      <Malimbe.BehaviourStateRequirementMethod/>
       <Malimbe.MemberClearanceMethod/>
       <Malimbe.PropertySerializationAttribute/>
       <Malimbe.PropertySetterMethod/>
@@ -73,6 +74,13 @@ Weaves assemblies using `FodyRunner` in the Unity Editor after Unity compiled th
 
 * There is no need to manually run the weaving process. The library just needs to be part of a Unity project (it's configured to only run in the Editor) to be used. It hooks into the various callbacks Unity offers and automatically weaves any assembly on startup as well as when they change.
 * Once the library is loaded in the Editor a menu item `Tools/Malimbe/Weave All Assemblies` allows to manually trigger the weaving process for all assemblies in the current project. This is useful when a `FodyWeavers.xml` file was changed.
+
+### `BehaviourStateRequirementMethod`
+
+A Unity-specific weaver. Changes a method to return early if a combination of the GameObject's active state and the Behaviour's enabled state doesn't match the configured state.
+
+* Annotate a method with `[RequiresBehaviourState]` to use this. The method needs to be defined in a type that derives from `UnityEngine.Behaviour`, e.g. a `MonoBehaviour`.
+* Use the attribute constructor's parameters to configure the specific state you need the GameObject and the Behaviour to be in.
 
 ### `MemberClearanceMethod.Fody`
 
