@@ -1,5 +1,17 @@
 # Changelog
 
+# [6.1.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v6.0.0...v6.1.0) (2019-01-21)
+
+
+### Bug Fixes
+
+* **packaging:** add missing package files ([7b6ca62](https://github.com/ExtendRealityLtd/Malimbe/commit/7b6ca62))
+
+
+### Features
+
+* **BehaviourStateRequirement:** allow returning early in Behaviours ([ee9955a](https://github.com/ExtendRealityLtd/Malimbe/commit/ee9955a))
+
 # [6.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v5.2.0...v6.0.0) (2019-01-20)
 
 
