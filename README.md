@@ -1,18 +1,16 @@
 [![Malimbe logo][Malimbe-Image]](#)
 
 > ### Malimbe
-> A collection of tools to simplify writing public API components in Unity.
+> A collection of tools to simplify writing public API components for the Unity software.
 
 [![License][License-Badge]][License]
 [![Waffle][Waffle-Badge]][Waffle]
 
 ## Introduction
 
-Malimbe is a collection of tools to simplify writing public API components in Unity.
+Malimbe for the [Unity] software aims to reduce repetitive boilerplate code by taking the assemblies that are created by build tools and changing the assembly itself, new functionality can be introduced and logic written as part of the source code can be altered. This process is called Intermediate Language (IL) weaving and Malimbe uses [Fody] to do it.
 
-By taking the assemblies that are created by build tools and changing the assembly itself, repetetive boilerplate can be reduced, new functionality can be introduced and logic written as part of the source code can be altered. This process is called Intermediate Language (IL) weaving and Malimbe uses [Fody] to do it.
-
-Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and additionally offers running them inside Unity by integrating with Unity's compilation and build pipeline. Multiple weavers come with Malimbe to help with boilerplate one has to write when creating Unity components that are intended for public consumption. This includes a form of "serialized properties", getting rid of duplicated documentation through XML documentation and the `[Tooltip]` attribute as well as weavers that help with ensuring the API is able to be called from `UnityEvent`s and more.
+Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and additionally offers running them inside the Unity software by integrating with the Unity software compilation and build pipeline. Multiple weavers come with Malimbe to help with boilerplate one has to write when creating Unity software components that are intended for public consumption. This includes a form of "serialized properties", getting rid of duplicated documentation through XML documentation and the `[Tooltip]` attribute as well as weavers that help with ensuring the API is able to be called from `UnityEvent`s and more.
 
 ## Releases
 
@@ -25,11 +23,11 @@ Releases follow the [Semantic Versioning (SemVer) system][SemVer].
 
 ## Getting Started
 
-Please follow these steps to install the package using a local location until Unity's Package Manager (UPM) allows third parties to publish packages to the UPM feed:
+Please follow these steps to install the package using a local location until the Unity Package Manager (UPM) allows third parties to publish packages to the UPM feed:
 
 1. Download a release from the [Releases] page and extract it into your folder you use to keep your packages. It is recommended to make that folder part of your project and therefore [version controlled][VCS].
-1. Open your Unity (`>= 2018.3`) project and follow [Unity's instructions][UPM-Instructions] on how to add the package to your project using UPM.
-1. Anywhere in your Unity project add a [`FodyWeavers.xml` file][FodyWeavers].
+1. Open your project created with the Unity software version 2018.3 (or above) project and follow [Unity's instructions][UPM-Instructions] on how to add the package to your project using UPM.
+1. Anywhere in your Unity software project add a [`FodyWeavers.xml` file][FodyWeavers].
 1. Configure the various weavers Malimbe offers, e.g.:
     ```xml
     <?xml version="1.0" encoding="utf-8"?>
@@ -50,7 +48,7 @@ Please follow these steps to install the package using a local location until Un
 
     In case there are multiple configuration files all of them will be used. In that scenario, if multiple configuration files specify settings for the same weaver, a weaver will be configured using the values in the _last_ configuration file found. A warning is logged to notify of this behavior and to allow fixing potential issues that may arise by ensuring only a single configuration exists for any used weaver.
 
-Additional weavers are supported. To allow Malimbe's Unity integration to find the weavers' assemblies they have to be included anywhere in the Unity project or in one of the UPM packages the project uses.
+Additional weavers are supported. To allow Malimbe's Unity software integration to find the weavers' assemblies they have to be included anywhere in the Unity software project or in one of the UPM packages the project uses.
 
 ## What's In The Box
 
@@ -70,14 +68,14 @@ A standalone library that allows running Fody without MSBuild or Visual Studio.
 
 ### `FodyRunner.UnityIntegration`
 
-Weaves assemblies using `FodyRunner` in the Unity Editor after Unity compiled them.
+Weaves assemblies using `FodyRunner` in the Unity software Editor after the Unity softwared compiled them.
 
-* There is no need to manually run the weaving process. The library just needs to be part of a Unity project (it's configured to only run in the Editor) to be used. It hooks into the various callbacks Unity offers and automatically weaves any assembly on startup as well as when they change.
+* There is no need to manually run the weaving process. The library just needs to be part of a Unity software project (it's configured to only run in the Editor) to be used. It hooks into the various callbacks the Unity software offers and automatically weaves any assembly on startup as well as when they change.
 * Once the library is loaded in the Editor a menu item `Tools/Malimbe/Weave All Assemblies` allows to manually trigger the weaving process for all assemblies in the current project. This is useful when a `FodyWeavers.xml` file was changed.
 
 ### `BehaviourStateRequirementMethod`
 
-A Unity-specific weaver. Changes a method to return early if a combination of the GameObject's active state and the Behaviour's enabled state doesn't match the configured state.
+A Unity software specific weaver. Changes a method to return early if a combination of the GameObject's active state and the Behaviour's enabled state doesn't match the configured state.
 
 * Annotate a method with `[RequiresBehaviourState]` to use this. The method needs to be defined in a type that derives from `UnityEngine.Behaviour`, e.g. a `MonoBehaviour`.
 * Use the attribute constructor's parameters to configure the specific state you need the GameObject and the Behaviour to be in.
@@ -96,11 +94,11 @@ A generic weaver. Creates `ClearMemberName()` methods for any member `MemberName
 
 ### `PropertySerializationAttribute.Fody`
 
-A Unity-specific weaver. Ensures the backing field for a property is serialized.
+A Unity software specific weaver. Ensures the backing field for a property is serialized.
 
 * Annotate a property with `[Serialized]` to use this. The property needs both a getter and setter.
 * If the property's backing field doesn't use `[SerializeField]` it will be added.
-* If the property is an [auto-implemented property][Auto-Implemented Property] the backing field will be renamed to match the property's name for viewing in the Unity inspector. All backing field usages inside methods of the declaring type will be updated to use this new name. Since C# doesn't allow multiple members of a type to share a name, the backing field's name will differ in the first character's case. E.g.:
+* If the property is an [auto-implemented property][Auto-Implemented Property] the backing field will be renamed to match the property's name for viewing in the Unity software inspector. All backing field usages inside methods of the declaring type will be updated to use this new name. Since C# doesn't allow multiple members of a type to share a name, the backing field's name will differ in the first character's case. E.g.:
   * `public int Counter { get; set; }` will use a backing field called `counter`.
   * `protected bool isValid { get; private set; }` will use a backing field called `IsValid`.
 
@@ -113,7 +111,7 @@ A generic weaver. Calls a validation method at the start of a property's setter.
 
 ### `PropertyValidationMethod.Fody`
 
-A generic weaver (though made for Unity). Creates a `OnValidate()` method that validates a property.
+A generic weaver (though made for the Unity software). Creates a `OnValidate()` method that validates a property.
 
 * Annotate a property with `[Validated]` to use this. The property needs both a getter and setter.
 * Instead of `OnValidate` the method name can be customized with the XML _attribute_ `MethodName`, e.g.:
@@ -125,7 +123,7 @@ A generic weaver (though made for Unity). Creates a `OnValidate()` method that v
 
 ### `XmlDocumentationAttribute.Fody`
 
-A generic weaver (though made for Unity). Looks up the XML `<summary>` documentation for a field and adds `[Tooltip]` to that field with that summary.
+A generic weaver (though made for the Unity software). Looks up the XML `<summary>` documentation for a field and adds `[Tooltip]` to that field with that summary.
 
 * Annotate a field with `[DocumentedByXml]` to use this.
 * Instead of `TooltipAttribute` the added attribute can be customized with the XML _attribute_ `FullAttributeName`, e.g.:
@@ -142,7 +140,7 @@ A generic weaver (though made for Unity). Looks up the XML `<summary>` documenta
 
 ### `UnityPackaging`
 
-Outputs a ready-to-use folder with the appropriate hierarchy to copy into a Unity project's Assets folder. The output includes both the Unity integration libraries as well as all weavers and their attributes listed above.
+Outputs a ready-to-use folder with the appropriate hierarchy to copy into a Unity software project's Assets folder. The output includes both the Unity software integration libraries as well as all weavers and their attributes listed above.
 
 ## Contributing
 
@@ -164,6 +162,10 @@ Malimbe is released under the [MIT License][License].
 
 Third-party notices can be found in [THIRD_PARTY_NOTICES.md][ThirdPartyNotices]
 
+## Disclaimer
+
+These materials are not sponsored by or affiliated with Unity Technologies or its affiliates. "Unity" and "Unity Package Manager" are trademarks or registered trademarks of Unity Technologies or its affiliates in the U.S. and elsewhere.
+
 [Malimbe-Image]: https://user-images.githubusercontent.com/1029673/48707109-4d876080-ebf6-11e8-9476-4f084246771d.png
 [License-Badge]: https://img.shields.io/github/license/ExtendRealityLtd/Malimbe.svg
 [Waffle-Badge]: https://badge.waffle.io/ExtendRealityLtd/Malimbe.svg?columns=Bug%20Backlog,Feature%20Backlog,In%20Progress,In%20Review
@@ -178,6 +180,7 @@ Third-party notices can be found in [THIRD_PARTY_NOTICES.md][ThirdPartyNotices]
 [FodyWeavers]: https://github.com/Fody/Fody#add-fodyweaversxml
 [Regex]: https://docs.microsoft.com/en-us/dotnet/standard/base-types/regular-expressions
 [Auto-Implemented Property]: https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/classes-and-structs/auto-implemented-properties
+[Unity]: https://unity3d.com/
 
 [Fody's naming]: https://github.com/Fody/Fody#naming
 [Malimbus]: https://en.wikipedia.org/wiki/Malimbus
