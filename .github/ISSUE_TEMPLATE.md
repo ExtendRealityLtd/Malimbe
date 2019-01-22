@@ -2,16 +2,15 @@
 
 ### Precheck
 
- * Do not use the issues tracker for help or support (try VRTK Slack channel, Stack Overflow, etc.)
+ * Do not use the issues tracker for help or support (try Stack Overflow, etc.)
  * For proposing a new feature, please check existing open and closed issues before creating a duplicate
  * For bugs, do a quick search and make sure the bug has not yet been reported
  * Finally, be excellent to each other, and party on!
 
 ### Environment
 
- * Source of the repo (Unity Asset Store or Github)
- * Version of repo (Unity Asset Store/Github release number) (Github master commit hash)
- * Version of Unity3D (e.g. Unity 2018.1)
+ * Version of Malimbe (Github release number) (Github branch and commit hash)
+ * Version of the Unity software (e.g. Unity 2018.3)
 
 ### Steps to reproduce
 
