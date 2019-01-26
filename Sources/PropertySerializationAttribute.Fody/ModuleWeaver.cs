@@ -34,7 +34,7 @@
                 if (propertyDefinition.GetMethod == null)
                 {
                     LogError(
-                        $"The property '{propertyDefinition.FullName}' is marked to be"
+                        $"The property '{propertyDefinition.FullName}' is annotated to be"
                         + " serializable but has no getter.");
                     continue;
                 }
@@ -42,7 +42,7 @@
                 if (propertyDefinition.SetMethod == null)
                 {
                     LogError(
-                        $"The property '{propertyDefinition.FullName}' is marked to be"
+                        $"The property '{propertyDefinition.FullName}' is annotated to be"
                         + " serializable but has no setter.");
                     continue;
                 }

@@ -82,14 +82,18 @@
 
             if (propertyDefinition.GetMethod == null)
             {
-                LogError($"The property '{propertyDefinition.FullName}' is marked to be validated but has no getter.");
+                LogError(
+                    $"The property '{propertyDefinition.FullName}' is annotated"
+                    + " to be validated but has no getter.");
                 return false;
             }
 
             // ReSharper disable once InvertIf
             if (propertyDefinition.SetMethod == null)
             {
-                LogError($"The property '{propertyDefinition.FullName}' is marked to be validated but has no setter.");
+                LogError(
+                    $"The property '{propertyDefinition.FullName}' is annotated"
+                    + " to be validated but has no setter.");
                 return false;
             }
 
