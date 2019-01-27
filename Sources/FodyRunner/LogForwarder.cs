@@ -21,9 +21,8 @@
 
         public void SetLogLevelFromConfiguration(IEnumerable<XElement> elements) =>
             _logLevel = elements?.Elements(nameof(LogLevel))
-                    .Select(element => element.Value)
                     .SelectMany(
-                        value => value.Split(
+                        element => element.Value.Split(
                             _configurationElementSplitSeparators,
                             StringSplitOptions.RemoveEmptyEntries))
                     .Select(value => value.Trim())
