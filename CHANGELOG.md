@@ -1,5 +1,27 @@
 # Changelog
 
+# [7.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v6.1.1...v7.0.0) (2019-01-27)
+
+
+### Bug Fixes
+
+* **Runner:** combine log level from all configuration files ([8fba11d](https://github.com/ExtendRealityLtd/Malimbe/commit/8fba11d))
+* **Runner:** only search for configurations and weavers once ([3f11469](https://github.com/ExtendRealityLtd/Malimbe/commit/3f11469))
+* **XmlToTooltip:** don't search for unnecessary type information ([8ea16d9](https://github.com/ExtendRealityLtd/Malimbe/commit/8ea16d9))
+
+
+### Features
+
+* **Runner:** only run on specified assemblies ([1a45cc6](https://github.com/ExtendRealityLtd/Malimbe/commit/1a45cc6))
+
+
+### BREAKING CHANGES
+
+* **Runner:** The assemblies to process have to be specified
+using the XML _element_ `AssemblyNameRegex` from now on. Specifying
+none will result in no assembly being processed and a warning being
+logged.
+
 ## [6.1.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v6.1.0...v6.1.1) (2019-01-22)
 
 # [6.1.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v6.0.0...v6.1.0) (2019-01-21)
