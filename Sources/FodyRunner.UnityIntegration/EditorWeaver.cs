@@ -10,8 +10,6 @@
 
     internal static class EditorWeaver
     {
-        private static readonly Runner _runner = new Runner(new Logger());
-
         [InitializeOnLoadMethod]
         private static void OnEditorInitialization()
         {
@@ -28,8 +26,10 @@
 
         private static void WeaveAllAssemblies()
         {
-            List<Assembly> assemblies = GetAllAssemblies().ToList();
-            List<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
+            IReadOnlyList<Assembly> assemblies = GetAllAssemblies().ToList();
+            IReadOnlyCollection<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
+            Runner runner = new Runner(new Logger());
+            runner.Configure(searchPaths, searchPaths);
 
             for (int index = 0; index < assemblies.Count; index++)
             {
@@ -46,7 +46,7 @@
                     // ignored
                 }
 
-                WeaveAssembly(assembly, searchPaths);
+                WeaveAssembly(assembly, runner);
             }
 
             try
@@ -68,8 +68,11 @@
                 return;
             }
 
-            List<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
-            WeaveAssembly(foundAssembly, searchPaths);
+            IReadOnlyCollection<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
+            Runner runner = new Runner(new Logger());
+            runner.Configure(searchPaths, searchPaths);
+
+            WeaveAssembly(foundAssembly, runner);
         }
 
         [NotNull]
@@ -79,16 +82,14 @@
                 .GroupBy(assembly => assembly.outputPath)
                 .Select(grouping => grouping.First());
 
-        private static void WeaveAssembly(Assembly assembly, ICollection<string> searchPaths)
+        private static void WeaveAssembly(Assembly assembly, Runner runner)
         {
             try
             {
                 string assemblyPath = WeaverPathsHelper.AddProjectPathRootIfNeeded(assembly.outputPath);
                 IEnumerable<string> references =
                     assembly.allReferences.Select(WeaverPathsHelper.AddProjectPathRootIfNeeded);
-                _runner.RunAsync(searchPaths, assemblyPath, references, assembly.defines.ToList(), searchPaths, true)
-                    .GetAwaiter()
-                    .GetResult();
+                runner.RunAsync(assemblyPath, references, assembly.defines.ToList(), true).GetAwaiter().GetResult();
             }
             catch (Exception exception)
             {

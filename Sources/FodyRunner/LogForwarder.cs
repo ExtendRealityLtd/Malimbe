@@ -1,12 +1,12 @@
 ﻿namespace Malimbe.FodyRunner
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Xml.Linq;
 
     internal sealed class LogForwarder : global::ILogger
     {
-        private static readonly string _configurationElementName = typeof(Runner).Namespace;
         private static readonly string[] _configurationElementSplitSeparators =
         {
             ",", " ", "\t", "\n", "\r", "\r\n"
@@ -19,12 +19,10 @@
         public LogForwarder(ILogger logger) =>
             _logger = logger;
 
-        public void SetLogLevelFromConfiguration(XDocument configurationDocument) =>
-            _logLevel = configurationDocument.Root?.Elements(_configurationElementName)
-                    .Elements(nameof(LogLevel))
-                    .Select(element => element.Value)
+        public void SetLogLevelFromConfiguration(IEnumerable<XElement> elements) =>
+            _logLevel = elements?.Elements(nameof(LogLevel))
                     .SelectMany(
-                        value => value.Split(
+                        element => element.Value.Split(
                             _configurationElementSplitSeparators,
                             StringSplitOptions.RemoveEmptyEntries))
                     .Select(value => value.Trim())
@@ -38,45 +36,20 @@
         public void ClearWeaverName() =>
             _currentWeaverName = null;
 
-        public void LogDebug(string message)
-        {
-            if (_logLevel.HasFlag(LogLevel.Debug))
-            {
-                _logger.Log(LogLevel.Debug, PrefixMessageWithCurrentWeaverName(message));
-            }
-        }
+        public void LogDebug(string message) =>
+            Log(LogLevel.Debug, message);
 
-        public void LogInfo(string message)
-        {
-            if (_logLevel.HasFlag(LogLevel.Info))
-            {
-                _logger.Log(LogLevel.Info, PrefixMessageWithCurrentWeaverName(message));
-            }
-        }
+        public void LogInfo(string message) =>
+            Log(LogLevel.Info, message);
 
-        public void LogMessage(string message, int level)
-        {
-            if (_logLevel.HasFlag(LogLevel.Info))
-            {
-                _logger.Log(LogLevel.Info, PrefixMessageWithCurrentWeaverName(message));
-            }
-        }
+        public void LogMessage(string message, int level) =>
+            Log(LogLevel.Info, message);
 
-        public void LogWarning(string message)
-        {
-            if (_logLevel.HasFlag(LogLevel.Warning))
-            {
-                _logger.Log(LogLevel.Warning, PrefixMessageWithCurrentWeaverName(message));
-            }
-        }
+        public void LogWarning(string message) =>
+            Log(LogLevel.Warning, message);
 
-        public void LogError(string message)
-        {
-            if (_logLevel.HasFlag(LogLevel.Error))
-            {
-                _logger.Log(LogLevel.Error, PrefixMessageWithCurrentWeaverName(message));
-            }
-        }
+        public void LogError(string message) =>
+            Log(LogLevel.Error, message);
 
         public void LogWarning(
             string message,
@@ -85,7 +58,7 @@
             int columnNumber,
             int endLineNumber,
             int endColumnNumber) =>
-            LogWarning(message);
+            Log(LogLevel.Warning, message);
 
         public void LogError(
             string message,
@@ -94,9 +67,14 @@
             int columnNumber,
             int endLineNumber,
             int endColumnNumber) =>
-            LogError(message);
+            Log(LogLevel.Error, message);
 
-        private string PrefixMessageWithCurrentWeaverName(string message) =>
-            _currentWeaverName == null ? message : $"{_currentWeaverName}: {message}";
+        private void Log(LogLevel logLevel, string message)
+        {
+            if (_logLevel.HasFlag(logLevel))
+            {
+                _logger.Log(logLevel, _currentWeaverName == null ? message : $"{_currentWeaverName}: {message}");
+            }
+        }
     }
 }

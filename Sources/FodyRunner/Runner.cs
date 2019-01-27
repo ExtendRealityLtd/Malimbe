@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
@@ -16,23 +17,116 @@
             ReadingMode = ReadingMode.Deferred,
             ReadSymbols = false
         };
-        private static readonly string _ignoredConfigurationElementLocalName = typeof(Runner).Namespace;
         private readonly LogForwarder _logForwarder;
+        private readonly List<WeaverEntry> _weaverEntries = new List<WeaverEntry>();
+        private readonly List<Regex> _assemblyRegexes = new List<Regex>();
 
         public Runner(ILogger logger) =>
             _logForwarder = new LogForwarder(logger);
 
-        public Task<bool> RunAsync(
+        public void Configure(
             IEnumerable<string> configurationSearchPaths,
+            IReadOnlyCollection<string> weaverSearchPaths)
+        {
+            const string assemblyNameSuffix = ".Fody.dll";
+
+            IReadOnlyList<XDocument> documents = configurationSearchPaths.SelectMany(
+                    path => Directory.GetFiles(path, "FodyWeavers.xml", SearchOption.AllDirectories))
+                .Select(XDocument.Load)
+                .ToList();
+            IReadOnlyList<XElement> runnerElements = documents.SelectMany(
+                    document => document.Root?.Elements(typeof(Runner).Namespace))
+                .ToList();
+            IEnumerable<XElement> weaverElements = documents
+                .SelectMany(document => document.Element("Weavers")?.Elements())
+                .Except(runnerElements);
+            IReadOnlyDictionary<string, string> weaverAssembliesPathsByName = weaverSearchPaths
+                .SelectMany(path => Directory.GetFiles(path, $"*{assemblyNameSuffix}", SearchOption.AllDirectories))
+                .GroupBy(
+                    path =>
+                    {
+                        string fileName = Path.GetFileName(path);
+                        return fileName?.Remove(
+                            fileName.Length - assemblyNameSuffix.Length,
+                            assemblyNameSuffix.Length);
+                    })
+                .ToDictionary(grouping => grouping.Key, grouping => grouping.FirstOrDefault());
+
+            _logForwarder.SetLogLevelFromConfiguration(runnerElements);
+            _weaverEntries.Clear();
+
+            foreach (XElement weaverElement in weaverElements)
+            {
+                string assemblyName = weaverElement.Name.LocalName;
+                if (!weaverAssembliesPathsByName.TryGetValue(assemblyName, out string assemblyPath))
+                {
+                    _logForwarder.LogError(
+                        $"A configuration lists '{assemblyName}' but the assembly file wasn't found"
+                        + $" in the search paths '{string.Join(", ", weaverSearchPaths)}'.");
+                    continue;
+                }
+
+                WeaverEntry existingEntry = _weaverEntries.FirstOrDefault(entry => entry.AssemblyName == assemblyName);
+                int index = _weaverEntries.Count;
+                if (existingEntry != null)
+                {
+                    _logForwarder.LogWarning(
+                        $"There are multiple configurations for '{assemblyName}'. The configuration read last is used.");
+                    index = _weaverEntries.IndexOf(existingEntry);
+                    _weaverEntries.Remove(existingEntry);
+                }
+
+                WeaverEntry weaverEntry = new WeaverEntry
+                {
+                    Element = weaverElement.ToString(SaveOptions.OmitDuplicateNamespaces),
+                    AssemblyName = assemblyName,
+                    AssemblyPath = assemblyPath,
+                    TypeName = "ModuleWeaver"
+                };
+                _weaverEntries.Insert(index, weaverEntry);
+            }
+
+            const string assemblyNameRegexElementName = "AssemblyNameRegex";
+            IEnumerable<Regex> regexes = runnerElements
+                .SelectMany(element => element.Elements(assemblyNameRegexElementName))
+                .Select(element => new Regex(element.Value, RegexOptions.Compiled));
+
+            _assemblyRegexes.Clear();
+            _assemblyRegexes.AddRange(regexes);
+
+            if (runnerElements.Count > 0 && _assemblyRegexes.Count == 0)
+            {
+                _logForwarder.LogWarning(
+                    $"No configuration uses an element '{assemblyNameRegexElementName}' inside the"
+                    + $" '{runnerElements.First().Name}' element. No assembly will be processed.");
+            }
+        }
+
+        public Task<bool> RunAsync(
             string assemblyFilePath,
             IEnumerable<string> references,
             List<string> defineConstants,
-            ICollection<string> weaverSearchPaths,
             bool isDebugBuild,
-            CancellationToken cancellationToken = default) =>
-            Task.Run(
+            CancellationToken cancellationToken = default)
+        {
+            if (_weaverEntries == null)
+            {
+                throw new NotConfiguredException();
+            }
+
+            return Task.Run(
                 () =>
                 {
+                    string assemblyFileName = Path.GetFileNameWithoutExtension(assemblyFilePath);
+                    if (assemblyFileName != null
+                        && _assemblyRegexes.TrueForAll(regex => !regex.IsMatch(assemblyFileName)))
+                    {
+                        _logForwarder.LogInfo(
+                            $"Not processing assembly '{assemblyFilePath}' because none of the configured"
+                            + " regular expressions match the assembly name.");
+                        return false;
+                    }
+
                     if (!File.Exists(assemblyFilePath))
                     {
                         _logForwarder.LogInfo(
@@ -47,9 +141,6 @@
                         return false;
                     }
 
-                    IEnumerable<string> configurationFilePaths = configurationSearchPaths.SelectMany(
-                        path => Directory.GetFiles(path, "FodyWeavers.xml", SearchOption.AllDirectories));
-                    List<WeaverEntry> weaverEntries = CreateWeaverEntries(configurationFilePaths, weaverSearchPaths);
                     InnerWeaver innerWeaver = new InnerWeaver
                     {
                         AssemblyFilePath = assemblyFilePath,
@@ -57,7 +148,7 @@
                         ReferenceCopyLocalPaths = new List<string>(),
                         DefineConstants = defineConstants,
                         Logger = _logForwarder,
-                        Weavers = weaverEntries,
+                        Weavers = _weaverEntries,
                         DebugSymbols = isDebugBuild ? DebugSymbolsType.External : DebugSymbolsType.None
                     };
                     CancellationTokenRegistration cancellationTokenRegistration =
@@ -77,76 +168,6 @@
                     return true;
                 },
                 cancellationToken);
-
-        private List<WeaverEntry> CreateWeaverEntries(
-            IEnumerable<string> configurationFilePaths,
-            ICollection<string> weaverSearchPaths)
-        {
-            const string assemblyNameSuffix = ".Fody.dll";
-
-            Dictionary<string, string> weaverAssembliesPathsByName = weaverSearchPaths
-                .SelectMany(path => Directory.GetFiles(path, $"*{assemblyNameSuffix}", SearchOption.AllDirectories))
-                .GroupBy(
-                    path =>
-                    {
-                        string fileName = Path.GetFileName(path);
-                        return fileName?.Remove(
-                            fileName.Length - assemblyNameSuffix.Length,
-                            assemblyNameSuffix.Length);
-                    })
-                .ToDictionary(grouping => grouping.Key, grouping => grouping.FirstOrDefault());
-
-            List<WeaverEntry> weaverEntries = new List<WeaverEntry>();
-            foreach (string configurationFilePath in configurationFilePaths)
-            {
-                XDocument document = XDocument.Load(configurationFilePath);
-                IEnumerable<XElement> elements = document.Element("Weavers")?.Elements();
-                if (elements == null)
-                {
-                    continue;
-                }
-
-                _logForwarder.SetLogLevelFromConfiguration(document);
-
-                foreach (XElement element in elements)
-                {
-                    string assemblyName = element.Name.LocalName;
-                    if (assemblyName == _ignoredConfigurationElementLocalName)
-                    {
-                        continue;
-                    }
-
-                    if (!weaverAssembliesPathsByName.TryGetValue(assemblyName, out string assemblyPath))
-                    {
-                        _logForwarder.LogError(
-                            $"A configuration lists '{assemblyName}' but the assembly file wasn't found"
-                            + $" in the search paths '{string.Join(", ", weaverSearchPaths)}'.");
-                        continue;
-                    }
-
-                    WeaverEntry existingEntry = weaverEntries.FirstOrDefault(
-                        entry => entry.AssemblyName == assemblyName);
-                    int index = weaverEntries.Count;
-                    if (existingEntry != null)
-                    {
-                        _logForwarder.LogWarning(
-                            $"There are multiple configurations for '{assemblyName}'. The configuration read last is used.");
-                        index = weaverEntries.IndexOf(existingEntry);
-                        weaverEntries.Remove(existingEntry);
-                    }
-
-                    WeaverEntry weaverEntry = new WeaverEntry
-                    {
-                        Element = element.ToString(SaveOptions.OmitDuplicateNamespaces),
-                        AssemblyName = assemblyName,
-                        AssemblyPath = assemblyPath,
-                        TypeName = "ModuleWeaver"
-                    };
-                    weaverEntries.Insert(index, weaverEntry);
-                }
-            }
-
-            return weaverEntries;
         }
 
         private static bool IsAssemblyProcessed(string assemblyFilePath)

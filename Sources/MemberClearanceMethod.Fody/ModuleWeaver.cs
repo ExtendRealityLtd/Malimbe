@@ -44,8 +44,8 @@
                         if (propertyDefinition.SetMethod == null)
                         {
                             LogError(
-                                $"The property '{propertyDefinition.FullName}' is marked to be cleared"
-                                + " but has no setter.");
+                                $"The property '{propertyDefinition.FullName}' is annotated"
+                                + " to be cleared but has no setter.");
                         }
                         else
                         {
@@ -66,8 +66,8 @@
                 if (typeReference.IsPrimitive || typeReference.IsValueType)
                 {
                     LogError(
-                        $"The member '{memberDefinition.FullName}' is marked to be cleared but its type"
-                        + $" '{typeReference.FullName}' isn't of reference type.");
+                        $"The member '{memberDefinition.FullName}' is annotated to be cleared"
+                        + $" but its type '{typeReference.FullName}' isn't of reference type.");
                     continue;
                 }
 

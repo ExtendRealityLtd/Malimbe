@@ -18,7 +18,7 @@
         public void OnPostprocessBuild(BuildReport buildReport)
         {
             const string managedLibraryRoleName = "ManagedLibrary";
-            List<string> managedLibraryFilePaths = buildReport.files
+            IReadOnlyCollection<string> managedLibraryFilePaths = buildReport.files
                 .Where(file => string.Equals(file.role, managedLibraryRoleName, StringComparison.OrdinalIgnoreCase))
                 .Select(file => file.path)
                 .ToList();
@@ -35,7 +35,8 @@
             IEnumerable<string> managedEngineApiFilePaths = buildReport.files
                 .Where(file => string.Equals(file.role, "ManagedEngineAPI", StringComparison.OrdinalIgnoreCase))
                 .Select(file => file.path);
-            List<string> potentialReferences = managedLibraryFilePaths.Concat(dependentManagedLibraryFilePaths)
+            IReadOnlyCollection<string> potentialReferences = managedLibraryFilePaths
+                .Concat(dependentManagedLibraryFilePaths)
                 .Concat(managedEngineApiFilePaths)
                 .ToList();
             List<string> scriptingDefineSymbols = PlayerSettings
@@ -49,15 +50,15 @@
                 .ToList();
             bool isDebugBuild = buildReport.summary.options.HasFlag(BuildOptions.Development);
 
+            IReadOnlyCollection<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
+            Runner runner = new Runner(new Logger());
+            runner.Configure(searchPaths, searchPaths);
+
             try
             {
-                Runner runner = new Runner(new Logger());
-                List<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
-
                 foreach (string managedLibraryFilePath in managedLibraryFilePaths)
                 {
                     runner.RunAsync(
-                            searchPaths,
                             managedLibraryFilePath,
                             potentialReferences.Except(
                                 new[]
@@ -65,7 +66,6 @@
                                     managedLibraryFilePath
                                 }),
                             scriptingDefineSymbols,
-                            searchPaths,
                             isDebugBuild)
                         .GetAwaiter()
                         .GetResult();
