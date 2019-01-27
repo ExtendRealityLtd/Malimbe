@@ -14,10 +14,10 @@ Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and 
 
 ## Releases
 
-| Branch | Version                                          | Explanation                        |
-|--------|--------------------------------------------------|------------------------------------|
-| latest | [![Release][Version-Release]][Releases]          | Stable, production-ready           |
-| next   | [![(Pre-)Release][Version-Prerelease]][Releases] | Experimental, not production-ready |
+| Branch  | Version                                          | Explanation                        |
+|---------|--------------------------------------------------|------------------------------------|
+| release | [![Release][Version-Release]][Releases]          | Stable, production-ready           |
+| preview | [![(Pre-)Release][Version-Prerelease]][Releases] | Experimental, not production-ready |
 
 Releases follow the [Semantic Versioning (SemVer) system][SemVer].
 
