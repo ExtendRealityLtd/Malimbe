@@ -1,12 +1,12 @@
 ﻿namespace Malimbe.FodyRunner
 {
     using System;
+    using System.Collections.Generic;
     using System.Linq;
     using System.Xml.Linq;
 
     internal sealed class LogForwarder : global::ILogger
     {
-        private static readonly string _configurationElementName = typeof(Runner).Namespace;
         private static readonly string[] _configurationElementSplitSeparators =
         {
             ",", " ", "\t", "\n", "\r", "\r\n"
@@ -19,9 +19,8 @@
         public LogForwarder(ILogger logger) =>
             _logger = logger;
 
-        public void SetLogLevelFromConfiguration(XDocument configurationDocument) =>
-            _logLevel = configurationDocument.Root?.Elements(_configurationElementName)
-                    .Elements(nameof(LogLevel))
+        public void SetLogLevelFromConfiguration(IEnumerable<XElement> elements) =>
+            _logLevel = elements?.Elements(nameof(LogLevel))
                     .Select(element => element.Value)
                     .SelectMany(
                         value => value.Split(
