@@ -3,6 +3,7 @@
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
+    using System.Text.RegularExpressions;
     using System.Threading;
     using System.Threading.Tasks;
     using System.Xml.Linq;
@@ -18,6 +19,7 @@
         };
         private readonly LogForwarder _logForwarder;
         private readonly List<WeaverEntry> _weaverEntries = new List<WeaverEntry>();
+        private readonly List<Regex> _assemblyRegexes = new List<Regex>();
 
         public Runner(ILogger logger) =>
             _logForwarder = new LogForwarder(logger);
@@ -83,6 +85,21 @@
                 };
                 _weaverEntries.Insert(index, weaverEntry);
             }
+
+            const string assemblyNameRegexElementName = "AssemblyNameRegex";
+            IEnumerable<Regex> regexes = runnerElements
+                .SelectMany(element => element.Elements(assemblyNameRegexElementName))
+                .Select(element => new Regex(element.Value, RegexOptions.Compiled));
+
+            _assemblyRegexes.Clear();
+            _assemblyRegexes.AddRange(regexes);
+
+            if (runnerElements.Count > 0 && _assemblyRegexes.Count == 0)
+            {
+                _logForwarder.LogWarning(
+                    $"No configuration uses an element '{assemblyNameRegexElementName}' inside the"
+                    + $" '{runnerElements.First().Name}' element. No assembly will be processed.");
+            }
         }
 
         public Task<bool> RunAsync(
@@ -100,6 +117,16 @@
             return Task.Run(
                 () =>
                 {
+                    string assemblyFileName = Path.GetFileNameWithoutExtension(assemblyFilePath);
+                    if (assemblyFileName != null
+                        && _assemblyRegexes.TrueForAll(regex => !regex.IsMatch(assemblyFileName)))
+                    {
+                        _logForwarder.LogInfo(
+                            $"Not processing assembly '{assemblyFilePath}' because none of the configured"
+                            + " regular expressions match the assembly name.");
+                        return false;
+                    }
+
                     if (!File.Exists(assemblyFilePath))
                     {
                         _logForwarder.LogInfo(
