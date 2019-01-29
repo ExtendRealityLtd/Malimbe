@@ -11,7 +11,7 @@
     // ReSharper disable once UnusedMember.Global
     public sealed class ModuleWeaver : BaseModuleWeaver
     {
-        private static readonly string _fullAttributeName = typeof(SetsPropertyAttribute).FullName;
+        private static readonly string _fullAttributeName = typeof(CalledBySetterAttribute).FullName;
 
         public override bool ShouldCleanReference =>
             true;
@@ -31,7 +31,7 @@
                 if (propertyDefinition.GetMethod == null)
                 {
                     LogError(
-                        $"The method '{methodDefinition.FullName}' is annotated to be a setter for the"
+                        $"The method '{methodDefinition.FullName}' is annotated to be called by the setter of the"
                         + $" property '{propertyDefinition.FullName}' but the property has no getter.");
                     continue;
                 }
@@ -39,7 +39,7 @@
                 if (propertyDefinition.SetMethod == null)
                 {
                     LogError(
-                        $"The method '{methodDefinition.FullName}' is annotated to be a setter for the"
+                        $"The method '{methodDefinition.FullName}' is annotated to be called by the setter of the"
                         + $" property '{propertyDefinition.FullName}' but the property has no setter.");
                     continue;
                 }
@@ -74,40 +74,33 @@
         {
             string propertyName = (string)attribute.ConstructorArguments.Single().Value;
 
-            if (methodDefinition.ReturnType.FullName == TypeSystem.VoidReference.FullName
-                || methodDefinition.Parameters?.Count != 2
-                || methodDefinition.Parameters.Any(
-                    definition => definition.ParameterType.FullName != methodDefinition.ReturnType.FullName))
-            {
-                LogError(
-                    $"The method '{methodDefinition.FullName}' is annotated to be a setter for the"
-                    + $" property '{propertyName}' but the method signature doesn't match."
-                    + $" The expected signature is 'T {methodDefinition.Name}(T, T)' where 'T' is the property type.");
-                propertyDefinition = null;
-                return false;
-            }
-
             propertyDefinition =
                 methodDefinition.DeclaringType.Properties?.SingleOrDefault(
                     definition => definition.Name == propertyName);
             if (propertyDefinition == null)
             {
                 LogError(
-                    $"The method '{methodDefinition.FullName}' is annotated to be a setter for the"
+                    $"The method '{methodDefinition.FullName}' is annotated to be called by the setter of the"
                     + $" property '{propertyName}' but the property doesn't exist.");
                 return false;
             }
 
-            string expectedTypeFullName = methodDefinition.ReturnType.FullName;
-            if (propertyDefinition.PropertyType.FullName == expectedTypeFullName)
+            string expectedTypeFullName = propertyDefinition.PropertyType.FullName;
+            if (methodDefinition.ReturnType.FullName == TypeSystem.VoidReference.FullName
+                && methodDefinition.Parameters?.Count == 2
+                && methodDefinition.Parameters[0].ParameterType.FullName == expectedTypeFullName
+                && methodDefinition.Parameters[1].ParameterType.IsByReference
+                && methodDefinition.Parameters[1].ParameterType.FullName.TrimEnd('&') == expectedTypeFullName)
             {
                 return true;
             }
 
             LogError(
-                $"The method '{methodDefinition.FullName}' is annotated to be a setter for the"
-                + $" property '{propertyDefinition.FullName}' but the property's type doesn't"
-                + $" match the method's. The expected type is '{expectedTypeFullName}'.");
+                $"The method '{methodDefinition.FullName}' is annotated to be called by the setter of the"
+                + $" property '{propertyName}' but the method signature doesn't match. The expected signature is"
+                + $" 'void {methodDefinition.Name}({expectedTypeFullName}, ref {expectedTypeFullName})'.");
+            propertyDefinition = null;
+
             return false;
         }
 
@@ -115,30 +108,47 @@
             PropertyDefinition propertyDefinition,
             MethodReference setMethodReference)
         {
-            ParameterDefinition parameterDefinition = propertyDefinition.SetMethod.Parameters.Single();
-            Collection<Instruction> instructions = propertyDefinition.SetMethod.Body.Instructions;
+            MethodBody methodBody = propertyDefinition.SetMethod.Body;
+            Collection<Instruction> instructions = methodBody.Instructions;
             int index = -1;
 
-            // value = this.setMethod(this.property, value);
+            MethodReference getMethodReference = propertyDefinition.GetMethod.GetGeneric();
 
-            // Load this (for setMethod call)
-            instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
+            // previousValue = this.property;
+            VariableDefinition previousValueVariableDefinition =
+                new VariableDefinition(propertyDefinition.PropertyType);
+            methodBody.Variables.Add(previousValueVariableDefinition);
+
             // Load this (for getter call)
             instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
             // Call getter
-            instructions.Insert(
-                ++index,
-                Instruction.Create(OpCodes.Callvirt, propertyDefinition.GetMethod.GetGeneric()));
-            // Load value
-            instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_1));
-            // Call setMethod
-            instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, setMethodReference.GetGeneric()));
-            // Store into value
-            instructions.Insert(++index, Instruction.Create(OpCodes.Starg_S, parameterDefinition));
+            instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, getMethodReference));
+            // Store into previousValue
+            instructions.Insert(++index, Instruction.Create(OpCodes.Stloc, previousValueVariableDefinition));
+
+            List<Instruction> returnInstructions =
+                instructions.Where(instruction => instruction.OpCode == OpCodes.Ret).ToList();
+            foreach (Instruction returnInstruction in returnInstructions)
+            {
+                index = instructions.IndexOf(returnInstruction) - 1;
+
+                // this.setMethod(previousValue, this.propertyBackingField);
+
+                // Load this (for setMethod call)
+                instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
+                // Load previousValue
+                instructions.Insert(++index, Instruction.Create(OpCodes.Ldloc, previousValueVariableDefinition));
+                // Load this (for backing field get)
+                instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
+                // Load address of backing field
+                instructions.Insert(++index, Instruction.Create(OpCodes.Ldflda, propertyDefinition.GetBackingField()));
+                // Call setMethod
+                instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, setMethodReference.GetGeneric()));
+            }
 
             LogInfo(
-                $"Prefixed the setter of the property '{propertyDefinition.FullName}' with"
-                + $" a call to the method '{setMethodReference.FullName}'.");
+                $"Inserted a call to the method '{setMethodReference.FullName}' into"
+                + $" the setter of the property '{propertyDefinition.FullName}'.");
         }
     }
 }
