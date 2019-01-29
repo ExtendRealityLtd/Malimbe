@@ -1,5 +1,19 @@
 # Changelog
 
+# [8.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v7.0.0...v8.0.0) (2019-01-29)
+
+
+### Features
+
+* **PropertySetter:** allow using property inside called method ([ba8d4ac](https://github.com/ExtendRealityLtd/Malimbe/commit/ba8d4ac))
+
+
+### BREAKING CHANGES
+
+* **PropertySetter:** `SetsPropertyAttribute` was renamed to
+`CalledBySetterAttribute` and the expected signature of the
+annotated method changed. Please see the latest Readme for details.
+
 # [7.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v6.1.1...v7.0.0) (2019-01-27)
 
 
