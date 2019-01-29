@@ -107,9 +107,10 @@ A Unity software specific weaver. Ensures the backing field for a property is se
 
 ### `PropertySetterMethod.Fody`
 
-A generic weaver. Calls a validation method at the start of a property's setter.
+A generic weaver. Calls a method at the end of a property's setter.
 
-* Annotate a method with `[SetsProperty(nameof(SomeProperty))]` to use this. The method needs to follow the signature pattern `T MethodName(T, T)` where `T` is the property's type. The accessibility level of the method doesn't matter and the name lookup is case insensitive. A call to this method will be added to the _start_ of the property's setter.
+* Annotate a method with `[CalledBySetter(nameof(SomeProperty))]` to use this. The accessibility level of the method doesn't matter and the name lookup is case insensitive. A call to this method will be added to the _end_ of the property's setter.
+* The method needs to follow the signature pattern `void MethodName(T previousValue, ref T newValue)` where `T` is the property's type. This allows the method's body to use the previous and new values and also offers the ability to change the final value by setting `newValue` if needed.
 * The property needs to be declared in the same type the method is declared in. Both a getter and setter are required for the property.
 
 ### `PropertyValidationMethod.Fody`

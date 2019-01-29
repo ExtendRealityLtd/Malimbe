@@ -9,6 +9,7 @@
     public sealed class RequiresBehaviourStateAttribute : Attribute
     {
         // ReSharper disable MemberCanBePrivate.Global
+        // ReSharper disable NotAccessedField.Global
         /// <summary>
         /// The required active state of the GameObject that the component the method is on is added to.
         /// </summary>
@@ -17,6 +18,7 @@
         /// The required state of the Behaviour.
         /// </summary>
         public readonly bool BehaviourNeedsToBeEnabled;
+        // ReSharper restore NotAccessedField.Global
         // ReSharper restore MemberCanBePrivate.Global
 
         /// <summary>
