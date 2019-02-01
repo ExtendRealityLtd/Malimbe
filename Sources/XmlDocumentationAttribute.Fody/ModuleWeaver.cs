@@ -46,11 +46,6 @@
 
                 IReadOnlyDictionary<string, List<string>> summariesByIdentifierName =
                     ParseSourceFileXmlDocumentation(typeDefinition, identifierReplacementFormat);
-                if (summariesByIdentifierName.Count == 0)
-                {
-                    continue;
-                }
-
                 foreach (FieldDefinition fieldDefinition in fieldDefinitions)
                 {
                     if (!summariesByIdentifierName.TryGetValue(fieldDefinition.Name, out List<string> summaries))
@@ -66,6 +61,9 @@
 
                     if (summaries == null)
                     {
+                        LogError(
+                            $"The field '{fieldDefinition.FullName}' is annotated to be documented by XML"
+                            + " documentation comments but none were found.");
                         continue;
                     }
 
