@@ -6,6 +6,7 @@
     using Malimbe.Shared;
     using Mono.Cecil;
     using Mono.Cecil.Cil;
+    using Mono.Cecil.Rocks;
     using Mono.Collections.Generic;
 
     // ReSharper disable once UnusedMember.Global
@@ -73,10 +74,21 @@
             out PropertyDefinition propertyDefinition)
         {
             string propertyName = (string)attribute.ConstructorArguments.Single().Value;
+            TypeDefinition typeDefinition = methodDefinition.DeclaringType;
+            propertyDefinition = null;
 
-            propertyDefinition =
-                methodDefinition.DeclaringType.Properties?.SingleOrDefault(
-                    definition => definition.Name == propertyName);
+            while (typeDefinition != null)
+            {
+                propertyDefinition =
+                    typeDefinition.Properties?.SingleOrDefault(definition => definition.Name == propertyName);
+                if (propertyDefinition != null)
+                {
+                    break;
+                }
+
+                typeDefinition = typeDefinition.BaseType.Resolve();
+            }
+
             if (propertyDefinition == null)
             {
                 LogError(
@@ -112,25 +124,65 @@
             Collection<Instruction> instructions = methodBody.Instructions;
             int index = -1;
 
-            MethodReference getMethodReference = propertyDefinition.GetMethod.GetGeneric();
+            methodBody.SimplifyMacros();
 
             // previousValue = this.property;
-            VariableDefinition previousValueVariableDefinition =
-                new VariableDefinition(propertyDefinition.PropertyType);
-            methodBody.Variables.Add(previousValueVariableDefinition);
+            MethodReference getMethodReference = propertyDefinition.GetMethod.GetGeneric();
+            VariableDefinition previousValueVariableDefinition = methodBody.Variables.FirstOrDefault(
+                definition =>
+                {
+                    if (definition.VariableType.FullName != propertyDefinition.PropertyType.FullName)
+                    {
+                        return false;
+                    }
 
-            // Load this (for getter call)
-            instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
-            // Call getter
-            instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, getMethodReference));
-            // Store into previousValue
-            instructions.Insert(++index, Instruction.Create(OpCodes.Stloc, previousValueVariableDefinition));
+                    List<Instruction> storeInstructions = instructions.Where(
+                            instruction => instruction.OpCode == OpCodes.Stloc && instruction.Operand == definition)
+                        .ToList();
+                    if (storeInstructions.Count != 1)
+                    {
+                        return false;
+                    }
+
+                    Instruction storeInstruction = storeInstructions.Single();
+                    return storeInstruction.Previous?.OpCode == OpCodes.Callvirt
+                        && (storeInstruction.Previous.Operand as MethodReference)?.FullName
+                        == getMethodReference.FullName
+                        && storeInstruction.Previous.Previous?.OpCode == OpCodes.Ldarg;
+                });
+
+            if (previousValueVariableDefinition == null)
+            {
+                previousValueVariableDefinition = new VariableDefinition(propertyDefinition.PropertyType);
+                methodBody.Variables.Add(previousValueVariableDefinition);
+
+                // Load this (for getter call)
+                instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
+                // Call getter
+                instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, getMethodReference));
+                // Store into previousValue
+                instructions.Insert(++index, Instruction.Create(OpCodes.Stloc, previousValueVariableDefinition));
+            }
 
             List<Instruction> returnInstructions =
                 instructions.Where(instruction => instruction.OpCode == OpCodes.Ret).ToList();
             foreach (Instruction returnInstruction in returnInstructions)
             {
                 index = instructions.IndexOf(returnInstruction) - 1;
+
+                Instruction nopInstruction = null;
+                if (setMethodReference.DeclaringType.FullName != propertyDefinition.DeclaringType.FullName)
+                {
+                    // if (this is setMethodReference.DeclaringType) { ...
+                    nopInstruction = Instruction.Create(OpCodes.Nop);
+
+                    // Load this (for instance check)
+                    instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
+                    // Instance check
+                    instructions.Insert(++index, Instruction.Create(OpCodes.Isinst, setMethodReference.DeclaringType));
+                    // Jump if false
+                    instructions.Insert(++index, Instruction.Create(OpCodes.Brfalse, nopInstruction));
+                }
 
                 // this.setMethod(previousValue, this.propertyBackingField);
 
@@ -144,7 +196,17 @@
                 instructions.Insert(++index, Instruction.Create(OpCodes.Ldflda, propertyDefinition.GetBackingField()));
                 // Call setMethod
                 instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, setMethodReference.GetGeneric()));
+
+                if (nopInstruction != null)
+                {
+                    // ... }
+
+                    // Nop to jump to (see above)
+                    instructions.Insert(++index, nopInstruction);
+                }
             }
+
+            methodBody.OptimizeMacros();
 
             LogInfo(
                 $"Inserted a call to the method '{setMethodReference.FullName}' into"
