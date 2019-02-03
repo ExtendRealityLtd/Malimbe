@@ -1,5 +1,19 @@
 # Changelog
 
+# [8.1.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v8.0.0...v8.1.0) (2019-02-03)
+
+
+### Bug Fixes
+
+* **XmlToTooltip:** fall back to manual file lookup for unfound types ([bbb327e](https://github.com/ExtendRealityLtd/Malimbe/commit/bbb327e))
+* **XmlToTooltip:** log errors when no documentation was found ([b8fcef9](https://github.com/ExtendRealityLtd/Malimbe/commit/b8fcef9))
+
+
+### Features
+
+* **PropertySetter:** allow injecting into superclass properties ([a9781c8](https://github.com/ExtendRealityLtd/Malimbe/commit/a9781c8))
+* **PropertySetter:** reuse the created local variable ([1e937e7](https://github.com/ExtendRealityLtd/Malimbe/commit/1e937e7))
+
 # [8.0.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v7.0.0...v8.0.0) (2019-01-29)
 
 
