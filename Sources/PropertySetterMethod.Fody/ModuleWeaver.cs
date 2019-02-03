@@ -6,6 +6,7 @@
     using Malimbe.Shared;
     using Mono.Cecil;
     using Mono.Cecil.Cil;
+    using Mono.Cecil.Rocks;
     using Mono.Collections.Generic;
 
     // ReSharper disable once UnusedMember.Global
@@ -73,10 +74,21 @@
             out PropertyDefinition propertyDefinition)
         {
             string propertyName = (string)attribute.ConstructorArguments.Single().Value;
+            TypeDefinition typeDefinition = methodDefinition.DeclaringType;
+            propertyDefinition = null;
 
-            propertyDefinition =
-                methodDefinition.DeclaringType.Properties?.SingleOrDefault(
-                    definition => definition.Name == propertyName);
+            while (typeDefinition != null)
+            {
+                propertyDefinition =
+                    typeDefinition.Properties?.SingleOrDefault(definition => definition.Name == propertyName);
+                if (propertyDefinition != null)
+                {
+                    break;
+                }
+
+                typeDefinition = typeDefinition.BaseType.Resolve();
+            }
+
             if (propertyDefinition == null)
             {
                 LogError(
@@ -132,6 +144,20 @@
             {
                 index = instructions.IndexOf(returnInstruction) - 1;
 
+                Instruction nopInstruction = null;
+                if (setMethodReference.DeclaringType.FullName != propertyDefinition.DeclaringType.FullName)
+                {
+                    // if (this is setMethodReference.DeclaringType) { ...
+                    nopInstruction = Instruction.Create(OpCodes.Nop);
+
+                    // Load this (for instance check)
+                    instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
+                    // Instance check
+                    instructions.Insert(++index, Instruction.Create(OpCodes.Isinst, setMethodReference.DeclaringType));
+                    // Jump if false
+                    instructions.Insert(++index, Instruction.Create(OpCodes.Brfalse, nopInstruction));
+                }
+
                 // this.setMethod(previousValue, this.propertyBackingField);
 
                 // Load this (for setMethod call)
@@ -144,6 +170,19 @@
                 instructions.Insert(++index, Instruction.Create(OpCodes.Ldflda, propertyDefinition.GetBackingField()));
                 // Call setMethod
                 instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, setMethodReference.GetGeneric()));
+
+                if (nopInstruction != null)
+                {
+                    // ... }
+
+                    // Nop to jump to (see above)
+                    instructions.Insert(++index, nopInstruction);
+                }
+            }
+
+            if (setMethodReference.DeclaringType.FullName != propertyDefinition.DeclaringType.FullName)
+            {
+                methodBody.OptimizeMacros();
             }
 
             LogInfo(
