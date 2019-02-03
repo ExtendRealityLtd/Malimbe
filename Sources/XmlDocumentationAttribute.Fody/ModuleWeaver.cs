@@ -1,5 +1,6 @@
 ﻿namespace Malimbe.XmlDocumentationAttribute.Fody
 {
+    using System;
     using System.Collections.Generic;
     using System.IO;
     using System.Linq;
@@ -7,7 +8,6 @@
     using global::Fody;
     using Malimbe.Shared;
     using Mono.Cecil;
-    using Mono.Cecil.Cil;
 
     // ReSharper disable once UnusedMember.Global
     public sealed class ModuleWeaver : BaseModuleWeaver
@@ -148,16 +148,64 @@
             TypeDefinition typeDefinition,
             string identifierReplacementFormat)
         {
-            SequencePoint sequencePoint = typeDefinition.Methods.Select(definition => definition.DebugInformation)
-                .SelectMany(information => information.SequencePoints)
-                .FirstOrDefault();
-            if (sequencePoint == null)
+            string GetDocumentFilePath(TypeDefinition definition) =>
+                definition.Methods.Select(methodDefinition => methodDefinition.DebugInformation)
+                    .SelectMany(information => information.SequencePoints)
+                    .FirstOrDefault()
+                    ?.Document.Url;
+
+            string documentFilePath = GetDocumentFilePath(typeDefinition);
+            if (!File.Exists(documentFilePath))
+            {
+                documentFilePath = typeDefinition.Module.Types.Select(
+                        definition =>
+                        {
+                            string filePath = GetDocumentFilePath(definition);
+                            if (filePath == null)
+                            {
+                                return (null, null);
+                            }
+
+                            string[] namespaceParts = definition.Namespace.Split('.');
+                            DirectoryInfo directoryInfo = new FileInfo(filePath).Directory;
+
+                            for (int index = namespaceParts.Length - 1; index >= 0; index--)
+                            {
+                                if (directoryInfo == null)
+                                {
+                                    return (null, null);
+                                }
+
+                                string namespacePart = namespaceParts[index];
+                                if (!string.Equals(
+                                    namespacePart,
+                                    directoryInfo.Name,
+                                    StringComparison.OrdinalIgnoreCase))
+                                {
+                                    return (directoryInfo.FullName, namespacePart);
+                                }
+
+                                directoryInfo = directoryInfo.Parent;
+                            }
+
+                            return (null, null);
+                        })
+                    .Where(tuple => tuple.FullName != null)
+                    .Select(
+                        tuple => Path.Combine(
+                            tuple.FullName,
+                            typeDefinition.Namespace.Replace($"{tuple.namespacePart}.", string.Empty)
+                                .Replace('.', Path.DirectorySeparatorChar),
+                            $"{typeDefinition.Name}.cs"))
+                    .FirstOrDefault(File.Exists);
+            }
+
+            if (documentFilePath == null || !File.Exists(documentFilePath))
             {
                 return new Dictionary<string, List<string>>();
             }
 
-            string documentUrl = sequencePoint.Document.Url;
-            string sourceCode = File.ReadAllText(documentUrl);
+            string sourceCode = File.ReadAllText(documentFilePath);
             Dictionary<string, List<string>> summariesByIdentifierName = new Dictionary<string, List<string>>();
 
             foreach (Match match in _documentedIdentifierRegex.Matches(sourceCode))
