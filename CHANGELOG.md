@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.1.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v8.1.0...v8.1.1) (2019-02-05)
+
+
+### Bug Fixes
+
+* **PropertyValidation:** support generic base classes ([056b4cd](https://github.com/ExtendRealityLtd/Malimbe/commit/056b4cd))
+
 # [8.1.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v8.0.0...v8.1.0) (2019-02-03)
 
 
