@@ -13,8 +13,16 @@
         [InitializeOnLoadMethod]
         private static void OnEditorInitialization()
         {
-            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
-            WeaveAllAssemblies();
+            void OnDelayCall()
+            {
+                // ReSharper disable once DelegateSubtraction
+                EditorApplication.delayCall -= OnDelayCall;
+
+                CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
+                WeaveAllAssemblies();
+            }
+
+            EditorApplication.delayCall += OnDelayCall;
         }
 
         [MenuItem("Tools/" + nameof(Malimbe) + "/Weave All Assemblies")]
