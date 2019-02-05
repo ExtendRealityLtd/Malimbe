@@ -156,11 +156,11 @@
             // Call getter
             instructions.Insert(
                 ++index,
-                Instruction.Create(OpCodes.Callvirt, propertyDefinition.GetMethod.GetGeneric()));
+                Instruction.Create(OpCodes.Callvirt, propertyDefinition.GetMethod.CreateGenericMethodIfNeeded()));
             // Call setter
             instructions.Insert(
                 ++index,
-                Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod.GetGeneric()));
+                Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod.CreateGenericMethodIfNeeded()));
 
             LogInfo(
                 $"Inserted a property setter call of '{propertyDefinition.FullName}'"
@@ -169,12 +169,13 @@
 
         private MethodDefinition OverrideBaseMethodIfNeeded(MethodDefinition methodDefinition)
         {
-            MethodDefinition baseMethodDefinition = methodDefinition.GetBaseMethod();
-            if (baseMethodDefinition == methodDefinition)
+            MethodReference baseMethodReference = methodDefinition.FindBaseMethod();
+            if (baseMethodReference == methodDefinition)
             {
                 return null;
             }
 
+            MethodDefinition baseMethodDefinition = baseMethodReference.Resolve();
             if (!baseMethodDefinition.IsFamily)
             {
                 baseMethodDefinition.IsFamily = true;
@@ -209,7 +210,7 @@
                 && (instructions[index].OpCode == OpCodes.Callvirt
                     || instructions[index].OpCode == OpCodes.Call
                     || instructions[index].OpCode == OpCodes.Calli)
-                && instructions[index].Operand == baseMethodDefinition)
+                && (instructions[index].Operand as MethodReference)?.FullName == baseMethodDefinition.FullName)
             {
                 LogInfo(
                     $"No base call was inserted into the method '{methodDefinition.FullName}'"
@@ -224,11 +225,7 @@
             // Load this (for base method call)
             instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
             // Call base method
-            instructions.Insert(
-                ++index,
-                Instruction.Create(
-                    OpCodes.Call,
-                    methodDefinition.DeclaringType.Module.ImportReference(baseMethodDefinition)));
+            instructions.Insert(++index, Instruction.Create(OpCodes.Call, baseMethodReference));
 
             LogInfo($"Inserted a base call into the method '{methodDefinition.FullName}'.");
             return baseMethodDefinition;

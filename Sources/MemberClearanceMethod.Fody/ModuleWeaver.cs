@@ -164,7 +164,7 @@
             // Call setter
             instructions.Insert(
                 ++index,
-                Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod.GetGeneric()));
+                Instruction.Create(OpCodes.Callvirt, propertyDefinition.SetMethod.CreateGenericMethodIfNeeded()));
 
             LogInfo(
                 $"Inserted a setter call to clear the property '{propertyDefinition.FullName}'"

@@ -127,7 +127,7 @@
             methodBody.SimplifyMacros();
 
             // previousValue = this.property;
-            MethodReference getMethodReference = propertyDefinition.GetMethod.GetGeneric();
+            MethodReference getMethodReference = propertyDefinition.GetMethod.CreateGenericMethodIfNeeded();
             VariableDefinition previousValueVariableDefinition = methodBody.Variables.FirstOrDefault(
                 definition =>
                 {
@@ -193,9 +193,13 @@
                 // Load this (for backing field get)
                 instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
                 // Load address of backing field
-                instructions.Insert(++index, Instruction.Create(OpCodes.Ldflda, propertyDefinition.GetBackingField()));
+                instructions.Insert(
+                    ++index,
+                    Instruction.Create(OpCodes.Ldflda, propertyDefinition.FindBackingField()));
                 // Call setMethod
-                instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, setMethodReference.GetGeneric()));
+                instructions.Insert(
+                    ++index,
+                    Instruction.Create(OpCodes.Callvirt, setMethodReference.CreateGenericMethodIfNeeded()));
 
                 if (nopInstruction != null)
                 {

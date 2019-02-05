@@ -47,7 +47,7 @@
                     continue;
                 }
 
-                FieldReference backingFieldReference = propertyDefinition.GetBackingField();
+                FieldReference backingFieldReference = propertyDefinition.FindBackingField();
                 if (backingFieldReference == null)
                 {
                     LogError(
