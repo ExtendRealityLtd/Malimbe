@@ -1,5 +1,12 @@
 # Changelog
 
+## [8.1.3](https://github.com/ExtendRealityLtd/Malimbe/compare/v8.1.2...v8.1.3) (2019-02-05)
+
+
+### Bug Fixes
+
+* **UnityIntegration:** tell Unity to reload assemblies when needed ([6350a71](https://github.com/ExtendRealityLtd/Malimbe/commit/6350a71))
+
 ## [8.1.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v8.1.1...v8.1.2) (2019-02-05)
 
 
