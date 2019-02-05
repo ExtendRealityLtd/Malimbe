@@ -6,6 +6,7 @@
     using JetBrains.Annotations;
     using UnityEditor;
     using UnityEditor.Compilation;
+    using UnityEditorInternal;
     using UnityEngine;
 
     internal static class EditorWeaver
@@ -34,36 +35,56 @@
 
         private static void WeaveAllAssemblies()
         {
-            IReadOnlyList<Assembly> assemblies = GetAllAssemblies().ToList();
-            IReadOnlyCollection<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
-            Runner runner = new Runner(new Logger());
-            runner.Configure(searchPaths, searchPaths);
+            EditorApplication.LockReloadAssemblies();
 
-            for (int index = 0; index < assemblies.Count; index++)
+            try
             {
-                Assembly assembly = assemblies[index];
+                IReadOnlyList<Assembly> assemblies = GetAllAssemblies().ToList();
+                IReadOnlyCollection<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
+                Runner runner = new Runner(new Logger());
+                runner.Configure(searchPaths, searchPaths);
+
+                for (int index = 0; index < assemblies.Count; index++)
+                {
+                    Assembly assembly = assemblies[index];
+                    try
+                    {
+                        EditorUtility.DisplayProgressBar(
+                            nameof(Malimbe),
+                            $"Weaving '{assembly.name}'.",
+                            (float)index / assemblies.Count);
+
+                        InternalEditorUtility.RequestScriptReload();
+                    }
+                    catch
+                    {
+                        // ignored
+                    }
+
+                    if (!WeaveAssembly(assembly, runner))
+                    {
+                        continue;
+                    }
+
+                    string sourceFilePath = assembly.sourceFiles.FirstOrDefault();
+                    if (sourceFilePath != null)
+                    {
+                        AssetDatabase.ImportAsset(sourceFilePath, ImportAssetOptions.ForceUpdate);
+                    }
+                }
+
                 try
                 {
-                    EditorUtility.DisplayProgressBar(
-                        nameof(Malimbe),
-                        $"Weaving '{assembly.name}'.",
-                        (float)index / assemblies.Count);
+                    EditorUtility.ClearProgressBar();
                 }
                 catch
                 {
                     // ignored
                 }
-
-                WeaveAssembly(assembly, runner);
             }
-
-            try
+            finally
             {
-                EditorUtility.ClearProgressBar();
-            }
-            catch
-            {
-                // ignored
+                EditorApplication.UnlockReloadAssemblies();
             }
         }
 
@@ -90,18 +111,21 @@
                 .GroupBy(assembly => assembly.outputPath)
                 .Select(grouping => grouping.First());
 
-        private static void WeaveAssembly(Assembly assembly, Runner runner)
+        private static bool WeaveAssembly(Assembly assembly, Runner runner)
         {
             try
             {
                 string assemblyPath = WeaverPathsHelper.AddProjectPathRootIfNeeded(assembly.outputPath);
                 IEnumerable<string> references =
                     assembly.allReferences.Select(WeaverPathsHelper.AddProjectPathRootIfNeeded);
-                runner.RunAsync(assemblyPath, references, assembly.defines.ToList(), true).GetAwaiter().GetResult();
+                return runner.RunAsync(assemblyPath, references, assembly.defines.ToList(), true)
+                    .GetAwaiter()
+                    .GetResult();
             }
             catch (Exception exception)
             {
                 Debug.LogException(exception);
+                return false;
             }
         }
     }
