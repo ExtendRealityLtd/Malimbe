@@ -52,7 +52,7 @@
                     {
                         PropertyDefinition propertyDefinition =
                             fieldDefinition.DeclaringType.Properties?.FirstOrDefault(
-                                definition => definition.GetBackingField()?.Name == fieldDefinition.Name);
+                                definition => definition.FindBackingField()?.Name == fieldDefinition.Name);
                         if (propertyDefinition != null)
                         {
                             summariesByIdentifierName.TryGetValue(propertyDefinition.Name, out summaries);
