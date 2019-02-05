@@ -1,5 +1,13 @@
 # Changelog
 
+## [8.1.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v8.1.1...v8.1.2) (2019-02-05)
+
+
+### Bug Fixes
+
+* **UnityIntegration:** delay weaving process until Unity is ready ([c280dc7](https://github.com/ExtendRealityLtd/Malimbe/commit/c280dc7))
+* **UnityIntegration:** remove unnecessary .asmdef files ([956a167](https://github.com/ExtendRealityLtd/Malimbe/commit/956a167))
+
 ## [8.1.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v8.1.0...v8.1.1) (2019-02-05)
 
 
