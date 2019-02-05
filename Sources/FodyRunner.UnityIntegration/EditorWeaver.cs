@@ -6,7 +6,6 @@
     using JetBrains.Annotations;
     using UnityEditor;
     using UnityEditor.Compilation;
-    using UnityEditorInternal;
     using UnityEngine;
 
     internal static class EditorWeaver
@@ -53,8 +52,6 @@
                             nameof(Malimbe),
                             $"Weaving '{assembly.name}'.",
                             (float)index / assemblies.Count);
-
-                        InternalEditorUtility.RequestScriptReload();
                     }
                     catch
                     {
