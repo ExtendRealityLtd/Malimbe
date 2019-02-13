@@ -13,16 +13,8 @@
         [InitializeOnLoadMethod]
         private static void OnEditorInitialization()
         {
-            void OnDelayCall()
-            {
-                // ReSharper disable once DelegateSubtraction
-                EditorApplication.delayCall -= OnDelayCall;
-
-                CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
-                WeaveAllAssemblies();
-            }
-
-            EditorApplication.delayCall += OnDelayCall;
+            CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
+            WeaveAllAssemblies();
         }
 
         [MenuItem("Tools/" + nameof(Malimbe) + "/Weave All Assemblies")]
@@ -103,8 +95,7 @@
 
         [NotNull]
         private static IEnumerable<Assembly> GetAllAssemblies() =>
-            CompilationPipeline.GetAssemblies(AssembliesType.Player)
-                .Concat(CompilationPipeline.GetAssemblies(AssembliesType.Editor))
+            CompilationPipeline.GetAssemblies(AssembliesType.Editor)
                 .GroupBy(assembly => assembly.outputPath)
                 .Select(grouping => grouping.First());
 
