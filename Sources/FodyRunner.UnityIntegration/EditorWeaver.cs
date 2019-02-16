@@ -74,6 +74,7 @@
             finally
             {
                 EditorApplication.UnlockReloadAssemblies();
+                AssetDatabase.Refresh();
             }
         }
 
