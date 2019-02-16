@@ -14,17 +14,17 @@
         private static void OnEditorInitialization()
         {
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
-            WeaveAllAssemblies();
+            WeaveAllAssemblies(false);
         }
 
         [MenuItem("Tools/" + nameof(Malimbe) + "/Weave All Assemblies")]
         private static void ManuallyWeaveAllAssemblies()
         {
-            WeaveAllAssemblies();
+            WeaveAllAssemblies(true);
             Debug.Log("Weaving finished.");
         }
 
-        private static void WeaveAllAssemblies()
+        private static void WeaveAllAssemblies(bool displayProgressBar)
         {
             EditorApplication.LockReloadAssemblies();
 
@@ -38,16 +38,12 @@
                 for (int index = 0; index < assemblies.Count; index++)
                 {
                     Assembly assembly = assemblies[index];
-                    try
+                    if (displayProgressBar)
                     {
                         EditorUtility.DisplayProgressBar(
                             nameof(Malimbe),
                             $"Weaving '{assembly.name}'.",
                             (float)index / assemblies.Count);
-                    }
-                    catch
-                    {
-                        // ignored
                     }
 
                     if (!WeaveAssembly(assembly, runner))
@@ -62,18 +58,15 @@
                     }
                 }
 
-                try
+                if (displayProgressBar)
                 {
                     EditorUtility.ClearProgressBar();
-                }
-                catch
-                {
-                    // ignored
                 }
             }
             finally
             {
                 EditorApplication.UnlockReloadAssemblies();
+                AssetDatabase.Refresh();
             }
         }
 
