@@ -24,9 +24,9 @@
 
             string clearMethodNamePrefix = Config?.Attribute("MethodNamePrefix")?.Value ?? "Clear";
             IEnumerable<PropertyDefinition> propertyDefinitions =
-                ModuleDefinition.Types.SelectMany(definition => definition.Properties);
+                ModuleDefinition.GetTypes().SelectMany(definition => definition.Properties);
             IEnumerable<FieldDefinition> fieldDefinitions =
-                ModuleDefinition.Types.SelectMany(definition => definition.Fields);
+                ModuleDefinition.GetTypes().SelectMany(definition => definition.Fields);
             IEnumerable<IMemberDefinition> memberDefinitions =
                 propertyDefinitions.Concat<IMemberDefinition>(fieldDefinitions);
 

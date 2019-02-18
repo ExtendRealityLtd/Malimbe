@@ -22,7 +22,7 @@
             FindReferences();
 
             IEnumerable<PropertyDefinition> propertyDefinitions =
-                ModuleDefinition.Types.SelectMany(definition => definition.Properties);
+                ModuleDefinition.GetTypes().SelectMany(definition => definition.Properties);
             // ReSharper disable once LoopCanBePartlyConvertedToQuery
             foreach (PropertyDefinition propertyDefinition in propertyDefinitions)
             {
