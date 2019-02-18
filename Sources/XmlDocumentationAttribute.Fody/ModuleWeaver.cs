@@ -34,8 +34,8 @@
             FindReferences();
             string identifierReplacementFormat = GetIdentifierReplacementFormat();
 
-            IEnumerable<TypeDefinition> typeDefinitions = ModuleDefinition.Types.Where(
-                definition => definition.HasFields);
+            IEnumerable<TypeDefinition> typeDefinitions =
+                ModuleDefinition.GetTypes().Where(definition => definition.HasFields);
             foreach (TypeDefinition typeDefinition in typeDefinitions)
             {
                 List<FieldDefinition> fieldDefinitions = typeDefinition.Fields.Where(FindAndRemoveAttribute).ToList();
@@ -44,8 +44,11 @@
                     continue;
                 }
 
+                TypeDefinition lookupTypeDefinition =
+                    typeDefinition.IsNested ? typeDefinition.DeclaringType : typeDefinition;
+
                 IReadOnlyDictionary<string, List<string>> summariesByIdentifierName =
-                    ParseSourceFileXmlDocumentation(typeDefinition, identifierReplacementFormat);
+                    ParseSourceFileXmlDocumentation(lookupTypeDefinition, identifierReplacementFormat);
                 foreach (FieldDefinition fieldDefinition in fieldDefinitions)
                 {
                     if (!summariesByIdentifierName.TryGetValue(fieldDefinition.Name, out List<string> summaries))
@@ -70,7 +73,7 @@
                     if (summaries.Count > 1)
                     {
                         LogError(
-                            $"There are at least two identifiers called '{fieldDefinition.Name}' in '{typeDefinition.FullName}'."
+                            $"There are at least two identifiers called '{fieldDefinition.Name}' in '{lookupTypeDefinition.FullName}'."
                             + " Only a single identifier name per source code file is currently supported. The first occurrence of"
                             + $" the identifier name will be annotated using the attribute '{_attributeDefinition.FullName}'.");
                     }
@@ -157,7 +160,8 @@
             string documentFilePath = GetDocumentFilePath(typeDefinition);
             if (!File.Exists(documentFilePath))
             {
-                documentFilePath = typeDefinition.Module.Types.Select(
+                documentFilePath = typeDefinition.Module.GetTypes()
+                    .Select(
                         definition =>
                         {
                             string filePath = GetDocumentFilePath(definition);

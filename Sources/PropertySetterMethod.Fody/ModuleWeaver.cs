@@ -20,7 +20,7 @@
         public override void Execute()
         {
             IEnumerable<MethodDefinition> methodDefinitions =
-                ModuleDefinition.Types.SelectMany(definition => definition.Methods);
+                ModuleDefinition.GetTypes().SelectMany(definition => definition.Methods);
             foreach (MethodDefinition methodDefinition in methodDefinitions)
             {
                 if (!FindAndRemoveAttribute(methodDefinition, out CustomAttribute attribute)

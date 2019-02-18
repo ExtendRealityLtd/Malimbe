@@ -25,7 +25,7 @@
             string validationMethodName = Config?.Attribute("MethodName")?.Value ?? "OnValidate";
 
             IEnumerable<PropertyDefinition> propertyDefinitions =
-                ModuleDefinition.Types.SelectMany(definition => definition.Properties);
+                ModuleDefinition.GetTypes().SelectMany(definition => definition.Properties);
             List<MethodDefinition> existingMethodDefinitions = FindValidationMethods(validationMethodName).ToList();
 
             foreach (PropertyDefinition propertyDefinition in propertyDefinitions)
@@ -101,7 +101,7 @@
         }
 
         private IEnumerable<MethodDefinition> FindValidationMethods(string validationMethodName) =>
-            ModuleDefinition.Types
+            ModuleDefinition.GetTypes()
                 .Where(
                     definition => !definition.IsInterface
                         && !definition.IsEnum
