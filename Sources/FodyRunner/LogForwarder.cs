@@ -27,7 +27,7 @@
                             StringSplitOptions.RemoveEmptyEntries))
                     .Select(value => value.Trim())
                     .Select(value => Enum.TryParse(value, true, out LogLevel level) ? level : LogLevel.None)
-                    .Aggregate((level1, level2) => level1 | level2)
+                    .Aggregate(LogLevel.None, (level1, level2) => level1 | level2)
                 ?? LogLevel.None;
 
         public void SetCurrentWeaverName(string weaverName) =>

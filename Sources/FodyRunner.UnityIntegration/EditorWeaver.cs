@@ -14,59 +14,51 @@
         private static void OnEditorInitialization()
         {
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
-            WeaveAllAssemblies(false);
+            WeaveAllAssemblies();
         }
 
         [MenuItem("Tools/" + nameof(Malimbe) + "/Weave All Assemblies")]
         private static void ManuallyWeaveAllAssemblies()
         {
-            WeaveAllAssemblies(true);
+            WeaveAllAssemblies();
             Debug.Log("Weaving finished.");
         }
 
-        private static void WeaveAllAssemblies(bool displayProgressBar)
+        private static void WeaveAllAssemblies()
         {
             EditorApplication.LockReloadAssemblies();
+            bool didChangeAnyAssembly = false;
 
             try
             {
-                IReadOnlyList<Assembly> assemblies = GetAllAssemblies().ToList();
                 IReadOnlyCollection<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
                 Runner runner = new Runner(new Logger());
                 runner.Configure(searchPaths, searchPaths);
 
-                for (int index = 0; index < assemblies.Count; index++)
+                foreach (Assembly assembly in GetAllAssemblies())
                 {
-                    Assembly assembly = assemblies[index];
-                    if (displayProgressBar)
-                    {
-                        EditorUtility.DisplayProgressBar(
-                            nameof(Malimbe),
-                            $"Weaving '{assembly.name}'.",
-                            (float)index / assemblies.Count);
-                    }
-
                     if (!WeaveAssembly(assembly, runner))
                     {
                         continue;
                     }
 
                     string sourceFilePath = assembly.sourceFiles.FirstOrDefault();
-                    if (sourceFilePath != null)
+                    if (sourceFilePath == null)
                     {
-                        AssetDatabase.ImportAsset(sourceFilePath, ImportAssetOptions.ForceUpdate);
+                        continue;
                     }
-                }
 
-                if (displayProgressBar)
-                {
-                    EditorUtility.ClearProgressBar();
+                    AssetDatabase.ImportAsset(sourceFilePath, ImportAssetOptions.ForceUpdate);
+                    didChangeAnyAssembly = true;
                 }
             }
             finally
             {
                 EditorApplication.UnlockReloadAssemblies();
-                AssetDatabase.Refresh();
+                if (didChangeAnyAssembly)
+                {
+                    AssetDatabase.Refresh();
+                }
             }
         }
 
