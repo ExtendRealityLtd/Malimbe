@@ -14,38 +14,28 @@
         private static void OnEditorInitialization()
         {
             CompilationPipeline.assemblyCompilationFinished += OnCompilationFinished;
-            WeaveAllAssemblies(false);
+            WeaveAllAssemblies();
         }
 
         [MenuItem("Tools/" + nameof(Malimbe) + "/Weave All Assemblies")]
         private static void ManuallyWeaveAllAssemblies()
         {
-            WeaveAllAssemblies(true);
+            WeaveAllAssemblies();
             Debug.Log("Weaving finished.");
         }
 
-        private static void WeaveAllAssemblies(bool displayProgressBar)
+        private static void WeaveAllAssemblies()
         {
             EditorApplication.LockReloadAssemblies();
 
             try
             {
-                IReadOnlyList<Assembly> assemblies = GetAllAssemblies().ToList();
                 IReadOnlyCollection<string> searchPaths = WeaverPathsHelper.GetSearchPaths().ToList();
                 Runner runner = new Runner(new Logger());
                 runner.Configure(searchPaths, searchPaths);
 
-                for (int index = 0; index < assemblies.Count; index++)
+                foreach (Assembly assembly in GetAllAssemblies())
                 {
-                    Assembly assembly = assemblies[index];
-                    if (displayProgressBar)
-                    {
-                        EditorUtility.DisplayProgressBar(
-                            nameof(Malimbe),
-                            $"Weaving '{assembly.name}'.",
-                            (float)index / assemblies.Count);
-                    }
-
                     if (!WeaveAssembly(assembly, runner))
                     {
                         continue;
@@ -56,11 +46,6 @@
                     {
                         AssetDatabase.ImportAsset(sourceFilePath, ImportAssetOptions.ForceUpdate);
                     }
-                }
-
-                if (displayProgressBar)
-                {
-                    EditorUtility.ClearProgressBar();
                 }
             }
             finally
