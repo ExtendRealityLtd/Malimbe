@@ -27,6 +27,7 @@
         private static void WeaveAllAssemblies()
         {
             EditorApplication.LockReloadAssemblies();
+            bool didChangeAnyAssembly = false;
 
             try
             {
@@ -42,16 +43,22 @@
                     }
 
                     string sourceFilePath = assembly.sourceFiles.FirstOrDefault();
-                    if (sourceFilePath != null)
+                    if (sourceFilePath == null)
                     {
-                        AssetDatabase.ImportAsset(sourceFilePath, ImportAssetOptions.ForceUpdate);
+                        continue;
                     }
+
+                    AssetDatabase.ImportAsset(sourceFilePath, ImportAssetOptions.ForceUpdate);
+                    didChangeAnyAssembly = true;
                 }
             }
             finally
             {
                 EditorApplication.UnlockReloadAssemblies();
-                AssetDatabase.Refresh();
+                if (didChangeAnyAssembly)
+                {
+                    AssetDatabase.Refresh();
+                }
             }
         }
 
