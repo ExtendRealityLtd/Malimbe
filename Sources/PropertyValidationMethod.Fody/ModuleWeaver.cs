@@ -210,7 +210,7 @@
                 && (instructions[index].OpCode == OpCodes.Callvirt
                     || instructions[index].OpCode == OpCodes.Call
                     || instructions[index].OpCode == OpCodes.Calli)
-                && (instructions[index].Operand as MethodReference)?.FullName == baseMethodDefinition.FullName)
+                && (instructions[index].Operand as MethodReference)?.FullName == baseMethodReference.FullName)
             {
                 LogInfo(
                     $"No base call was inserted into the method '{methodDefinition.FullName}'"
