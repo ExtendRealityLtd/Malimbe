@@ -67,12 +67,19 @@
             return genericMethodReference;
         }
 
-        public static MethodReference CreateGenericMethodIfNeeded(this MethodReference methodReference) =>
-            methodReference.DeclaringType.HasGenericParameters
+        public static MethodReference CreateGenericMethodIfNeeded(this MethodReference methodReference)
+        {
+            TypeReference declaringType = methodReference.DeclaringType;
+            while (declaringType?.HasGenericParameters == false)
+            {
+                declaringType = declaringType.Resolve().BaseType;
+            }
+
+            return declaringType?.HasGenericParameters == true
                 ? methodReference.CreateGenericMethod(
-                    methodReference.DeclaringType.GenericParameters.Select(parameter => parameter.GetElementType())
-                        .ToArray())
+                    declaringType.GenericParameters.Select(parameter => parameter.GetElementType()).ToArray())
                 : methodReference;
+        }
 
         public static MethodReference FindBaseMethod(this MethodDefinition methodDefinition)
         {
@@ -84,14 +91,18 @@
                     MetadataResolver.GetMethod(baseTypeDefinition.Methods, methodDefinition);
                 if (matchingMethodDefinition != null)
                 {
+                    MethodReference importedReference =
+                        methodDefinition.Module.ImportReference(matchingMethodDefinition);
                     if (!baseTypeReference.IsGenericInstance)
                     {
-                        return matchingMethodDefinition;
+                        return importedReference;
                     }
 
                     GenericInstanceType genericInstanceType = (GenericInstanceType)baseTypeReference;
-                    return methodDefinition.Module.ImportReference(matchingMethodDefinition)
-                        .CreateGenericMethod(genericInstanceType.GenericArguments.ToArray());
+                    TypeReference[] genericArgumentTypes = genericInstanceType.GenericArguments
+                        .Select(reference => methodDefinition.Module.ImportReference(reference))
+                        .ToArray();
+                    return importedReference.CreateGenericMethod(genericArgumentTypes);
                 }
 
                 baseTypeReference = baseTypeDefinition.BaseType;
