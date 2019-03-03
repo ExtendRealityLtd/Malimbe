@@ -74,7 +74,6 @@ A standalone library that allows running Fody without MSBuild or Visual Studio.
 Weaves assemblies using `FodyRunner` in the Unity software Editor after the Unity softwared compiled them.
 
 * There is no need to manually run the weaving process. The library just needs to be part of a Unity software project (it's configured to only run in the Editor) to be used. It hooks into the various callbacks the Unity software offers and automatically weaves any assembly on startup as well as when they change.
-* Once the library is loaded in the Editor a menu item `Tools/Malimbe/Weave All Assemblies` allows to manually trigger the weaving process for all assemblies in the current project. This is useful when a `FodyWeavers.xml` file was changed.
 
 ### `BehaviourStateRequirementMethod`
 
