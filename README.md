@@ -42,7 +42,6 @@ Please follow these steps to install the package using a local location until th
       <Malimbe.MemberClearanceMethod/>
       <Malimbe.PropertySerializationAttribute/>
       <Malimbe.PropertySetterMethod/>
-      <Malimbe.PropertyValidationMethod/>
       <Malimbe.XmlDocumentationAttribute IdentifierReplacementFormat="`{0}`"/>
     </Weavers>
     ```
@@ -111,18 +110,6 @@ A generic weaver. Calls a method at the end of a property's setter.
 * Annotate a method with `[CalledBySetter(nameof(SomeProperty))]` to use this. The accessibility level of the method doesn't matter and the name lookup is case insensitive. A call to this method will be added to the _end_ of the property's setter.
 * The method needs to follow the signature pattern `void MethodName(T previousValue, ref T newValue)` where `T` is the property's type. This allows the method's body to use the previous and new values and also offers the ability to change the final value by setting `newValue` if needed.
 * The property needs to be declared in the same type the method is declared in. Both a getter and setter are required for the property.
-
-### `PropertyValidationMethod.Fody`
-
-A generic weaver (though made for the Unity software). Creates a `OnValidate()` method that validates a property.
-
-* Annotate a property with `[Validated]` to use this. The property needs both a getter and setter.
-* Instead of `OnValidate` the method name can be customized with the XML _attribute_ `MethodName`, e.g.:
-  ```xml
-    <Malimbe.PropertyValidationMethod MethodName="Validate" />
-  ```
-* In case the method already exists the additional instructions will be weaved into the _end_ of the method. The method name lookup is case insensitive.
-* If necessary the method and the base type's method will be adjusted to override the method of the same name. Accessibility levels are also adjusted as needed.
 
 ### `XmlDocumentationAttribute.Fody`
 
