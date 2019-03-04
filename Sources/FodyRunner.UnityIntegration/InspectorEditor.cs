@@ -21,11 +21,14 @@
         {
             serializedObject.Update();
 
-            SerializedProperty property = serializedObject.GetIterator();
-            property.NextVisible(true);
-
             try
             {
+                SerializedProperty property = serializedObject.GetIterator();
+                if (!property.NextVisible(true))
+                {
+                    return;
+                }
+
                 do
                 {
                     string propertyPath = property.propertyPath;
@@ -102,7 +105,7 @@
             string alternativePropertyPath = firstChar + propertyPath.Substring(1);
 
             Type type = methodInfo.DeclaringType;
-            return type.GetProperty(
+            return type?.GetProperty(
                     alternativePropertyPath,
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 != null
