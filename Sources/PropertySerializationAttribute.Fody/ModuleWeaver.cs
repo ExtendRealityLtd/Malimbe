@@ -104,7 +104,8 @@
             if (backingFieldDefinition != backingFieldReference)
             {
                 IEnumerable<FieldReference> otherFieldReferences = propertyDefinition.DeclaringType.Methods
-                    .SelectMany(definition => definition.Body?.Instructions)
+                    .Where(definition => definition.HasBody)
+                    .SelectMany(definition => definition.Body.Instructions)
                     .Select(instruction => instruction.Operand as FieldReference)
                     .Where(reference => reference?.FullName == previousFieldName);
                 foreach (FieldReference otherFieldReference in otherFieldReferences)

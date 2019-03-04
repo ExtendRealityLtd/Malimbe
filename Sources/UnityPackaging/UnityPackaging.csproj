@@ -56,7 +56,7 @@
     <ItemGroup>
       <MissingAssemblies Include="..\FodyRunner.UnityIntegration\bin\$(Configuration)\$(TargetFramework)\*.dll" />
     </ItemGroup>
-    <Copy SourceFiles="@(MissingAssemblies)" DestinationFolder="$(TargetDir)Editor" />
+    <Copy SourceFiles="@(MissingAssemblies)" DestinationFolder="$(TargetDir)Editor" Condition="!Exists('$(TargetDir)Runtime\%(Filename)%(Extension)')" />
 
     <ItemGroup>
       <PackageFiles Include="$(ProjectDir)Package\**" />
