@@ -5,11 +5,12 @@
     <AssemblyName>Malimbe.FodyRunner.UnityIntegration</AssemblyName>
     <RootNamespace>Malimbe.FodyRunner.UnityIntegration</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <UnityEditorAssembliesPath Condition="'$(UnityEditorAssembliesPath)' == ''">C:\Program Files\Unity\Hub\Editor\2018.1.9f2\Editor\Data\Managed\</UnityEditorAssembliesPath>
+    <UnityEditorAssembliesPath Condition="'$(UnityEditorAssembliesPath)' == ''">C:\Program Files\Unity\Hub\Editor\2018.3.6f1\Editor\Data\Managed\</UnityEditorAssembliesPath>
   </PropertyGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\FodyRunner\FodyRunner.csproj" />
+    <ProjectReference Include="..\MemberChangeMethod\MemberChangeMethod.csproj" />
   </ItemGroup>
 
   <ItemGroup>

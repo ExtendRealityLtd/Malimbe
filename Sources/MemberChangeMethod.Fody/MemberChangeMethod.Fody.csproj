@@ -2,8 +2,8 @@
 
   <PropertyGroup>
     <TargetFrameworks>netstandard2.0</TargetFrameworks>
-    <AssemblyName>Malimbe.PropertySetterMethod.Fody</AssemblyName>
-    <RootNamespace>Malimbe.PropertySetterMethod.Fody</RootNamespace>
+    <AssemblyName>Malimbe.MemberChangeMethod.Fody</AssemblyName>
+    <RootNamespace>Malimbe.MemberChangeMethod.Fody</RootNamespace>
     <LangVersion>latest</LangVersion>
     <AttributeProjectName>$([MSBuild]::ValueOrDefault('$(MSBuildProjectName)', '').Replace('.Fody', ''))</AttributeProjectName>
   </PropertyGroup>
