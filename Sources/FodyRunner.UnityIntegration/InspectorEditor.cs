@@ -32,19 +32,21 @@
                 do
                 {
                     string propertyPath = property.propertyPath;
+                    Object targetObject = property.serializedObject.targetObject;
 
                     using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
                     using (new EditorGUI.DisabledGroupScope(propertyPath == "m_Script"))
                     {
                         DrawProperty(property);
 
-                        if (!changeCheckScope.changed || !Application.isPlaying)
+                        if (!changeCheckScope.changed
+                            || !Application.isPlaying
+                            || targetObject is Behaviour behaviour && !behaviour.isActiveAndEnabled)
                         {
                             continue;
                         }
                     }
 
-                    Object targetObject = property.serializedObject.targetObject;
                     List<MethodInfo> methodInfos = targetObject.GetType()
                         .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                         .Where(
