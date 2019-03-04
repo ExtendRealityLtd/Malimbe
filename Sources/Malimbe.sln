@@ -19,9 +19,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "XmlDocumentationAttribute.F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Shared", "Shared\Shared.csproj", "{EE1351B4-E8CF-40C6-A52D-B613558C3743}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertySetterMethod", "PropertySetterMethod\PropertySetterMethod.csproj", "{FCDA1E4B-C42C-4F71-9B1E-F260AF3ABEFA}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberChangeMethod", "MemberChangeMethod\MemberChangeMethod.csproj", "{FCDA1E4B-C42C-4F71-9B1E-F260AF3ABEFA}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "PropertySetterMethod.Fody", "PropertySetterMethod.Fody\PropertySetterMethod.Fody.csproj", "{BADB02F5-23AF-401D-A919-9771C3885644}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberChangeMethod.Fody", "MemberChangeMethod.Fody\MemberChangeMethod.Fody.csproj", "{BADB02F5-23AF-401D-A919-9771C3885644}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MemberClearanceMethod", "MemberClearanceMethod\MemberClearanceMethod.csproj", "{9C55B0CE-82D8-49BA-9DE5-805DFC2527C4}"
 EndProject
