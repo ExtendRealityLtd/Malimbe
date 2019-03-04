@@ -21,27 +21,32 @@
         {
             serializedObject.Update();
 
-            SerializedProperty property = serializedObject.GetIterator();
-            property.NextVisible(true);
-
             try
             {
+                SerializedProperty property = serializedObject.GetIterator();
+                if (!property.NextVisible(true))
+                {
+                    return;
+                }
+
                 do
                 {
                     string propertyPath = property.propertyPath;
+                    Object targetObject = property.serializedObject.targetObject;
 
                     using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
                     using (new EditorGUI.DisabledGroupScope(propertyPath == "m_Script"))
                     {
                         DrawProperty(property);
 
-                        if (!changeCheckScope.changed || !Application.isPlaying)
+                        if (!changeCheckScope.changed
+                            || !Application.isPlaying
+                            || targetObject is Behaviour behaviour && !behaviour.isActiveAndEnabled)
                         {
                             continue;
                         }
                     }
 
-                    Object targetObject = property.serializedObject.targetObject;
                     List<MethodInfo> methodInfos = targetObject.GetType()
                         .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                         .Where(
@@ -102,7 +107,7 @@
             string alternativePropertyPath = firstChar + propertyPath.Substring(1);
 
             Type type = methodInfo.DeclaringType;
-            return type.GetProperty(
+            return type?.GetProperty(
                     alternativePropertyPath,
                     BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                 != null

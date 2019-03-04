@@ -12,9 +12,12 @@
     // ReSharper disable once UnusedMember.Global
     public sealed class ModuleWeaver : BaseModuleWeaver
     {
-        private static readonly string _fullAttributeName = typeof(HandlesMemberChangeAttribute).FullName;
+        private static readonly string _fullBaseAttributeName = typeof(HandlesMemberChangeAttribute).FullName;
+        private static readonly string _fullBeforeChangeAttributeName = typeof(CalledBeforeChangeOfAttribute).FullName;
 
         private MethodReference _isApplicationPlayingGetterReference;
+        private MethodReference _isActiveAndEnabledGetterReference;
+        private TypeReference _behaviourReference;
         private bool _isCompilingForEditor;
 
         public override bool ShouldCleanReference =>
@@ -56,16 +59,19 @@
 
         private void FindReferences()
         {
-            _isApplicationPlayingGetterReference = ModuleDefinition.ImportReference(
-                FindType("UnityEngine.Application")
-                    .Properties.Single(definition => definition.Name == "isPlaying")
-                    .GetMethod);
+            MethodReference ImportPropertyGetter(string typeName, string propertyName) =>
+                ModuleDefinition.ImportReference(
+                    FindType(typeName).Properties.Single(definition => definition.Name == propertyName).GetMethod);
+
+            _isApplicationPlayingGetterReference = ImportPropertyGetter("UnityEngine.Application", "isPlaying");
+            _isActiveAndEnabledGetterReference = ImportPropertyGetter("UnityEngine.Behaviour", "isActiveAndEnabled");
+            _behaviourReference = ModuleDefinition.ImportReference(FindType("UnityEngine.Behaviour"));
             _isCompilingForEditor = DefineConstants.Contains("UNITY_EDITOR");
         }
 
         private static IEnumerable<CustomAttribute> FindAttributes(ICustomAttributeProvider methodDefinition) =>
             methodDefinition.CustomAttributes.Where(
-                    attribute => attribute.AttributeType.Resolve().BaseType.FullName == _fullAttributeName)
+                    attribute => attribute.AttributeType.Resolve().BaseType.FullName == _fullBaseAttributeName)
                 .ToList();
 
         private bool FindProperty(
@@ -128,7 +134,7 @@
             Instruction targetInstruction;
             int instructionIndex;
             bool needsPlayingCheck = _isCompilingForEditor;
-            if (attribute.AttributeType.FullName == typeof(CalledBeforeChangeOfAttribute).FullName)
+            if (attribute.AttributeType.FullName == _fullBeforeChangeAttributeName)
             {
                 targetInstruction = storeInstruction.Previous.Previous;
                 instructionIndex = instructions.IndexOf(targetInstruction) - 1;
@@ -163,7 +169,7 @@
                     && (testInstruction.Operand as MethodReference)?.FullName
                     == _isApplicationPlayingGetterReference.FullName)
                 {
-                    instructionIndex = instructions.IndexOf(testInstruction) + 1;
+                    instructionIndex = instructions.IndexOf(testInstruction) + 4;
                     needsPlayingCheck = false;
                 }
                 else
@@ -172,7 +178,15 @@
                 }
             }
 
-            // if (Application.isPlaying) { this.Method(); }
+            /*
+             if (Application.isPlaying)       // Only if compiling for Editor
+             {
+                 if (this.isActiveAndEnabled) // Only if in a Behaviour
+                 {
+                     this.Method();
+                 }
+             }
+             */
 
             if (needsPlayingCheck)
             {
@@ -180,8 +194,20 @@
                 instructions.Insert(
                     ++instructionIndex,
                     Instruction.Create(OpCodes.Call, _isApplicationPlayingGetterReference));
-                // Don't call the method if false
+                // Bail out if false
                 instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, targetInstruction));
+
+                if (methodReference.DeclaringType.Resolve().IsSubclassOf(_behaviourReference))
+                {
+                    // Load this (for getter call)
+                    instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Ldarg_0));
+                    // Call Behaviour.isActiveAndEnabled getter
+                    instructions.Insert(
+                        ++instructionIndex,
+                        Instruction.Create(OpCodes.Call, _isActiveAndEnabledGetterReference));
+                    // Bail out if false
+                    instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, targetInstruction));
+                }
             }
 
             // Load this (for method call)
