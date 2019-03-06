@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.1.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.1.0...v9.1.1) (2019-03-06)
+
+
+### Bug Fixes
+
+* **MemberChange:** support generic types ([d93148c](https://github.com/ExtendRealityLtd/Malimbe/commit/d93148c))
+
 # [9.1.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.0.0...v9.1.0) (2019-03-04)
 
 
