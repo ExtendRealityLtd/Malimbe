@@ -213,7 +213,9 @@
             // Load this (for method call)
             instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Ldarg_0));
             // Call method
-            instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Callvirt, methodReference));
+            instructions.Insert(
+                ++instructionIndex,
+                Instruction.Create(OpCodes.Callvirt, methodReference.CreateGenericMethodIfNeeded()));
 
             methodBody.OptimizeMacros();
 
