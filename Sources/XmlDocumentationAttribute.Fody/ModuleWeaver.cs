@@ -20,7 +20,7 @@
             @"<\s*summary\s*>(?'summary'(?:\s*\/{3}.*)*)<\s*\/\s*summary\s*>(?:\s*\/{3}.*|\s|\[[\p{L}\p{M}\p{N}\p{P}\p{S}\p{Z}\p{C}]*?\])*[\s\w<>.\[\]?]*\s(?'identifier'\w+)(?:\((?'methodParameters'.*)\))?",
             RegexOptions.Compiled);
         private static readonly Regex _xmlTagBodyCleanUpRegex = new Regex(
-            @"<\s*\w*\b.*?""(?'identifier'\w*)""\s*\/\s*>",
+            @"<\s*\w*\b.*?""(?'identifier'[^\""]*)""\s*\/\s*>",
             RegexOptions.Compiled);
 
         private TypeDefinition _attributeDefinition;
