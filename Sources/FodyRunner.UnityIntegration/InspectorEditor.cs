@@ -105,6 +105,10 @@
             char firstChar = propertyPath[0];
             firstChar = char.IsLower(firstChar) ? char.ToUpper(firstChar) : char.ToLower(firstChar);
             string alternativePropertyPath = firstChar + propertyPath.Substring(1);
+            if (attribute.DataMemberName != alternativePropertyPath)
+            {
+                return false;
+            }
 
             Type type = methodInfo.DeclaringType;
             return type?.GetProperty(
