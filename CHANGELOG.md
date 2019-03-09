@@ -1,5 +1,13 @@
 # Changelog
 
+## [9.1.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.1.1...v9.1.2) (2019-03-09)
+
+
+### Bug Fixes
+
+* **UnityIntegration:** only call change handlers for changed member ([ed3f93f](https://github.com/ExtendRealityLtd/Malimbe/commit/ed3f93f))
+* **XmlToTooltip:** single XML tag in single summary ([b066080](https://github.com/ExtendRealityLtd/Malimbe/commit/b066080))
+
 ## [9.1.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.1.0...v9.1.1) (2019-03-06)
 
 
