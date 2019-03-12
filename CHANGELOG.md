@@ -1,5 +1,12 @@
 # Changelog
 
+# [9.2.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.1.2...v9.2.0) (2019-03-12)
+
+
+### Features
+
+* **UnityIntegration:** allow customizing InspectorEditor ([fc33861](https://github.com/ExtendRealityLtd/Malimbe/commit/fc33861))
+
 ## [9.1.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.1.1...v9.1.2) (2019-03-09)
 
 
