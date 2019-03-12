@@ -16,65 +16,59 @@
     [CanEditMultipleObjects]
     public class InspectorEditor : Editor
     {
+        /// <summary>
+        /// A reusable collection of methods on the current <see cref="SerializedProperty"/>'s declaring type that are annotated with at least one <see cref="HandlesMemberChangeAttribute"/>.
+        /// </summary>
+        protected readonly List<MethodInfo> ChangeHandlerMethodInfos = new List<MethodInfo>();
+
         /// <inheritdoc/>
         public override void OnInspectorGUI()
         {
             serializedObject.Update();
 
-            try
+            SerializedProperty property = serializedObject.GetIterator();
+            if (!property.NextVisible(true))
             {
-                SerializedProperty property = serializedObject.GetIterator();
-                if (!property.NextVisible(true))
-                {
-                    return;
-                }
+                return;
+            }
 
-                do
-                {
-                    string propertyPath = property.propertyPath;
-                    Object targetObject = property.serializedObject.targetObject;
+            do
+            {
+                string propertyPath = property.propertyPath;
+                Object targetObject = property.serializedObject.targetObject;
 
-                    using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
-                    using (new EditorGUI.DisabledGroupScope(propertyPath == "m_Script"))
-                    {
-                        DrawProperty(property);
-
-                        if (!changeCheckScope.changed
-                            || !Application.isPlaying
-                            || targetObject is Behaviour behaviour && !behaviour.isActiveAndEnabled)
-                        {
-                            continue;
-                        }
-                    }
-
-                    List<MethodInfo> methodInfos = targetObject.GetType()
+                ChangeHandlerMethodInfos.Clear();
+                ChangeHandlerMethodInfos.AddRange(
+                    targetObject.GetType()
                         .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
                         .Where(
                             info => info.GetCustomAttributes<HandlesMemberChangeAttribute>()
-                                .Any(attribute => IsAttributeForProperty(property, info, attribute)))
-                        .ToList();
+                                .Any(attribute => IsAttributeForProperty(property, info, attribute))));
 
-                    foreach (MethodInfo methodInfo in methodInfos.Where(
-                        info => info.GetCustomAttribute<CalledBeforeChangeOfAttribute>() != null))
+                using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
+                using (new EditorGUI.DisabledGroupScope(propertyPath == "m_Script"))
+                {
+                    DrawProperty(property);
+
+                    if (!changeCheckScope.changed
+                        || !Application.isPlaying
+                        || targetObject is Behaviour behaviour && !behaviour.isActiveAndEnabled)
                     {
-                        methodInfo.Invoke(targetObject, null);
-                    }
+                        if (changeCheckScope.changed)
+                        {
+                            Debug.Log(propertyPath);
+                            ApplyModifiedProperty(property, ChangeHandlerMethodInfos.Count > 0);
+                        }
 
-                    property.serializedObject.ApplyModifiedProperties();
-
-                    foreach (MethodInfo methodInfo in methodInfos.Where(
-                            info => info.GetCustomAttribute<CalledAfterChangeOfAttribute>() != null)
-                        .Reverse())
-                    {
-                        methodInfo.Invoke(targetObject, null);
+                        continue;
                     }
                 }
-                while (property.NextVisible(false));
+
+                BeforeChange(property);
+                ApplyModifiedProperty(property, true);
+                AfterChange(property);
             }
-            finally
-            {
-                serializedObject.ApplyModifiedProperties();
-            }
+            while (property.NextVisible(false));
         }
 
         /// <summary>
@@ -83,6 +77,51 @@
         /// <param name="property">The property to draw.</param>
         protected virtual void DrawProperty(SerializedProperty property) =>
             EditorGUILayout.PropertyField(property, true);
+
+        /// <summary>
+        /// Applies modifications to the given <see cref="SerializedProperty"/>.
+        /// </summary>
+        /// <param name="property">The property to apply modifications of.</param>
+        /// <param name="hasChangeHandlers">Whether <paramref name="property"/> is part of a type that declares a change handler for the property.</param>
+        protected virtual void ApplyModifiedProperty(SerializedProperty property, bool hasChangeHandlers)
+        {
+            if (hasChangeHandlers)
+            {
+                // Change handlers can't be called for undo or redo operations, so don't register an undo operation.
+                property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+            }
+            else
+            {
+                property.serializedObject.ApplyModifiedProperties();
+            }
+        }
+
+        /// <summary>
+        /// Called before applying changes to the given <see cref="SerializedProperty"/>.
+        /// </summary>
+        /// <param name="property">The property that is about to change.</param>
+        protected virtual void BeforeChange(SerializedProperty property)
+        {
+            foreach (MethodInfo methodInfo in ChangeHandlerMethodInfos.Where(
+                info => info.GetCustomAttribute<CalledBeforeChangeOfAttribute>() != null))
+            {
+                methodInfo.Invoke(property.serializedObject.targetObject, null);
+            }
+        }
+
+        /// <summary>
+        /// Called after applying changes to the given <see cref="SerializedProperty"/>.
+        /// </summary>
+        /// <param name="property">The property that just changed.</param>
+        protected virtual void AfterChange(SerializedProperty property)
+        {
+            foreach (MethodInfo methodInfo in ChangeHandlerMethodInfos.Where(
+                    info => info.GetCustomAttribute<CalledAfterChangeOfAttribute>() != null)
+                .Reverse())
+            {
+                methodInfo.Invoke(property.serializedObject.targetObject, null);
+            }
+        }
 
         /// <summary>
         /// Whether the given <see cref="HandlesMemberChangeAttribute"/> is configured to run the method its define on for the given property.
