@@ -37,14 +37,6 @@
                 string propertyPath = property.propertyPath;
                 Object targetObject = property.serializedObject.targetObject;
 
-                ChangeHandlerMethodInfos.Clear();
-                ChangeHandlerMethodInfos.AddRange(
-                    targetObject.GetType()
-                        .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
-                        .Where(
-                            info => info.GetCustomAttributes<HandlesMemberChangeAttribute>()
-                                .Any(attribute => IsAttributeForProperty(property, info, attribute))));
-
                 using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
                 using (new EditorGUI.DisabledGroupScope(propertyPath == "m_Script"))
                 {
@@ -56,13 +48,15 @@
                     {
                         if (changeCheckScope.changed)
                         {
-                            Debug.Log(propertyPath);
+                            FindChangeHandlerMethods(property);
                             ApplyModifiedProperty(property, ChangeHandlerMethodInfos.Count > 0);
                         }
 
                         continue;
                     }
                 }
+
+                FindChangeHandlerMethods(property);
 
                 BeforeChange(property);
                 ApplyModifiedProperty(property, true);
@@ -121,6 +115,21 @@
             {
                 methodInfo.Invoke(property.serializedObject.targetObject, null);
             }
+        }
+
+        /// <summary>
+        /// Finds all methods that are annotated with an attribute inheriting from <see cref="HandlesMemberChangeAttribute"/> and saves them into the reusable <see cref="ChangeHandlerMethodInfos"/> collection.
+        /// </summary>
+        /// <param name="property">The property that found change handler methods need to be annotated for.</param>
+        protected virtual void FindChangeHandlerMethods(SerializedProperty property)
+        {
+            ChangeHandlerMethodInfos.Clear();
+            ChangeHandlerMethodInfos.AddRange(
+                property.serializedObject.targetObject.GetType()
+                    .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .Where(
+                        info => info.GetCustomAttributes<HandlesMemberChangeAttribute>()
+                            .Any(attribute => IsAttributeForProperty(property, info, attribute))));
         }
 
         /// <summary>
