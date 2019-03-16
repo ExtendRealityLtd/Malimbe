@@ -47,6 +47,7 @@
                         continue;
                     }
 
+                    ChangePropertySetterCallsToFieldStore(propertyDefinition, methodDefinition);
                     InsertSetMethodCallIntoPropertySetter(propertyDefinition, methodDefinition, attribute);
                 }
             }
@@ -116,6 +117,35 @@
             propertyDefinition = null;
 
             return false;
+        }
+
+        private void ChangePropertySetterCallsToFieldStore(
+            PropertyDefinition propertyDefinition,
+            MethodDefinition methodDefinition)
+        {
+            MethodBody methodBody = methodDefinition.Body;
+            Collection<Instruction> instructions = methodBody.Instructions;
+
+            IEnumerable<Instruction> setterCallInstructions = instructions.Where(
+                instruction =>
+                    (instruction.OpCode == OpCodes.Call
+                        || instruction.OpCode == OpCodes.Calli
+                        || instruction.OpCode == OpCodes.Callvirt)
+                    && instruction.Operand is MethodReference reference
+                    && reference.FullName == propertyDefinition.SetMethod.FullName);
+            FieldReference backingField = propertyDefinition.FindBackingField();
+
+            foreach (Instruction setterCallInstruction in setterCallInstructions)
+            {
+                setterCallInstruction.OpCode = OpCodes.Stfld;
+                setterCallInstruction.Operand = backingField;
+
+                LogInfo(
+                    $"Changed the property setter call in '{methodDefinition.FullName}' to set the backing"
+                    + $" field '{backingField.FullName}' instead to prevent a potential infinite loop.");
+            }
+
+            methodBody.OptimizeMacros();
         }
 
         private void InsertSetMethodCallIntoPropertySetter(
