@@ -1,5 +1,14 @@
 # Changelog
 
+## [9.3.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.3.0...v9.3.1) (2019-03-20)
+
+
+### Bug Fixes
+
+* **MemberChange:** allow undo operations but warn against using them ([b29c017](https://github.com/ExtendRealityLtd/Malimbe/commit/b29c017))
+* **MemberChange:** don't do change handler checks multiple times ([311643d](https://github.com/ExtendRealityLtd/Malimbe/commit/311643d))
+* **MemberChange:** support multiple field store instructions ([7e504ff](https://github.com/ExtendRealityLtd/Malimbe/commit/7e504ff))
+
 # [9.3.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.2.2...v9.3.0) (2019-03-16)
 
 
