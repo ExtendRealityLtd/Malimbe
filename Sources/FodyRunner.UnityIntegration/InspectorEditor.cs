@@ -17,6 +17,22 @@
     public class InspectorEditor : Editor
     {
         /// <summary>
+        /// The key to use to store and retrieve <see cref="UndoRedoWarningPropertyPath"/> into/from <see cref="SessionState"/>.
+        /// </summary>
+        protected static readonly string UndoRedoWarningSessionStateKey =
+            typeof(InspectorEditor).FullName + nameof(UndoRedoWarningPropertyPath);
+        /// <summary>
+        /// <see cref="SerializedProperty.propertyPath"/> of the property changed most recently, <see langword="null"/> if no property has been changed yet.
+        /// </summary>
+        protected static string UndoRedoWarningPropertyPath
+        {
+            get =>
+                SessionState.GetString(UndoRedoWarningSessionStateKey, null);
+            set =>
+                SessionState.SetString(UndoRedoWarningSessionStateKey, value);
+        }
+
+        /// <summary>
         /// A reusable collection of methods on the current <see cref="SerializedProperty"/>'s declaring type that are annotated with at least one <see cref="HandlesMemberChangeAttribute"/>.
         /// </summary>
         protected readonly List<MethodInfo> ChangeHandlerMethodInfos = new List<MethodInfo>();
@@ -32,6 +48,8 @@
                 return;
             }
 
+            string undoRedoWarningPropertyPath = UndoRedoWarningPropertyPath;
+
             do
             {
                 string propertyPath = property.propertyPath;
@@ -40,7 +58,24 @@
                 using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
                 using (new EditorGUI.DisabledGroupScope(propertyPath == "m_Script"))
                 {
+                    bool showUndoRedoWarning = propertyPath == undoRedoWarningPropertyPath;
+                    if (showUndoRedoWarning)
+                    {
+                        EditorGUILayout.BeginVertical(GUI.skin.box);
+                        EditorGUILayout.HelpBox(
+                            "Undo/redo is unsupported for this field at runtime:"
+                            + " The change won't be noticed by components depending on it.",
+                            MessageType.Warning);
+                        EditorGUI.indentLevel++;
+                    }
+
                     DrawProperty(property);
+
+                    if (showUndoRedoWarning)
+                    {
+                        EditorGUILayout.EndVertical();
+                        EditorGUI.indentLevel--;
+                    }
 
                     if (!changeCheckScope.changed
                         || !Application.isPlaying
@@ -81,13 +116,10 @@
         {
             if (hasChangeHandlers)
             {
-                // Change handlers can't be called for undo or redo operations, so don't register an undo operation.
-                property.serializedObject.ApplyModifiedPropertiesWithoutUndo();
+                UndoRedoWarningPropertyPath = property.propertyPath;
             }
-            else
-            {
-                property.serializedObject.ApplyModifiedProperties();
-            }
+
+            property.serializedObject.ApplyModifiedProperties();
         }
 
         /// <summary>

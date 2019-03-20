@@ -157,77 +157,115 @@
             Collection<Instruction> instructions = methodBody.Instructions;
 
             FieldReference backingField = propertyDefinition.FindBackingField();
-            Instruction storeInstruction = instructions.First(
+            IEnumerable<Instruction> storeInstructions = instructions.Where(
                 instruction => instruction.OpCode == OpCodes.Stfld
                     && (instruction.Operand as FieldReference)?.FullName == backingField.FullName);
 
-            Instruction targetInstruction;
-            int instructionIndex;
-            bool needsPlayingCheck = _isCompilingForEditor;
-            if (attribute.AttributeType.FullName == _fullBeforeChangeAttributeName)
+            foreach (Instruction storeInstruction in storeInstructions)
             {
-                targetInstruction = storeInstruction.Previous.Previous;
-                instructionIndex = instructions.IndexOf(targetInstruction) - 1;
+                Instruction targetInstruction;
+                int instructionIndex;
+                bool needsPlayingCheck = _isCompilingForEditor;
+                bool needsActiveAndEnabledCheck =
+                    methodReference.DeclaringType.Resolve().IsSubclassOf(_behaviourReference);
 
-                if (needsPlayingCheck)
+                /*
+                 if (Application.isPlaying)       // Only if compiling for Editor
+                 {
+                     if (this.isActiveAndEnabled) // Only if in a Behaviour
+                     {
+                         this.Method();
+                     }
+                 }
+                 */
+
+                if (attribute.AttributeType.FullName == _fullBeforeChangeAttributeName)
                 {
+                    targetInstruction = storeInstruction.Previous.Previous;
+                    instructionIndex = instructions.IndexOf(targetInstruction) - 1;
+
                     Instruction testInstruction = targetInstruction.Previous;
 
-                    while (testInstruction != null
-                        && (testInstruction.OpCode != OpCodes.Call
-                            || (testInstruction.Operand as MethodReference)?.FullName
-                            != _isApplicationPlayingGetterReference.FullName))
+                    void TryFindExistingCheck(ref bool needsCheck, MemberReference checkGetterReference)
                     {
-                        testInstruction = testInstruction.Previous;
+                        if (!needsCheck)
+                        {
+                            return;
+                        }
+
+                        while (testInstruction != null)
+                        {
+                            if (testInstruction.OpCode == OpCodes.Call
+                                && (testInstruction.Operand as MethodReference)?.FullName
+                                == checkGetterReference.FullName)
+                            {
+                                needsCheck = false;
+                                return;
+                            }
+
+                            testInstruction = testInstruction.Previous;
+                        }
+
+                        while (testInstruction != null
+                            && (testInstruction.OpCode == OpCodes.Brfalse
+                                || testInstruction.OpCode == OpCodes.Brfalse_S))
+                        {
+                            testInstruction = testInstruction.Next;
+                        }
+
+                        if (testInstruction != null)
+                        {
+                            instructionIndex = instructions.IndexOf(testInstruction) - 1;
+                        }
                     }
 
-                    if (testInstruction?.OpCode == OpCodes.Call
-                        && (testInstruction.Operand as MethodReference)?.FullName
-                        == _isApplicationPlayingGetterReference.FullName)
-                    {
-                        needsPlayingCheck = false;
-                    }
-                }
-            }
-            else
-            {
-                targetInstruction = storeInstruction.Next;
-                Instruction testInstruction = storeInstruction.Next;
-
-                if (needsPlayingCheck
-                    && testInstruction?.OpCode == OpCodes.Call
-                    && (testInstruction.Operand as MethodReference)?.FullName
-                    == _isApplicationPlayingGetterReference.FullName)
-                {
-                    instructionIndex = instructions.IndexOf(testInstruction) + 4;
-                    needsPlayingCheck = false;
+                    TryFindExistingCheck(ref needsActiveAndEnabledCheck, _isActiveAndEnabledGetterReference);
+                    TryFindExistingCheck(ref needsPlayingCheck, _isApplicationPlayingGetterReference);
                 }
                 else
                 {
-                    instructionIndex = instructions.IndexOf(storeInstruction);
+                    targetInstruction = storeInstruction.Next;
+                    instructionIndex = instructions.IndexOf(targetInstruction) - 1;
+
+                    Instruction testInstruction = storeInstruction.Next;
+
+                    void TryFindExistingCheck(ref bool needsCheck, MemberReference checkGetterReference)
+                    {
+                        if (!needsCheck)
+                        {
+                            return;
+                        }
+
+                        while (testInstruction != null)
+                        {
+                            if (testInstruction.OpCode == OpCodes.Call
+                                && (testInstruction.Operand as MethodReference)?.FullName
+                                == checkGetterReference.FullName)
+                            {
+                                needsCheck = false;
+                                instructionIndex = instructions.IndexOf(testInstruction) + 1;
+                                return;
+                            }
+
+                            testInstruction = testInstruction.Next;
+                        }
+                    }
+
+                    TryFindExistingCheck(ref needsPlayingCheck, _isApplicationPlayingGetterReference);
+                    TryFindExistingCheck(ref needsActiveAndEnabledCheck, _isActiveAndEnabledGetterReference);
                 }
-            }
 
-            /*
-             if (Application.isPlaying)       // Only if compiling for Editor
-             {
-                 if (this.isActiveAndEnabled) // Only if in a Behaviour
-                 {
-                     this.Method();
-                 }
-             }
-             */
+                if (needsPlayingCheck)
+                {
+                    // Call Application.isPlaying getter
+                    instructions.Insert(
+                        ++instructionIndex,
+                        Instruction.Create(OpCodes.Call, _isApplicationPlayingGetterReference));
+                    // Bail out if false
+                    instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, targetInstruction));
+                }
 
-            if (needsPlayingCheck)
-            {
-                // Call Application.isPlaying getter
-                instructions.Insert(
-                    ++instructionIndex,
-                    Instruction.Create(OpCodes.Call, _isApplicationPlayingGetterReference));
-                // Bail out if false
-                instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, targetInstruction));
-
-                if (methodReference.DeclaringType.Resolve().IsSubclassOf(_behaviourReference))
+                if (needsActiveAndEnabledCheck)
                 {
                     // Load this (for getter call)
                     instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Ldarg_0));
@@ -238,20 +276,20 @@
                     // Bail out if false
                     instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, targetInstruction));
                 }
+
+                // Load this (for method call)
+                instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Ldarg_0));
+                // Call method
+                instructions.Insert(
+                    ++instructionIndex,
+                    Instruction.Create(OpCodes.Callvirt, methodReference.CreateGenericMethodIfNeeded()));
+
+                methodBody.OptimizeMacros();
+
+                LogInfo(
+                    $"Inserted a call to the method '{methodReference.FullName}' into"
+                    + $" the setter of the property '{propertyDefinition.FullName}'.");
             }
-
-            // Load this (for method call)
-            instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Ldarg_0));
-            // Call method
-            instructions.Insert(
-                ++instructionIndex,
-                Instruction.Create(OpCodes.Callvirt, methodReference.CreateGenericMethodIfNeeded()));
-
-            methodBody.OptimizeMacros();
-
-            LogInfo(
-                $"Inserted a call to the method '{methodReference.FullName}' into"
-                + $" the setter of the property '{propertyDefinition.FullName}'.");
         }
     }
 }
