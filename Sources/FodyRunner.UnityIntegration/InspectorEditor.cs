@@ -58,7 +58,7 @@
                 using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
                 using (new EditorGUI.DisabledGroupScope(propertyPath == "m_Script"))
                 {
-                    bool showUndoRedoWarning = propertyPath == undoRedoWarningPropertyPath;
+                    bool showUndoRedoWarning = Application.isPlaying && propertyPath == undoRedoWarningPropertyPath;
                     if (showUndoRedoWarning)
                     {
                         EditorGUILayout.BeginVertical(GUI.skin.box);
