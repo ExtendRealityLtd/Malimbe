@@ -129,7 +129,7 @@
         protected virtual void BeforeChange(SerializedProperty property)
         {
             foreach (MethodInfo methodInfo in ChangeHandlerMethodInfos.Where(
-                info => info.GetCustomAttribute<CalledBeforeChangeOfAttribute>() != null))
+                info => info.GetCustomAttributes<CalledBeforeChangeOfAttribute>().Any()))
             {
                 methodInfo.Invoke(property.serializedObject.targetObject, null);
             }
@@ -142,7 +142,7 @@
         protected virtual void AfterChange(SerializedProperty property)
         {
             foreach (MethodInfo methodInfo in ChangeHandlerMethodInfos.Where(
-                    info => info.GetCustomAttribute<CalledAfterChangeOfAttribute>() != null)
+                    info => info.GetCustomAttributes<CalledAfterChangeOfAttribute>().Any())
                 .Reverse())
             {
                 methodInfo.Invoke(property.serializedObject.targetObject, null);
