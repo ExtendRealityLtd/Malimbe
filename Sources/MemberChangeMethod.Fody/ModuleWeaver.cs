@@ -1,5 +1,6 @@
 ﻿namespace Malimbe.MemberChangeMethod.Fody
 {
+    using System;
     using System.Collections.Generic;
     using System.Linq;
     using global::Fody;
@@ -157,9 +158,10 @@
             Collection<Instruction> instructions = methodBody.Instructions;
 
             FieldReference backingField = propertyDefinition.FindBackingField();
-            IEnumerable<Instruction> storeInstructions = instructions.Where(
-                instruction => instruction.OpCode == OpCodes.Stfld
-                    && (instruction.Operand as FieldReference)?.FullName == backingField.FullName);
+            List<Instruction> storeInstructions = instructions.Where(
+                    instruction => instruction.OpCode == OpCodes.Stfld
+                        && (instruction.Operand as FieldReference)?.FullName == backingField.FullName)
+                .ToList();
 
             foreach (Instruction storeInstruction in storeInstructions)
             {
@@ -168,16 +170,35 @@
                 bool needsPlayingCheck = _isCompilingForEditor;
                 bool needsActiveAndEnabledCheck =
                     methodReference.DeclaringType.Resolve().IsSubclassOf(_behaviourReference);
+                bool needsInstanceCheck =
+                    methodReference.DeclaringType.FullName != propertyDefinition.DeclaringType.FullName;
 
                 /*
-                 if (Application.isPlaying)       // Only if compiling for Editor
+                 if (Application.isPlaying)                         // Only if compiling for Editor
                  {
-                     if (this.isActiveAndEnabled) // Only if in a Behaviour
+                     if (this.isActiveAndEnabled)                   // Only if in a Behaviour
                      {
-                         this.Method();
+                         if (this is methodReference.DeclaringType) // Only if the property is defined in a superclass
+                         {
+                             this.Method();
+                         }
                      }
                  }
                  */
+
+                bool IsPlayingCheck(Instruction instruction) =>
+                    instruction.OpCode == OpCodes.Call
+                    && (instruction.Operand as MethodReference)?.FullName
+                    == _isApplicationPlayingGetterReference.FullName;
+
+                bool IsActiveAndEnabledCheck(Instruction instruction) =>
+                    instruction.OpCode == OpCodes.Call
+                    && (instruction.Operand as MethodReference)?.FullName
+                    == _isActiveAndEnabledGetterReference.FullName;
+
+                bool IsInstanceCheck(Instruction instruction) =>
+                    instruction.OpCode == OpCodes.Isinst
+                    && (instruction.Operand as TypeReference)?.FullName == methodReference.DeclaringType.FullName;
 
                 if (attribute.AttributeType.FullName == _fullBeforeChangeAttributeName)
                 {
@@ -186,7 +207,7 @@
 
                     Instruction testInstruction = targetInstruction.Previous;
 
-                    void TryFindExistingCheck(ref bool needsCheck, MemberReference checkGetterReference)
+                    void TryFindExistingCheck(ref bool needsCheck, Func<Instruction, bool> predicate)
                     {
                         if (!needsCheck)
                         {
@@ -195,9 +216,7 @@
 
                         while (testInstruction != null)
                         {
-                            if (testInstruction.OpCode == OpCodes.Call
-                                && (testInstruction.Operand as MethodReference)?.FullName
-                                == checkGetterReference.FullName)
+                            if (predicate(testInstruction))
                             {
                                 needsCheck = false;
                                 return;
@@ -219,8 +238,9 @@
                         }
                     }
 
-                    TryFindExistingCheck(ref needsActiveAndEnabledCheck, _isActiveAndEnabledGetterReference);
-                    TryFindExistingCheck(ref needsPlayingCheck, _isApplicationPlayingGetterReference);
+                    TryFindExistingCheck(ref needsInstanceCheck, IsInstanceCheck);
+                    TryFindExistingCheck(ref needsActiveAndEnabledCheck, IsActiveAndEnabledCheck);
+                    TryFindExistingCheck(ref needsPlayingCheck, IsPlayingCheck);
                 }
                 else
                 {
@@ -229,7 +249,7 @@
 
                     Instruction testInstruction = storeInstruction.Next;
 
-                    void TryFindExistingCheck(ref bool needsCheck, MemberReference checkGetterReference)
+                    void TryFindExistingCheck(ref bool needsCheck, Func<Instruction, bool> predicate)
                     {
                         if (!needsCheck)
                         {
@@ -238,9 +258,7 @@
 
                         while (testInstruction != null)
                         {
-                            if (testInstruction.OpCode == OpCodes.Call
-                                && (testInstruction.Operand as MethodReference)?.FullName
-                                == checkGetterReference.FullName)
+                            if (predicate(testInstruction))
                             {
                                 needsCheck = false;
                                 instructionIndex = instructions.IndexOf(testInstruction) + 1;
@@ -251,8 +269,9 @@
                         }
                     }
 
-                    TryFindExistingCheck(ref needsPlayingCheck, _isApplicationPlayingGetterReference);
-                    TryFindExistingCheck(ref needsActiveAndEnabledCheck, _isActiveAndEnabledGetterReference);
+                    TryFindExistingCheck(ref needsPlayingCheck, IsPlayingCheck);
+                    TryFindExistingCheck(ref needsActiveAndEnabledCheck, IsActiveAndEnabledCheck);
+                    TryFindExistingCheck(ref needsInstanceCheck, IsInstanceCheck);
                 }
 
                 if (needsPlayingCheck)
@@ -277,12 +296,36 @@
                     instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, targetInstruction));
                 }
 
+                Instruction nopInstruction = null;
+                if (needsInstanceCheck)
+                {
+                    // if (this is setMethodReference.DeclaringType) { ...
+                    nopInstruction = Instruction.Create(OpCodes.Nop);
+
+                    // Load this (for instance check)
+                    instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Ldarg_0));
+                    // Check if instance of that type
+                    instructions.Insert(
+                        ++instructionIndex,
+                        Instruction.Create(OpCodes.Isinst, methodReference.DeclaringType));
+                    // Jump if false
+                    instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, nopInstruction));
+                }
+
                 // Load this (for method call)
                 instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Ldarg_0));
                 // Call method
                 instructions.Insert(
                     ++instructionIndex,
                     Instruction.Create(OpCodes.Callvirt, methodReference.CreateGenericMethodIfNeeded()));
+
+                if (nopInstruction != null)
+                {
+                    // ... }
+
+                    // Nop to jump to (see above)
+                    instructions.Insert(++instructionIndex, nopInstruction);
+                }
 
                 methodBody.OptimizeMacros();
 
