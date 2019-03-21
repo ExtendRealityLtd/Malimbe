@@ -58,7 +58,7 @@
                 using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
                 using (new EditorGUI.DisabledGroupScope(propertyPath == "m_Script"))
                 {
-                    bool showUndoRedoWarning = propertyPath == undoRedoWarningPropertyPath;
+                    bool showUndoRedoWarning = Application.isPlaying && propertyPath == undoRedoWarningPropertyPath;
                     if (showUndoRedoWarning)
                     {
                         EditorGUILayout.BeginVertical(GUI.skin.box);
@@ -129,7 +129,7 @@
         protected virtual void BeforeChange(SerializedProperty property)
         {
             foreach (MethodInfo methodInfo in ChangeHandlerMethodInfos.Where(
-                info => info.GetCustomAttribute<CalledBeforeChangeOfAttribute>() != null))
+                info => info.GetCustomAttributes<CalledBeforeChangeOfAttribute>().Any()))
             {
                 methodInfo.Invoke(property.serializedObject.targetObject, null);
             }
@@ -142,7 +142,7 @@
         protected virtual void AfterChange(SerializedProperty property)
         {
             foreach (MethodInfo methodInfo in ChangeHandlerMethodInfos.Where(
-                    info => info.GetCustomAttribute<CalledAfterChangeOfAttribute>() != null)
+                    info => info.GetCustomAttributes<CalledAfterChangeOfAttribute>().Any())
                 .Reverse())
             {
                 methodInfo.Invoke(property.serializedObject.targetObject, null);
