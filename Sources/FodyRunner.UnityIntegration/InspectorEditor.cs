@@ -77,21 +77,23 @@
                         EditorGUI.indentLevel--;
                     }
 
+                    if (changeCheckScope.changed)
+                    {
+                        FindChangeHandlerMethods(property);
+                    }
+
                     if (!changeCheckScope.changed
                         || !Application.isPlaying
                         || targetObject is Behaviour behaviour && !behaviour.isActiveAndEnabled)
                     {
                         if (changeCheckScope.changed)
                         {
-                            FindChangeHandlerMethods(property);
                             ApplyModifiedProperty(property, ChangeHandlerMethodInfos.Count > 0);
                         }
 
                         continue;
                     }
                 }
-
-                FindChangeHandlerMethods(property);
 
                 BeforeChange(property);
                 ApplyModifiedProperty(property, true);
