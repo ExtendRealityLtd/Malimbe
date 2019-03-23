@@ -1,5 +1,14 @@
 # Changelog
 
+## [9.4.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.4.0...v9.4.1) (2019-03-23)
+
+
+### Bug Fixes
+
+* **MemberChange:** don't reset changes to other fields in handlers ([56e9357](https://github.com/ExtendRealityLtd/Malimbe/commit/56e9357)), closes [#39](https://github.com/ExtendRealityLtd/Malimbe/issues/39)
+* **MemberChange:** fix referencing fields from base types ([91a0355](https://github.com/ExtendRealityLtd/Malimbe/commit/91a0355))
+* **MemberChange:** only look up change handlers once ([beb5507](https://github.com/ExtendRealityLtd/Malimbe/commit/beb5507))
+
 # [9.4.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.3.1...v9.4.0) (2019-03-21)
 
 
