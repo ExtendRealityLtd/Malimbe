@@ -77,13 +77,17 @@
                         EditorGUI.indentLevel--;
                     }
 
+                    if (changeCheckScope.changed)
+                    {
+                        FindChangeHandlerMethods(property);
+                    }
+
                     if (!changeCheckScope.changed
                         || !Application.isPlaying
                         || targetObject is Behaviour behaviour && !behaviour.isActiveAndEnabled)
                     {
                         if (changeCheckScope.changed)
                         {
-                            FindChangeHandlerMethods(property);
                             ApplyModifiedProperty(property, ChangeHandlerMethodInfos.Count > 0);
                         }
 
@@ -91,9 +95,27 @@
                     }
                 }
 
-                FindChangeHandlerMethods(property);
-
+                Undo.RecordObject(targetObject, "Before change handlers");
                 BeforeChange(property);
+                Undo.FlushUndoRecordObjects();
+
+                using (SerializedObject serializedObjectCopy =
+                    new SerializedObject(property.serializedObject.targetObject))
+                {
+                    SerializedProperty propertyCopy = serializedObjectCopy.GetIterator();
+                    if (propertyCopy.Next(true))
+                    {
+                        do
+                        {
+                            if (propertyCopy.propertyPath != property.propertyPath)
+                            {
+                                property.serializedObject.CopyFromSerializedProperty(propertyCopy);
+                            }
+                        }
+                        while (propertyCopy.Next(false));
+                    }
+                }
+
                 ApplyModifiedProperty(property, true);
                 AfterChange(property);
             }

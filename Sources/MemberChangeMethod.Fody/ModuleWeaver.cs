@@ -18,6 +18,7 @@
 
         private MethodReference _isApplicationPlayingGetterReference;
         private MethodReference _isActiveAndEnabledGetterReference;
+        private MethodReference _compilerGeneratedAttributeConstructorReference;
         private TypeReference _behaviourReference;
         private bool _isCompilingForEditor;
 
@@ -67,6 +68,9 @@
 
             _isApplicationPlayingGetterReference = ImportPropertyGetter("UnityEngine.Application", "isPlaying");
             _isActiveAndEnabledGetterReference = ImportPropertyGetter("UnityEngine.Behaviour", "isActiveAndEnabled");
+            _compilerGeneratedAttributeConstructorReference = ModuleDefinition.ImportReference(
+                FindType("System.Runtime.CompilerServices.CompilerGeneratedAttribute")
+                    .Methods.First(definition => definition.IsConstructor));
             _behaviourReference = ModuleDefinition.ImportReference(FindType("UnityEngine.Behaviour"));
             _isCompilingForEditor = DefineConstants.Contains("UNITY_EDITOR");
         }
@@ -154,6 +158,8 @@
             MethodReference methodReference,
             ICustomAttribute attribute)
         {
+            TypeReference methodDeclaringType = methodReference.DeclaringType;
+
             MethodBody methodBody = propertyDefinition.SetMethod.Body;
             Collection<Instruction> instructions = methodBody.Instructions;
 
@@ -168,20 +174,14 @@
                 Instruction targetInstruction;
                 int instructionIndex;
                 bool needsPlayingCheck = _isCompilingForEditor;
-                bool needsActiveAndEnabledCheck =
-                    methodReference.DeclaringType.Resolve().IsSubclassOf(_behaviourReference);
-                bool needsInstanceCheck =
-                    methodReference.DeclaringType.FullName != propertyDefinition.DeclaringType.FullName;
+                bool needsActiveAndEnabledCheck = methodDeclaringType.Resolve().IsSubclassOf(_behaviourReference);
 
                 /*
                  if (Application.isPlaying)                         // Only if compiling for Editor
                  {
                      if (this.isActiveAndEnabled)                   // Only if in a Behaviour
                      {
-                         if (this is methodReference.DeclaringType) // Only if the property is defined in a superclass
-                         {
-                             this.Method();
-                         }
+                         this.Method();
                      }
                  }
                  */
@@ -195,10 +195,6 @@
                     instruction.OpCode == OpCodes.Call
                     && (instruction.Operand as MethodReference)?.FullName
                     == _isActiveAndEnabledGetterReference.FullName;
-
-                bool IsInstanceCheck(Instruction instruction) =>
-                    instruction.OpCode == OpCodes.Isinst
-                    && (instruction.Operand as TypeReference)?.FullName == methodReference.DeclaringType.FullName;
 
                 if (attribute.AttributeType.FullName == _fullBeforeChangeAttributeName)
                 {
@@ -238,7 +234,6 @@
                         }
                     }
 
-                    TryFindExistingCheck(ref needsInstanceCheck, IsInstanceCheck);
                     TryFindExistingCheck(ref needsActiveAndEnabledCheck, IsActiveAndEnabledCheck);
                     TryFindExistingCheck(ref needsPlayingCheck, IsPlayingCheck);
                 }
@@ -271,7 +266,6 @@
 
                     TryFindExistingCheck(ref needsPlayingCheck, IsPlayingCheck);
                     TryFindExistingCheck(ref needsActiveAndEnabledCheck, IsActiveAndEnabledCheck);
-                    TryFindExistingCheck(ref needsInstanceCheck, IsInstanceCheck);
                 }
 
                 if (needsPlayingCheck)
@@ -296,20 +290,56 @@
                     instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, targetInstruction));
                 }
 
-                Instruction nopInstruction = null;
-                if (needsInstanceCheck)
+                TypeDefinition definitionDeclaringType = propertyDefinition.DeclaringType;
+                if (methodDeclaringType.FullName != definitionDeclaringType.FullName)
                 {
-                    // if (this is setMethodReference.DeclaringType) { ...
-                    nopInstruction = Instruction.Create(OpCodes.Nop);
+                    MethodDefinition baseMethodDefinition =
+                        definitionDeclaringType.Methods.FirstOrDefault(
+                            definition => definition.FullName == methodReference.FullName);
+                    if (baseMethodDefinition == null)
+                    {
+                        MethodDefinition methodDefinition = methodReference.Resolve();
+                        baseMethodDefinition = new MethodDefinition(
+                            methodReference.Name,
+                            methodDefinition.Attributes,
+                            methodReference.ReturnType);
+                        baseMethodDefinition.CustomAttributes.Add(
+                            new CustomAttribute(_compilerGeneratedAttributeConstructorReference));
+                        definitionDeclaringType.Methods.Add(baseMethodDefinition);
 
-                    // Load this (for instance check)
-                    instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Ldarg_0));
-                    // Check if instance of that type
-                    instructions.Insert(
-                        ++instructionIndex,
-                        Instruction.Create(OpCodes.Isinst, methodReference.DeclaringType));
-                    // Jump if false
-                    instructions.Insert(++instructionIndex, Instruction.Create(OpCodes.Brfalse, nopInstruction));
+                        // Return
+                        baseMethodDefinition.Body.Instructions.Add(Instruction.Create(OpCodes.Ret));
+
+                        if (!baseMethodDefinition.IsFamily)
+                        {
+                            baseMethodDefinition.IsFamily = true;
+                        }
+
+                        if (!baseMethodDefinition.IsVirtual && !baseMethodDefinition.IsNewSlot)
+                        {
+                            baseMethodDefinition.IsNewSlot = true;
+                        }
+
+                        baseMethodDefinition.IsFinal = false;
+                        baseMethodDefinition.IsVirtual = true;
+                        baseMethodDefinition.IsHideBySig = true;
+
+                        methodDefinition.IsPrivate = baseMethodDefinition.IsPrivate;
+                        methodDefinition.IsFamily = baseMethodDefinition.IsFamily;
+                        methodDefinition.IsFamilyAndAssembly = baseMethodDefinition.IsFamilyAndAssembly;
+
+                        methodDefinition.IsFinal = false;
+                        methodDefinition.IsVirtual = true;
+                        methodDefinition.IsNewSlot = false;
+                        methodDefinition.IsReuseSlot = true;
+                        methodDefinition.IsHideBySig = true;
+
+                        LogInfo(
+                            $"Changed the method '{methodDefinition.FullName}' to override the"
+                            + $" newly added base method '{baseMethodDefinition.FullName}'.");
+                    }
+
+                    methodReference = baseMethodDefinition;
                 }
 
                 // Load this (for method call)
@@ -318,14 +348,6 @@
                 instructions.Insert(
                     ++instructionIndex,
                     Instruction.Create(OpCodes.Callvirt, methodReference.CreateGenericMethodIfNeeded()));
-
-                if (nopInstruction != null)
-                {
-                    // ... }
-
-                    // Nop to jump to (see above)
-                    instructions.Insert(++instructionIndex, nopInstruction);
-                }
 
                 methodBody.OptimizeMacros();
 
