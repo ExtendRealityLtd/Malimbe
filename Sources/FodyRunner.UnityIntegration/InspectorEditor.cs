@@ -82,42 +82,40 @@
                         FindChangeHandlerMethods(property);
                     }
 
-                    if (!changeCheckScope.changed
-                        || !Application.isPlaying
-                        || targetObject is Behaviour behaviour && !behaviour.isActiveAndEnabled)
+                    if (changeCheckScope.changed
+                        && Application.isPlaying
+                        && (!(targetObject is Behaviour behaviour) || behaviour.isActiveAndEnabled)
+                        && ChangeHandlerMethodInfos.Count > 0)
                     {
-                        if (changeCheckScope.changed)
+                        Undo.RecordObject(targetObject, "Before change handlers");
+                        BeforeChange(property);
+                        Undo.FlushUndoRecordObjects();
+
+                        using (SerializedObject serializedObjectCopy =
+                            new SerializedObject(property.serializedObject.targetObject))
                         {
-                            ApplyModifiedProperty(property, ChangeHandlerMethodInfos.Count > 0);
-                        }
-
-                        continue;
-                    }
-                }
-
-                Undo.RecordObject(targetObject, "Before change handlers");
-                BeforeChange(property);
-                Undo.FlushUndoRecordObjects();
-
-                using (SerializedObject serializedObjectCopy =
-                    new SerializedObject(property.serializedObject.targetObject))
-                {
-                    SerializedProperty propertyCopy = serializedObjectCopy.GetIterator();
-                    if (propertyCopy.Next(true))
-                    {
-                        do
-                        {
-                            if (propertyCopy.propertyPath != property.propertyPath)
+                            SerializedProperty propertyCopy = serializedObjectCopy.GetIterator();
+                            if (propertyCopy.Next(true))
                             {
-                                property.serializedObject.CopyFromSerializedProperty(propertyCopy);
+                                do
+                                {
+                                    if (propertyCopy.propertyPath != property.propertyPath)
+                                    {
+                                        property.serializedObject.CopyFromSerializedProperty(propertyCopy);
+                                    }
+                                }
+                                while (propertyCopy.Next(false));
                             }
                         }
-                        while (propertyCopy.Next(false));
+
+                        ApplyModifiedProperty(property, true);
+                        AfterChange(property);
+                    }
+                    else if (changeCheckScope.changed)
+                    {
+                        ApplyModifiedProperty(property, ChangeHandlerMethodInfos.Count > 0);
                     }
                 }
-
-                ApplyModifiedProperty(property, true);
-                AfterChange(property);
             }
             while (property.NextVisible(false));
         }
