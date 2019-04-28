@@ -4,7 +4,7 @@
 > A collection of tools to simplify writing public API components for the Unity software.
 
 [![License][License-Badge]][License]
-[![Waffle][Waffle-Badge]][Waffle]
+[![Backlog][Backlog-Badge]][Backlog]
 
 ## Introduction
 
@@ -161,11 +161,11 @@ These materials are not sponsored by or affiliated with Unity Technologies or it
 
 [Malimbe-Image]: https://user-images.githubusercontent.com/1029673/48707109-4d876080-ebf6-11e8-9476-4f084246771d.png
 [License-Badge]: https://img.shields.io/github/license/ExtendRealityLtd/Malimbe.svg
-[Waffle-Badge]: https://badge.waffle.io/ExtendRealityLtd/Malimbe.svg?columns=Bug%20Backlog,Feature%20Backlog,In%20Progress,In%20Review
+[Backlog-Badge]: https://img.shields.io/badge/project-backlog-78bdf2.svg
 [Version-Release]: https://img.shields.io/github/release/ExtendRealityLtd/Malimbe.svg
 [Version-Prerelease]: https://img.shields.io/github/release-pre/ExtendRealityLtd/Malimbe.svg?label=pre-release&colorB=orange
 
-[Waffle]: https://waffle.io/ExtendRealityLtd/Malimbe
+[Backlog]: http://tracker.vrtk.io
 [Releases]: ../../releases
 [SemVer]: https://semver.org/
 [VCS]: https://en.wikipedia.org/wiki/Version_control
