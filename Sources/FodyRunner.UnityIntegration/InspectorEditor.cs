@@ -113,7 +113,9 @@
                     }
                     else if (changeCheckScope.changed)
                     {
+                        BeforeChange(property);
                         ApplyModifiedProperty(property, ChangeHandlerMethodInfos.Count > 0);
+                        AfterChange(property);
                     }
                 }
             }
