@@ -5,7 +5,7 @@
     <AssemblyName>Malimbe.FodyRunner.UnityIntegration</AssemblyName>
     <RootNamespace>Malimbe.FodyRunner.UnityIntegration</RootNamespace>
     <LangVersion>latest</LangVersion>
-    <UnityEditorAssembliesPath Condition="'$(UnityEditorAssembliesPath)' == ''">C:\Program Files\Unity\Hub\Editor\2018.3.10f1\Editor\Data\Managed\</UnityEditorAssembliesPath>
+    <UnityEditorAssembliesPath Condition="'$(UnityEditorAssembliesPath)' == ''">C:\Program Files\Unity\Hub\Editor\2018.3.10f1\Editor\Data\Managed</UnityEditorAssembliesPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,11 +15,11 @@
 
   <ItemGroup>
     <Reference Include="UnityEditor">
-      <HintPath>$(UnityEditorAssembliesPath)UnityEditor.dll</HintPath>
+      <HintPath>$([System.IO.Path]::Combine($(UnityEditorAssembliesPath), 'UnityEditor.dll'))</HintPath>
       <Private>false</Private>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>$(UnityEditorAssembliesPath)UnityEngine.dll</HintPath>
+      <HintPath>$([System.IO.Path]::Combine($(UnityEditorAssembliesPath), 'UnityEngine.dll'))</HintPath>
       <Private>false</Private>
     </Reference>
   </ItemGroup>
