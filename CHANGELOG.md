@@ -1,5 +1,12 @@
 # Changelog
 
+## [9.4.4](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.4.3...v9.4.4) (2019-10-13)
+
+
+### Bug Fixes
+
+* **packaging:** Unity editor assemblies path ([35b1cb2](https://github.com/ExtendRealityLtd/Malimbe/commit/35b1cb2f00e1f901d958e01d053b3b7e226e2aa7))
+
 ## [9.4.3](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.4.2...v9.4.3) (2019-06-16)
 
 
