@@ -1,5 +1,5 @@
 {
-    "name": "io.extendreality.malimbe",
+    "name": "@extendrealityltd/malimbe",
     "displayName": "Malimbe",
     "description": "A collection of tools to simplify writing public API components in Unity.",
     "version": "9.4.4",
