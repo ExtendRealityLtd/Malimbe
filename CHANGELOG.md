@@ -1,5 +1,12 @@
 # Changelog
 
+### [9.5.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.5.0...v9.5.1) (2019-10-14)
+
+#### Bug Fixes
+
+* **ci:** back to npmjs.com ([563988f](https://github.com/ExtendRealityLtd/Malimbe/commit/563988f4fe5ade6274de7886607563f71c4a8180))
+  > GitHub's npm feeds only allow publishing scoped packages, but UPM doesn't support those.
+
 ## [9.5.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.4.4...v9.5.0) (2019-10-14)
 
 #### Features
