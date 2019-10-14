@@ -1,5 +1,25 @@
 # Changelog
 
+## [9.5.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.4.4...v9.5.0) (2019-10-14)
+
+#### Features
+
+* **ci:** publish package on GitHub feed ([9c5021e](https://github.com/ExtendRealityLtd/Malimbe/commit/9c5021e07d6860b42ca7e48eaf12c8dc6d9c41b6))
+
+#### Bug Fixes
+
+* **ci:** use latest CD template ([2d10e3a](https://github.com/ExtendRealityLtd/Malimbe/commit/2d10e3a7515aeddb966e10c3c2255a3d67b075c2))
+
+#### Continuous Integration
+
+* use latest DevOps templates ([9706a1d](https://github.com/ExtendRealityLtd/Malimbe/commit/9706a1d987c91f327fe8f9fd0c780ed88539b05c))
+* use latest DevOps templates ([dae96d9](https://github.com/ExtendRealityLtd/Malimbe/commit/dae96d9d9211efbcf7e626e62809fb1429c59256))
+
+#### Miscellaneous Chores
+
+* **devops:** use latest DevOps templates ([fa556c6](https://github.com/ExtendRealityLtd/Malimbe/commit/fa556c62494d5490fd92979d7c609220cec5af02))
+* **packaging:** remove unused package manifest field ([d6e4ecb](https://github.com/ExtendRealityLtd/Malimbe/commit/d6e4ecbbc2f756f8a9421cf12602b439b44484f9))
+
 ## [9.4.4](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.4.3...v9.4.4) (2019-10-13)
 
 
