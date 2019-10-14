@@ -1,5 +1,5 @@
 {
-    "name": "@extendrealityltd/malimbe",
+    "name": "io.extendreality.malimbe",
     "displayName": "Malimbe",
     "description": "A collection of tools to simplify writing public API components in Unity.",
     "version": "9.5.0",
@@ -14,7 +14,10 @@
     "bugs": {
         "url": "https://github.com/ExtendRealityLtd/Malimbe/issues"
     },
-    "repository": "github:ExtendRealityLtd/Malimbe",
+    "repository": {
+        "type": "git",
+        "url": "ssh://git@github.com/ExtendRealityLtd/Malimbe.git"
+    },
     "license": "MIT",
     "author": {
         "name": "Extend Reality Ltd",

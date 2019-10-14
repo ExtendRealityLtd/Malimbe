@@ -23,12 +23,33 @@ Releases follow the [Semantic Versioning (SemVer) system][SemVer].
 
 ## Getting Started
 
-Please follow these steps to install the package using a local location until the Unity Package Manager (UPM) allows third parties to publish packages to the UPM feed:
+* Navigate to the `Packages` directory of your project.
+* Adjust the [project manifest file][Project-Manifest] `manifest.json` in a text editor.
+  * Ensure `https://registry.npmjs.org/` is part of `scopedRegistries`.
+    * Ensure `io.extendreality` is part of `scopes`.
+  * Add `io.extendreality.malimbe` to `dependencies`, stating the latest version.
 
-1. Download a release from the [Releases] page and extract it into your folder you use to keep your packages. It is recommended to make that folder part of your project and therefore [version controlled][VCS].
-1. Open your project created with the Unity software version 2018.3 (or above) and follow [Unity's instructions][UPM-Instructions] on how to add the package to your project using UPM.
-1. Anywhere in your Unity software project add a [`FodyWeavers.xml` file][FodyWeavers].
-1. Configure the various weavers Malimbe offers, e.g.:
+  A minimal example ends up looking like this. Please note that the version `X.Y.Z` stated here is to be replaced with [the latest released version][Latest-Release].
+  ```json
+  {
+    "scopedRegistries": [
+      {
+        "name": "npmjs",
+        "url": "https://registry.npmjs.org/",
+        "scopes": [
+          "io.extendreality"
+        ]
+      }
+    ],
+    "dependencies": {
+      "io.extendreality.malimbe": "X.Y.Z",
+      ...
+    }
+  }
+  ```
+* Switch back to the Unity software and wait for it to finish importing the added package.
+* Anywhere in your Unity software project add a [`FodyWeavers.xml` file][FodyWeavers].
+* Configure the various weavers Malimbe offers, e.g.:
     ```xml
     <?xml version="1.0" encoding="utf-8"?>
 
@@ -88,6 +109,7 @@ These materials are not sponsored by or affiliated with Unity Technologies or it
 [Backlog]: http://tracker.vrtk.io
 [Releases]: ../../releases
 [SemVer]: https://semver.org/
+[Latest-Release]: https://github.com/ExtendRealityLtd/Malimbe/releases/latest
 [VCS]: https://en.wikipedia.org/wiki/Version_control
 [UPM-Instructions]: https://docs.unity3d.com/Packages/com.unity.package-manager-ui@2.1/manual/index.html#extpkg
 [FodyWeavers]: https://github.com/Fody/Fody#add-fodyweaversxml
