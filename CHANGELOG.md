@@ -1,5 +1,12 @@
 # Changelog
 
+### [9.5.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.5.1...v9.5.2) (2019-10-15)
+
+#### Bug Fixes
+
+* **Runner:** duplicated configuration files result in warnings ([727c8ad](https://github.com/ExtendRealityLtd/Malimbe/commit/727c8ad9d124de94f8afa2cbbe8bb3da1a4c60b9))
+  > The fix is to just make sure the found configuration files are distinct.
+
 ### [9.5.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.5.0...v9.5.1) (2019-10-14)
 
 #### Bug Fixes
