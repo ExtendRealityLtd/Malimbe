@@ -32,6 +32,7 @@
 
             IReadOnlyList<XDocument> documents = configurationSearchPaths.SelectMany(
                     path => Directory.GetFiles(path, "FodyWeavers.xml", SearchOption.AllDirectories))
+                .Distinct()
                 .Select(XDocument.Load)
                 .ToList();
             IReadOnlyList<XElement> runnerElements = documents.SelectMany(
