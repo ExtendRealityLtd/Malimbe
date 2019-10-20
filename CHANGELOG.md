@@ -1,5 +1,16 @@
 # Changelog
 
+### [9.5.3](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.5.2...v9.5.3) (2019-10-20)
+
+#### Documentation
+
+* **CONTRIBUTING:** do not include copyright notices ([44dd7bc](https://github.com/ExtendRealityLtd/Malimbe/commit/44dd7bc8938aaf7dd8f50c0b55c818996d7b8886)), closes [/help.github.com/en/articles/github-terms-of-service#6](https://github.com//help.github.com/en/articles/github-terms-of-service/issues/6)
+  > Authors will continue to retain the copyright for the code committed but do so under the license stated in the repository as outlined in the [GitHub Terms Of
+
+#### Miscellaneous Chores
+
+* **deps:** use latest pipeline templates ([e6c200d](https://github.com/ExtendRealityLtd/Malimbe/commit/e6c200d30121d663e3c6ce9f4dae1986ce7af625))
+
 ### [9.5.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.5.1...v9.5.2) (2019-10-15)
 
 #### Bug Fixes
