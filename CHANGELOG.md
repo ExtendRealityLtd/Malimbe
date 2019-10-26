@@ -1,5 +1,20 @@
 # Changelog
 
+## [9.6.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.5.3...v9.6.0) (2019-10-26)
+
+#### Features
+
+* **.github:** use organization .github repository ([a3ea4ae](https://github.com/ExtendRealityLtd/Malimbe/commit/a3ea4aead478821cd64158ad5b16920f018c3686))
+  > GitHub provides a mechanism where a global organization .github repo can be used as a fallback to provide default community health files instead of repeating the same files across multiple repos.
+  > 
+  > ExtendRealityLtd now has a `.github` repo which should be used as it provides the correct details for this repo.
+  > 
+  > The README.md has been updated to provide definitive links to the relevant files.
+
+#### Miscellaneous Chores
+
+* add dependabot configuration ([d454af5](https://github.com/ExtendRealityLtd/Malimbe/commit/d454af5e8d8266aeb7d31520f09522e99fd376a3))
+
 ### [9.5.3](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.5.2...v9.5.3) (2019-10-20)
 
 #### Documentation
