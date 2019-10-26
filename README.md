@@ -29,7 +29,7 @@ Releases follow the [Semantic Versioning (SemVer) system][SemVer].
     * Ensure `io.extendreality` is part of `scopes`.
   * Add `io.extendreality.malimbe` to `dependencies`, stating the latest version.
 
-  A minimal example ends up looking like this. Please note that the version `X.Y.Z` stated here is to be replaced with [the latest released version][Latest-Release].
+  A minimal example ends up looking like this. Please note that the version `X.Y.Z` stated here is to be replaced with [the latest released version][Latest-Release] which is currently [![Release][Version-Release]][Releases].
   ```json
   {
     "scopedRegistries": [
@@ -76,12 +76,6 @@ Additional weavers are supported. To allow Malimbe's Unity software integration 
 
 Check out the [Documentation] a further in-depth look at the features of Malimbe.
 
-## Contributing
-
-If you want to raise a bug report or feature request please follow [SUPPORT.md][Support].
-
-While we intend to add more features to Malimbe when we identify a need or use case, we're always open to take contributions! Please follow the contribution guidelines found in [CONTRIBUTING.md][Contributing].
-
 ## Naming
 
 Inspired by [Fody's naming] the name "Malimbe" comes from the [small birds][Malimbus] that belong to the weaver family [Ploceidae].
@@ -89,6 +83,14 @@ Inspired by [Fody's naming] the name "Malimbe" comes from the [small birds][Mali
 ## Tools And Products Used
 
 * [Fody]
+
+## Contributing
+
+Please refer to the Extend Reality [Contributing guidelines] and the [Unity project coding conventions].
+
+## Code of Conduct
+
+Please refer to the Extend Reality [Code of Conduct].
 
 ## License
 
@@ -121,7 +123,9 @@ These materials are not sponsored by or affiliated with Unity Technologies or it
 [Fody]: https://github.com/Fody/Fody
 
 [Documentation]: /Documentation/
-[Support]: /.github/SUPPORT.md
-[Contributing]: /.github/CONTRIBUTING.md
 [License]: LICENSE.md
 [ThirdPartyNotices]: THIRD_PARTY_NOTICES.md
+
+[Contributing guidelines]: https://github.com/ExtendRealityLtd/.github/blob/master/CONTRIBUTING.md
+[Unity project coding conventions]: https://github.com/ExtendRealityLtd/.github/blob/master/CONVENTIONS/UNITY3D.md
+[Code of Conduct]: https://github.com/ExtendRealityLtd/.github/blob/master/CODE_OF_CONDUCT.md
