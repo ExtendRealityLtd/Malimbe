@@ -3,6 +3,7 @@
 > ### Malimbe
 > A collection of tools to simplify writing public API components for the Unity software.
 
+[![Release][Version-Release]][Releases]
 [![License][License-Badge]][License]
 [![Backlog][Backlog-Badge]][Backlog]
 
@@ -12,16 +13,9 @@ Malimbe for the [Unity] software aims to reduce repetitive boilerplate code by t
 
 Malimbe helps running Fody and Fody addins without MSBuild or Visual Studio and additionally offers running them inside the Unity software by integrating with the Unity software compilation and build pipeline. Multiple weavers come with Malimbe to help with boilerplate one has to write when creating Unity software components that are intended for public consumption. This includes a form of "serialized properties", getting rid of duplicated documentation through XML documentation and the `[Tooltip]` attribute as well as weavers that help with ensuring the API is able to be called from `UnityEvent`s and more.
 
-## Releases
-
-| Branch  | Version                                          | Explanation                        |
-|---------|--------------------------------------------------|------------------------------------|
-| release | [![Release][Version-Release]][Releases]          | Stable, production-ready           |
-| preview | [![(Pre-)Release][Version-Prerelease]][Releases] | Experimental, not production-ready |
-
-Releases follow the [Semantic Versioning (SemVer) system][SemVer].
-
 ## Getting Started
+
+### Adding the package to the Unity project manifest
 
 * Navigate to the `Packages` directory of your project.
 * Adjust the [project manifest file][Project-Manifest] `manifest.json` in a text editor.
@@ -72,6 +66,10 @@ Releases follow the [Semantic Versioning (SemVer) system][SemVer].
 
 Additional weavers are supported. To allow Malimbe's Unity software integration to find the weavers' assemblies they have to be included anywhere in the Unity software project or in one of the UPM packages the project uses.
 
+### Updating to the latest version
+
+The package will show up in the Unity Package Manager UI once the above steps have been carried out. From then on the package can be updated by selecting the package in the Unity Package Manager and clicking on the `Update` button or using the version selection UI.
+
 ## Documentation
 
 Check out the [Documentation] a further in-depth look at the features of Malimbe.
@@ -103,29 +101,25 @@ Third-party notices can be found in [THIRD_PARTY_NOTICES.md][ThirdPartyNotices]
 These materials are not sponsored by or affiliated with Unity Technologies or its affiliates. "Unity" and "Unity Package Manager" are trademarks or registered trademarks of Unity Technologies or its affiliates in the U.S. and elsewhere.
 
 [Malimbe-Image]: https://user-images.githubusercontent.com/1029673/48707109-4d876080-ebf6-11e8-9476-4f084246771d.png
+[Version-Release]: https://img.shields.io/github/release/ExtendRealityLtd/Malimbe.svg
 [License-Badge]: https://img.shields.io/github/license/ExtendRealityLtd/Malimbe.svg
 [Backlog-Badge]: https://img.shields.io/badge/project-backlog-78bdf2.svg
-[Version-Release]: https://img.shields.io/github/release/ExtendRealityLtd/Malimbe.svg
-[Version-Prerelease]: https://img.shields.io/github/release-pre/ExtendRealityLtd/Malimbe.svg?label=pre-release&colorB=orange
 
-[Backlog]: http://tracker.vrtk.io
 [Releases]: ../../releases
-[SemVer]: https://semver.org/
-[Latest-Release]: https://github.com/ExtendRealityLtd/Malimbe/releases/latest
-[VCS]: https://en.wikipedia.org/wiki/Version_control
-[UPM-Instructions]: https://docs.unity3d.com/Packages/com.unity.package-manager-ui@2.1/manual/index.html#extpkg
-[FodyWeavers]: https://github.com/Fody/Fody#add-fodyweaversxml
+[License]: LICENSE.md
+[Backlog]: http://tracker.vrtk.io
+
 [Unity]: https://unity3d.com/
+[Fody]: https://github.com/Fody/Fody
+[Latest-Release]: ../../releases/latest
+[FodyWeavers]: https://github.com/Fody/Fody#add-fodyweaversxml
+[Documentation]: /Documentation/
 
 [Fody's naming]: https://github.com/Fody/Fody#naming
 [Malimbus]: https://en.wikipedia.org/wiki/Malimbus
 [Ploceidae]: https://en.wikipedia.org/wiki/Ploceidae
-[Fody]: https://github.com/Fody/Fody
-
-[Documentation]: /Documentation/
-[License]: LICENSE.md
-[ThirdPartyNotices]: THIRD_PARTY_NOTICES.md
 
 [Contributing guidelines]: https://github.com/ExtendRealityLtd/.github/blob/master/CONTRIBUTING.md
 [Unity project coding conventions]: https://github.com/ExtendRealityLtd/.github/blob/master/CONVENTIONS/UNITY3D.md
 [Code of Conduct]: https://github.com/ExtendRealityLtd/.github/blob/master/CODE_OF_CONDUCT.md
+[ThirdPartyNotices]: THIRD_PARTY_NOTICES.md
