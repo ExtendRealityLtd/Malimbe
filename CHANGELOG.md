@@ -1,5 +1,14 @@
 # Changelog
 
+### [9.6.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.0...v9.6.1) (2019-10-28)
+
+#### Bug Fixes
+
+* **README.md:** provide more concise release data and update info ([9e87ea2](https://github.com/ExtendRealityLtd/Malimbe/commit/9e87ea295f6de7c03029a2e31de78fcdd9b29353))
+  > The Releases section has been removed and is now just a simple badge at the top of the README. There has been an additional section in `Getting Started` on how to update the package via the Unity Package Manager.
+  > 
+  > The links have also been ordered in the order of appearance in the document.
+
 ## [9.6.0](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.5.3...v9.6.0) (2019-10-26)
 
 #### Features
