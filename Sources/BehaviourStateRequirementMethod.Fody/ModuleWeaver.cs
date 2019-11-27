@@ -147,45 +147,31 @@
 
             int index = -1;
 
-            if (gameObjectActivity == GameObjectActivity.InHierarchy && behaviourNeedsToBeEnabled)
+            if (gameObjectActivity != GameObjectActivity.None)
             {
-                // Load this (for isActiveAndEnabled getter call)
+                // Load this (for gameObject getter call)
                 instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
-                // Call isActiveAndEnabled getter
-                instructions.Insert(
-                    ++index,
-                    Instruction.Create(OpCodes.Callvirt, _getIsActiveAndEnabledMethodReference));
+                // Call gameObject getter
+                instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, _getGameObjectMethodReference));
+
+                // ReSharper disable once SwitchStatementMissingSomeCases
+                switch (gameObjectActivity)
+                {
+                    case GameObjectActivity.Self:
+                        // Call activeSelf getter
+                        instructions.Insert(
+                            ++index,
+                            Instruction.Create(OpCodes.Callvirt, _getActiveSelfMethodReference));
+                        break;
+                    case GameObjectActivity.InHierarchy:
+                        // Call activeInHierarchy getter
+                        instructions.Insert(
+                            ++index,
+                            Instruction.Create(OpCodes.Callvirt, _getActiveInHierarchyMethodReference));
+                        break;
+                }
 
                 AddEarlyReturnInstruction(instructions, ref index, earlyReturnInstruction);
-            }
-            else
-            {
-                if (gameObjectActivity != GameObjectActivity.None)
-                {
-                    // Load this (for gameObject getter call)
-                    instructions.Insert(++index, Instruction.Create(OpCodes.Ldarg_0));
-                    // Call gameObject getter
-                    instructions.Insert(++index, Instruction.Create(OpCodes.Callvirt, _getGameObjectMethodReference));
-
-                    // ReSharper disable once SwitchStatementMissingSomeCases
-                    switch (gameObjectActivity)
-                    {
-                        case GameObjectActivity.Self:
-                            // Call activeSelf getter
-                            instructions.Insert(
-                                ++index,
-                                Instruction.Create(OpCodes.Callvirt, _getActiveSelfMethodReference));
-                            break;
-                        case GameObjectActivity.InHierarchy:
-                            // Call activeInHierarchy getter
-                            instructions.Insert(
-                                ++index,
-                                Instruction.Create(OpCodes.Callvirt, _getActiveInHierarchyMethodReference));
-                            break;
-                    }
-
-                    AddEarlyReturnInstruction(instructions, ref index, earlyReturnInstruction);
-                }
 
                 if (behaviourNeedsToBeEnabled)
                 {
