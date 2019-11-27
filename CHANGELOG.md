@@ -1,5 +1,14 @@
 # Changelog
 
+### [9.6.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.1...v9.6.2) (2019-11-27)
+
+#### Bug Fixes
+
+* **RequiredBehaviourState:** don't use isActiveAndEnabled ([8d73d3d](https://github.com/ExtendRealityLtd/Malimbe/commit/8d73d3d0f6c1ee22a7987a4591e5000caa6fa80b))
+  > Unity contains a bug wherein `isActiveAndEnabled` is `false` even though both `enabled` and `gameObject.activeSelf` are `true`.
+  > 
+  > `isActiveAndEnabled` is largely a convenience and by checking `enabled` and `gameObject.activeInHierarchy` this issue is avoided while remaining functionally identical.
+
 ### [9.6.1](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.0...v9.6.1) (2019-10-28)
 
 #### Bug Fixes
