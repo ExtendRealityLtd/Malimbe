@@ -77,15 +77,24 @@
                         EditorGUI.indentLevel--;
                     }
 
-                    if (changeCheckScope.changed)
+                    // No change has been done, nothing to do.
+                    if (!changeCheckScope.changed)
                     {
-                        FindChangeHandlerMethods(property);
+                        continue;
                     }
 
-                    if (changeCheckScope.changed
-                        && Application.isPlaying
-                        && (!(targetObject is Behaviour behaviour) || behaviour.isActiveAndEnabled)
-                        && ChangeHandlerMethodInfos.Count > 0)
+                    // At design time we need to still allow Unity to persist the change and enable undo.
+                    if (!Application.isPlaying
+                        || (targetObject is Behaviour behaviour && !behaviour.isActiveAndEnabled))
+                    {
+                        ApplyModifiedProperty(property, false);
+                        continue;
+                    }
+
+                    FindChangeHandlerMethods(property);
+
+                    // There are change handlers. Run them manually and ensure Unity knows those change handlers did some changes (to persist them and enable undo for them).
+                    if (ChangeHandlerMethodInfos.Count > 0)
                     {
                         Undo.RecordObject(targetObject, "Before change handlers");
                         BeforeChange(property);
@@ -111,10 +120,11 @@
                         ApplyModifiedProperty(property, true);
                         AfterChange(property);
                     }
-                    else if (changeCheckScope.changed)
+                    // Ensure subclasses of this inspector can run before/after change logic. Also ensure Unity persists the change (including undo support).
+                    else
                     {
                         BeforeChange(property);
-                        ApplyModifiedProperty(property, ChangeHandlerMethodInfos.Count > 0);
+                        ApplyModifiedProperty(property, false);
                         AfterChange(property);
                     }
                 }
@@ -180,9 +190,9 @@
             ChangeHandlerMethodInfos.Clear();
             ChangeHandlerMethodInfos.AddRange(
                 property.serializedObject.targetObject.GetType()
-                    .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance)
+                    .GetMethods(BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.FlattenHierarchy)
                     .Where(
-                        info => info.GetCustomAttributes<HandlesMemberChangeAttribute>()
+                        info => info.GetCustomAttributes<HandlesMemberChangeAttribute>(true)
                             .Any(attribute => IsAttributeForProperty(property, info, attribute))));
         }
 
