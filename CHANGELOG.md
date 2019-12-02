@@ -1,5 +1,18 @@
 # Changelog
 
+### [9.6.3](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.2...v9.6.3) (2019-12-02)
+
+#### Bug Fixes
+
+* **MemberChange:** prevent Before/AfterChange being called at edit time ([7d6077b](https://github.com/ExtendRealityLtd/Malimbe/commit/7d6077b4b6fdb346fdf571786f3a185b20ab88f8)), closes [/github.com/ExtendRealityLtd/Malimbe/blob/master/Sources/FodyRunner.UnityIntegration/InspectorEditor.cs#L85-L88](https://github.com//github.com/ExtendRealityLtd/Malimbe/blob/master/Sources/FodyRunner.UnityIntegration/InspectorEditor.cs/issues/L85-L88)
+  > There was a previous fix (https://github.com/ExtendRealityLtd/Malimbe/commit/40baf008d804d34f00ffea6aac5c02fbd9362ef0) that attempted to fix the following issue: (This is being described in detail as the message on the other commit is unhelpful).
+  > 
+  > The Malimbe custom Unity InspectorEditor would only run the `BeforeChange` and `AfterChange` methods when valid ChangeHandler attributes were found in the component (e.g. `OnBeforeChange()` and `OnAfterChange()`. However, when using a Zinnia ObservableList it would not raise the component events when the Elements array was updated in the inspector.
+  > 
+  > This is due to the Zinnia ObservableList using a custom inspector (`ObservableListEditor`) which extends the Malimbe InspectorEditor and overrides the `BeforeChange()` and `AfterChange()` methods to raise events when the list elements have items added/removed from them.
+  > 
+  > The problem rose from the ObservableList component does not contain any ChangeHandler attributes and therefore the `ChangeHandlerMethodInfos` would be empty and so the check in the `OnInspectorGUI()` method
+
 ### [9.6.2](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.1...v9.6.2) (2019-11-27)
 
 #### Bug Fixes
