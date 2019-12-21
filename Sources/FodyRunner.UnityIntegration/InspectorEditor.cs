@@ -282,30 +282,50 @@
         protected virtual void ProcessObjectProperties(SerializedProperty property)
         {
             string undoRedoWarningPropertyPath = UndoRedoWarningPropertyPath;
-
             do
             {
-                string propertyPath = property.propertyPath;
-                Object targetObject = property.serializedObject.targetObject;
-
-                using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
-                using (new EditorGUI.DisabledGroupScope(propertyPath == ScriptProperty))
-                {
-                    bool showUndoRedoWarning = CanShowUndoRedoWarning(propertyPath, undoRedoWarningPropertyPath);
-                    BeginDrawWarningMessage(showUndoRedoWarning);
-                    DrawProperty(property);
-                    EndDrawWarningMessage(showUndoRedoWarning);
-
-                    // No change has been done, nothing to do.
-                    if (!changeCheckScope.changed)
-                    {
-                        continue;
-                    }
-
-                    TryApplyChangeHandlersToProperty(targetObject, property);
-                }
+                ProcessObjectProperty(property, undoRedoWarningPropertyPath);
             }
             while (property.NextVisible(false));
+        }
+
+        /// <summary>
+        /// Processes the individual property.
+        /// </summary>
+        /// <param name="property">The property to process.</param>
+        /// <param name="undoRedoWarningPropertyPath">The path for the property for the undo/redo warning.</param>
+        protected virtual void ProcessObjectProperty(SerializedProperty property, string undoRedoWarningPropertyPath)
+        {
+            string propertyPath = property.propertyPath;
+            Object targetObject = property.serializedObject.targetObject;
+
+            using (EditorGUI.ChangeCheckScope changeCheckScope = new EditorGUI.ChangeCheckScope())
+            using (new EditorGUI.DisabledGroupScope(propertyPath == ScriptProperty))
+            {
+                DrawPropertyWithWarningMessage(property, propertyPath, undoRedoWarningPropertyPath);
+
+                // No change has been done, nothing to do.
+                if (!changeCheckScope.changed)
+                {
+                    return;
+                }
+
+                TryApplyChangeHandlersToProperty(targetObject, property);
+            }
+        }
+
+        /// <summary>
+        /// Draws the given property wrapped with an undo/redo warning message.
+        /// </summary>
+        /// <param name="property">The property to draw.</param>
+        /// <param name="propertyPath">The path to the property.</param>
+        /// <param name="undoRedoWarningPropertyPath">The path for the property for the undo/redo warning.</param>
+        protected virtual void DrawPropertyWithWarningMessage(SerializedProperty property, string propertyPath, string undoRedoWarningPropertyPath)
+        {
+            bool showUndoRedoWarning = CanShowUndoRedoWarning(propertyPath, undoRedoWarningPropertyPath);
+            BeginDrawWarningMessage(showUndoRedoWarning);
+            DrawProperty(property);
+            EndDrawWarningMessage(showUndoRedoWarning);
         }
 
         /// <summary>
