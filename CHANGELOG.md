@@ -1,5 +1,14 @@
 # Changelog
 
+### [9.6.5](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.4...v9.6.5) (2019-12-21)
+
+#### Bug Fixes
+
+* **MemberChange:** refactor inspector logic to be more composable ([d82413c](https://github.com/ExtendRealityLtd/Malimbe/commit/d82413cdf0eea286a20642128abd3e1a43ef9a14))
+  > The previous refactor of the custom unity InspectorEditor did not split out enough of the logic into their own methods so they were not completely usable independently.
+  > 
+  > This refactor splits out the methods even more so they are more independent and can be easily used on their own or overridden.
+
 ### [9.6.4](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.3...v9.6.4) (2019-12-21)
 
 #### Bug Fixes
