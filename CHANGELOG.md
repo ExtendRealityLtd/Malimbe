@@ -1,5 +1,16 @@
 # Changelog
 
+### [9.6.4](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.3...v9.6.4) (2019-12-21)
+
+#### Bug Fixes
+
+* **deps:** use latest pipeline templates ([8269efb](https://github.com/ExtendRealityLtd/Malimbe/commit/8269efbdc4772447c11060638466c4363bb21d1c))
+  > There is an issue with the previous template not correctly building the Unity software image. This latest version should fix the issue.
+* **MemberChange:** refactor custom inspector logic to be composable ([17abe41](https://github.com/ExtendRealityLtd/Malimbe/commit/17abe41968d2da9e443a42469153934aa5879aef))
+  > The custom unity InspectorEditor has now been refactored so the logic within the OnInspectorGUI has been separated out into more logical chunks so these different methods can be called separately or overriden where required.
+  > 
+  > The functionality of the inspector has not changed in anyway so this fix is purely just making method logic more accessible.
+
 ### [9.6.3](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.2...v9.6.3) (2019-12-02)
 
 #### Bug Fixes
