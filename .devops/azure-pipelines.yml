@@ -3,7 +3,7 @@ resources:
     - repository: templates
       type: github
       name: ExtendRealityLtd/DevOps
-      ref: refs/tags/v3.12.1
+      ref: refs/tags/v3.12.5
       endpoint: ExtendRealityLtd
 
 variables:
