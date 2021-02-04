@@ -1,5 +1,12 @@
 # Changelog
 
+### [9.6.6](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.5...v9.6.6) (2021-02-04)
+
+#### Bug Fixes
+
+* **deps:** use latest pipeline templates ([e9dcf5d](https://github.com/ExtendRealityLtd/Malimbe/commit/e9dcf5d28a44f45eef5e1831f95c0554321f4d37))
+  > The latest pipeline template will attempt to force set a Unity version if one is not provided to ensure Unity can be installed.
+
 ### [9.6.5](https://github.com/ExtendRealityLtd/Malimbe/compare/v9.6.4...v9.6.5) (2019-12-21)
 
 #### Bug Fixes
