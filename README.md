@@ -100,7 +100,7 @@ Third-party notices can be found in [THIRD_PARTY_NOTICES.md][ThirdPartyNotices]
 
 These materials are not sponsored by or affiliated with Unity Technologies or its affiliates. "Unity" and "Unity Package Manager" are trademarks or registered trademarks of Unity Technologies or its affiliates in the U.S. and elsewhere.
 
-[Malimbe-Image]: https://user-images.githubusercontent.com/1029673/48707109-4d876080-ebf6-11e8-9476-4f084246771d.png
+[Malimbe-Image]: https://raw.githubusercontent.com/ExtendRealityLtd/related-media/main/github/readme/malimbe.png
 [Version-Release]: https://img.shields.io/github/release/ExtendRealityLtd/Malimbe.svg
 [License-Badge]: https://img.shields.io/github/license/ExtendRealityLtd/Malimbe.svg
 [Backlog-Badge]: https://img.shields.io/badge/project-backlog-78bdf2.svg
